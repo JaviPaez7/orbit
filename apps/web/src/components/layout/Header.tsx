@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Bell, Check, ChevronRight, Inbox, Moon, Plus, Search, Sun } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, usePermissions } from '../../context/AuthContext';
 import { useRealtime } from '../../context/RealtimeContext';
 import { useTheme } from '../../context/ThemeContext';
 import { api } from '../../lib/api';
@@ -46,6 +46,7 @@ export function Header({
   const location = useLocation();
   const navigate = useNavigate();
   const { workspace, user, unreadNotifications, setUnreadNotifications } = useAuth();
+  const { canCreateIssues } = usePermissions();
   const { presence, status: socketStatus } = useRealtime();
   const { resolved, toggle } = useTheme();
   const [marking, setMarking] = useState(false);
@@ -265,16 +266,28 @@ export function Header({
             </MenuItem>
           </Menu>
 
-          <Button
-            variant="primary"
-            size="sm"
-            leftIcon={<Plus className="h-3.5 w-3.5" />}
-            onClick={onCreateIssue}
-            data-testid="header-create-issue"
-            className="ml-1"
-          >
-            <span className="hidden sm:inline">New issue</span>
-          </Button>
+          {/* Viewers cannot create issues, so the CTA is not rendered at all
+              (the API would reject it with 403). */}
+          {canCreateIssues ? (
+            <Button
+              variant="primary"
+              size="sm"
+              leftIcon={<Plus className="h-3.5 w-3.5" />}
+              onClick={onCreateIssue}
+              data-testid="header-create-issue"
+              className="ml-1"
+            >
+              <span className="hidden sm:inline">New issue</span>
+            </Button>
+          ) : (
+            <span
+              className="ml-1 rounded-md border border-line px-2 py-1 text-2xs text-subtle"
+              data-testid="header-readonly-badge"
+              title="Your role in this workspace is read-only"
+            >
+              Read-only
+            </span>
+          )}
         </div>
       </div>
 

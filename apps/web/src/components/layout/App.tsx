@@ -1,6 +1,6 @@
 import { Suspense, lazy, useCallback, useMemo, useState } from 'react';
 import { Navigate, Outlet, Route, Routes, useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, usePermissions } from '../../context/AuthContext';
 import { RealtimeProvider } from '../../context/RealtimeContext';
 import { IssueComposerProvider } from '../../context/IssueComposerContext';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
@@ -76,6 +76,7 @@ function RequireAuth() {
 function AppShell() {
   const navigate = useNavigate();
   const { workspace } = useAuth();
+  const { canCreateIssues } = usePermissions();
   const { toggle } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -86,7 +87,12 @@ function AppShell() {
   }>({});
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
-  const openComposer = useCallback(() => setComposerOpen(true), []);
+  // Viewers cannot create issues, so the `C` shortcut must not open a dialog
+  // that can only fail on submit.
+  const openComposer = useCallback(() => {
+    if (!canCreateIssues) return;
+    setComposerOpen(true);
+  }, [canCreateIssues]);
   const openPalette = useCallback(() => setPaletteOpen(true), []);
 
   const handleNavigate = useCallback(
@@ -123,6 +129,7 @@ function AppShell() {
   const composerControls = useMemo(
     () => ({
       openComposer: (options?: { status?: string; projectId?: string | null }) => {
+        if (!canCreateIssues) return;
         setComposerDefaults({
           status: options?.status as IssueStatus | undefined,
           projectId: options?.projectId ?? null,
@@ -132,7 +139,7 @@ function AppShell() {
       openSearch: () => setPaletteOpen(true),
       openShortcuts: () => setShortcutsOpen(true),
     }),
-    [],
+    [canCreateIssues],
   );
 
   return (

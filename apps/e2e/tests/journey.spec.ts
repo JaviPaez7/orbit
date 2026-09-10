@@ -1,4 +1,4 @@
-import { expect, loginAs, test, DEMO_USERS, unique } from './helpers';
+import { dragAndDrop, expect, loginAs, test, DEMO_USERS, unique } from './helpers';
 
 /**
  * The mandated end-to-end journey: login → create project → create issue →
@@ -96,24 +96,41 @@ test.describe('core product journey', () => {
 
     // ------------------------------------------------------------- 6. drag card
     await test.step('6. drag the issue between kanban columns', async () => {
-      await page.goto('/board');
-      await expect(page.getByTestId(`board-card-${identifier}`)).toBeVisible({ timeout: 15_000 });
-
-      const card = page.getByTestId(`board-card-${identifier}`);
-      const target = page.getByTestId('board-column-done');
-      await expect(target).toBeVisible();
-
-      await card.dragTo(target);
-
-      // The card must land in the Done column and the move must be persisted.
-      await expect(page.getByTestId('board-column-done').getByTestId(`board-card-${identifier}`)).toBeVisible({
+      // Put the issue in a column that is on screen next to Done. The board
+      // scrolls horizontally, so a card in the first column would be pushed out
+      // of the viewport once Done is scrolled into view — and a pointer drag
+      // cannot start on an element that is off screen.
+      await page.goto(`/issues/${identifier}`);
+      await page.getByLabel('Status', { exact: true }).click();
+      await page.getByRole('menuitem', { name: 'In Progress' }).click();
+      await expect(page.getByLabel('Status', { exact: true })).toContainText('In Progress', {
         timeout: 15_000,
       });
 
+      await page.goto('/board');
+      const card = page.getByTestId(`board-card-${identifier}`);
+      await expect(card).toBeVisible({ timeout: 20_000 });
+
+      const target = page.getByTestId('board-column-done');
+      await target.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(200);
+      await expect(card).toBeVisible();
+
+      await dragAndDrop(page, card, target);
+
+      // The card must land in the Done column and the move must persist.
+      await expect(page.getByTestId('board-column-done').getByTestId(`board-card-${identifier}`)).toBeVisible({
+        timeout: 20_000,
+      });
+
       await page.reload();
-      await expect(
-        page.getByTestId('board-column-done').getByTestId(`board-card-${identifier}`),
-      ).toBeVisible({ timeout: 20_000 });
+      await expect(page.getByTestId('board-column-done').getByTestId(`board-card-${identifier}`)).toBeVisible({
+        timeout: 20_000,
+      });
+
+      // The move is persisted server-side, not just in the local cache.
+      const persisted = await apiStatus(page, await currentIssueId(page, identifier));
+      expect(persisted).toBe('done');
     });
 
     // ----------------------------------------------------- 7. verify persistence
@@ -172,11 +189,12 @@ test.describe('core product journey', () => {
       await page.goto('/board');
       await expect(page.getByTestId('board-readonly')).toBeVisible();
 
-      // Backend enforcement: a direct API call must be rejected with 403.
-      const response = await page.request.patch(
-        `/api/workspaces/${await currentWorkspaceId(page)}/issues/${await currentIssueId(page, identifier)}`,
-        { data: { title: 'hacked by a viewer' } },
-      );
+      // Backend enforcement: the raw API must reject the change with 403.
+      const workspaceId = await currentWorkspaceId(page);
+      const issueId = await currentIssueId(page, identifier);
+      const response = await page.request.patch(`${API_URL}/api/workspaces/${workspaceId}/issues/${issueId}`, {
+        data: { title: 'hacked by a viewer' },
+      });
       expect(response.status()).toBe(403);
       const body = (await response.json()) as { error: { code: string } };
       expect(body.error.code).toBe('forbidden');
@@ -193,25 +211,42 @@ test.describe('core product journey', () => {
       await page.goto('/issues');
       await expect(page).toHaveURL(/\/login/, { timeout: 15_000 });
 
-      // The session cookie is gone: a protected API call returns 401.
-      const response = await page.request.get('/api/workspaces');
-      expect([401, 200]).toContain(response.status());
-      const me = await page.request.get('/api/auth/me');
+      // The session cookie is gone: the API reports no user.
+      const me = await page.request.get(`${API_URL}/api/auth/me`);
+      expect(me.status()).toBe(200);
       const payload = (await me.json()) as { user: unknown };
       expect(payload.user).toBeNull();
+
+      // A protected endpoint is rejected.
+      const protectedResponse = await page.request.get(`${API_URL}/api/workspaces`);
+      expect(protectedResponse.status()).toBe(401);
     });
 
     expect(consoleErrors, `console errors: ${consoleErrors.join(' | ')}`).toEqual([]);
   });
 });
 
+/**
+ * Base URL of the API under test. Playwright's `page.request` resolves relative
+ * URLs against the *web* baseURL, which would return the SPA shell.
+ */
+const API_URL = process.env.E2E_API_URL ?? 'http://127.0.0.1:4100';
+
 /** Resolves the active workspace id through the real API. */
 async function currentWorkspaceId(page: import('@playwright/test').Page): Promise<string> {
-  const response = await page.request.get('/api/workspaces');
+  const response = await page.request.get(`${API_URL}/api/workspaces`);
   const payload = (await response.json()) as { workspaces: { id: string; slug: string }[] };
   const workspace = payload.workspaces.find((entry) => entry.slug === 'orbit-labs') ?? payload.workspaces[0];
   if (!workspace) throw new Error('no workspace available for the E2E user');
   return workspace.id;
+}
+
+/** Reads an issue's persisted status straight from the API. */
+async function apiStatus(page: import('@playwright/test').Page, issueId: string): Promise<string> {
+  const workspaceId = await currentWorkspaceId(page);
+  const response = await page.request.get(`${API_URL}/api/workspaces/${workspaceId}/issues/${issueId}`);
+  const payload = (await response.json()) as { issue: { status: string } };
+  return payload.issue.status;
 }
 
 /** Resolves an issue's internal id from its identifier. */
@@ -221,7 +256,7 @@ async function currentIssueId(
 ): Promise<string> {
   const workspaceId = await currentWorkspaceId(page);
   const response = await page.request.get(
-    `/api/workspaces/${workspaceId}/issues/by-identifier/${identifier}`,
+    `${API_URL}/api/workspaces/${workspaceId}/issues/by-identifier/${identifier}`,
   );
   const payload = (await response.json()) as { issue: { id: string } };
   return payload.issue.id;

@@ -368,7 +368,12 @@ export function CommandPalette({
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowDown') {
+      if (event.key === 'Escape') {
+        // Capture phase so the palette closes even while the input has focus.
+        event.preventDefault();
+        event.stopPropagation();
+        onClose();
+      } else if (event.key === 'ArrowDown') {
         event.preventDefault();
         setIndex((current) => (flat.length === 0 ? 0 : (current + 1) % flat.length));
       } else if (event.key === 'ArrowUp') {
@@ -383,8 +388,8 @@ export function CommandPalette({
         }
       }
     };
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
+    document.addEventListener('keydown', onKeyDown, true);
+    return () => document.removeEventListener('keydown', onKeyDown, true);
   }, [open, flat, index, onClose]);
 
   if (!open) return null;
