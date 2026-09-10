@@ -71,16 +71,20 @@ test.describe('realtime updates across tabs', () => {
     await contextB.close();
   });
 
-  test('the realtime status indicator reports a live connection', async ({ page }) => {
+  test('the realtime socket connects to the API and stays open', async ({ page }) => {
+    const sockets: string[] = [];
+    page.on('websocket', (socket) => sockets.push(socket.url()));
+
     await loginAs(page, DEMO_USERS.owner.email);
     await page.goto('/issues');
-    // Either the socket is live (indicator hidden) or it shows a reconnect hint;
-    // it must never be stuck claiming a connection it does not have.
-    await page.waitForTimeout(2500);
-    const indicator = page.getByTestId('realtime-status');
-    if (await indicator.count()) {
-      await expect(indicator).toContainText(/Reconnecting|Offline/);
-    }
+
+    // A live connection hides the "Reconnecting"/"Offline" badge entirely.
+    await expect(page.getByTestId('realtime-status')).toHaveCount(0, { timeout: 20_000 });
+
+    // The socket must target the API's realtime path, not the client origin.
+    const realtime = sockets.filter((url) => url.includes('/api/realtime'));
+    expect(realtime.length, `sockets seen: ${sockets.join(', ')}`).toBeGreaterThan(0);
+    expect(realtime.every((url) => url.includes('workspaceId='))).toBe(true);
   });
 });
 

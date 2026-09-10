@@ -34,20 +34,29 @@ React + TypeScript single-page client, with unit, API-integration and Playwright
 
 ## Screenshots
 
-Screenshots are produced by the E2E suite and the walkthrough script. Generate them locally with:
-
-```bash
-pnpm --filter @orbit/e2e exec playwright test tests/smoke.spec.ts --headed
-pnpm --filter @orbit/e2e run screenshots      # writes apps/e2e/screenshots/*.png
-```
-
 | View | What it shows |
 | --- | --- |
-| Issue list | Grouped, filterable Linear-style list with keyboard nav and bulk actions |
-| Board | Drag & drop kanban with optimistic updates and error rollback |
-| Issue detail | Editable title/description, metadata sidebar, comments, activity, sub-issues |
-| Analytics | Charts computed from live issue data |
-| Command palette | `Ctrl/Cmd+K` search, navigation and commands |
+| ![Issue list](apps/e2e/screenshots/01-issues-list.png) | Issue list — grouped by status, filterable, keyboard-driven, with bulk actions |
+| ![Kanban board](apps/e2e/screenshots/02-kanban-board.png) | Kanban board — drag & drop with optimistic updates and error rollback |
+| ![Issue detail](apps/e2e/screenshots/12-issue-detail.png) | Issue detail — editable title/description, metadata sidebar, comments, activity, sub-issues |
+| ![Command palette](apps/e2e/screenshots/13-command-palette.png) | Command palette — `Ctrl/Cmd+K` search, navigation and commands |
+| ![Analytics](apps/e2e/screenshots/05-analytics.png) | Analytics — every chart computed from live issue data |
+| ![Cycles](apps/e2e/screenshots/04-cycles.png) | Cycles — active/upcoming/completed with progress and time elapsed |
+| ![Projects](apps/e2e/screenshots/03-projects.png) | Projects — progress, leads, members and target dates |
+| ![Inbox](apps/e2e/screenshots/06-inbox.png) | Inbox — notifications plus recent workspace activity |
+| ![Login](apps/e2e/screenshots/15-login.png) | Login — seeded demo accounts, one click to fill |
+| ![Light theme](apps/e2e/screenshots/14-issues-light.png) | Light theme (persisted across reloads) |
+
+All screenshots are produced by a real browser against a running instance and are
+regenerated (and re-verified: no console errors, no error states) with:
+
+```bash
+pnpm dev                                                     # terminal 1
+pnpm --filter @orbit/e2e run screenshots                      # terminal 2
+```
+
+The full set — including project, cycle, settings, import and members views — is in
+[`apps/e2e/screenshots/`](apps/e2e/screenshots).
 
 ---
 
