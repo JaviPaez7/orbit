@@ -10,7 +10,7 @@ import {
   workspaceRoleSchema,
 } from '@orbit/shared';
 import type { z } from 'zod';
-import { BadRequestError } from './errors';
+import { BadRequestError } from './errors.js';
 
 /**
  * Datasource-portable column helpers.
