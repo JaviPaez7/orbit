@@ -33,7 +33,9 @@ services:
 
   api:
     build:
-      context: .
+      # The compose file lives in deploy/, but the image needs the repository
+      # root as its context (workspace manifests, apps/, packages/).
+      context: ..
       dockerfile: deploy/Dockerfile.api
     image: orbit-api:latest
     container_name: orbit-api

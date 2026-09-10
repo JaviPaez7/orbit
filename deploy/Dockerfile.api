@@ -1,9 +1,11 @@
 # ---------------------------------------------------------------------------
-# Orbit — production image (API only; the static client is built separately and
-# served from a distroless/nginx or the repo's own web build).
+# Orbit — production API image.
 #
-# Build context is the repository root:
+# Build context is the REPOSITORY ROOT (see deploy/docker-compose.prod.yml):
 #   docker build -f deploy/Dockerfile.api -t orbit-api .
+#
+# The static client is built separately (`pnpm --filter @orbit/web build`) and
+# served by the `web` service in the compose stack.
 # ---------------------------------------------------------------------------
 
 # ---- build -----------------------------------------------------------------
