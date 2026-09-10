@@ -69,13 +69,18 @@ export async function notificationRoutes(app: FastifyInstance): Promise<void> {
     const ctx = await requireWorkspace(request, workspaceId);
     const body = (request.body ?? {}) as { ids?: unknown; all?: unknown };
 
-    const where = body.all === true
-      ? { workspaceId, userId: ctx.user.id, readAt: null }
-      : {
-          workspaceId,
-          userId: ctx.user.id,
-          id: { in: Array.isArray(body.ids) ? body.ids.filter((id): id is string => typeof id === 'string') : [] },
-        };
+    const where =
+      body.all === true
+        ? { workspaceId, userId: ctx.user.id, readAt: null }
+        : {
+            workspaceId,
+            userId: ctx.user.id,
+            id: {
+              in: Array.isArray(body.ids)
+                ? body.ids.filter((id): id is string => typeof id === 'string')
+                : [],
+            },
+          };
 
     const result = await prisma.notification.updateMany({ where, data: { readAt: new Date() } });
 

@@ -15,6 +15,8 @@ interface MenuProps {
   width?: number;
   className?: string;
   panelClassName?: string;
+  /** `data-testid` for the floating panel (tests scope menu items through it). */
+  testId?: string;
 }
 
 export function Menu({
@@ -24,6 +26,7 @@ export function Menu({
   side = 'bottom',
   width,
   panelClassName,
+  testId = 'menu-panel',
 }: MenuProps) {
   const popover = usePopover({ align, side });
 
@@ -35,6 +38,7 @@ export function Menu({
           <div
             ref={popover.panelRef}
             role="menu"
+            data-testid={testId}
             aria-orientation="vertical"
             style={{ ...popover.style, width }}
             className={cn('menu animate-scale-in', panelClassName)}
@@ -75,7 +79,11 @@ export function MenuItem({
       )}
       {...props}
     >
-      {icon && <span className="flex h-4 w-4 shrink-0 items-center justify-center [&>svg]:h-4 [&>svg]:w-4">{icon}</span>}
+      {icon && (
+        <span className="flex h-4 w-4 shrink-0 items-center justify-center [&>svg]:h-4 [&>svg]:w-4">
+          {icon}
+        </span>
+      )}
       <span className="flex-1 truncate text-left">{children}</span>
       {shortcut && <span className="ml-2 shrink-0 font-mono text-2xs text-subtle">{shortcut}</span>}
     </button>

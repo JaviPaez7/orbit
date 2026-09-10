@@ -20,7 +20,8 @@ export default function ResetPasswordPage() {
   const passwordIssue = password.length > 0 ? passwordSchema.safeParse(password) : null;
   const passwordError =
     passwordIssue && !passwordIssue.success ? passwordIssue.error.issues[0]?.message : undefined;
-  const mismatch = confirm.length > 0 && confirm !== password ? 'Passwords do not match' : undefined;
+  const mismatch =
+    confirm.length > 0 && confirm !== password ? 'Passwords do not match' : undefined;
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -104,7 +105,10 @@ export default function ResetPasswordPage() {
           </Field>
 
           {error && (
-            <div role="alert" className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-xs text-danger">
+            <div
+              role="alert"
+              className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-xs text-danger"
+            >
               {error}
             </div>
           )}

@@ -111,7 +111,9 @@ export default function InboxPage() {
                   onClick={() => setTab(entry.id)}
                   className={cn(
                     'rounded-md px-2 py-0.5 text-xs transition-colors',
-                    tab === entry.id ? 'bg-selected text-fg' : 'text-muted hover:bg-hover hover:text-fg',
+                    tab === entry.id
+                      ? 'bg-selected text-fg'
+                      : 'text-muted hover:bg-hover hover:text-fg',
                   )}
                 >
                   {entry.label}
@@ -192,7 +194,10 @@ export default function InboxPage() {
                   <div className="flex items-start gap-2">
                     <p className="min-w-0 flex-1 text-sm text-fg">{notification.title}</p>
                     {notification.readAt === null && (
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-label="Unread" />
+                      <span
+                        className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent"
+                        aria-label="Unread"
+                      />
                     )}
                   </div>
                   {notification.body && (
@@ -239,7 +244,11 @@ export default function InboxPage() {
         {!inboxQuery.isLoading && tab === 'activity' && (
           <ol className="divide-y divide-line" data-testid="workspace-activity">
             {activity.length === 0 && (
-              <EmptyState icon={Zap} title="No activity yet" description="Changes across the workspace appear here." />
+              <EmptyState
+                icon={Zap}
+                title="No activity yet"
+                description="Changes across the workspace appear here."
+              />
             )}
             {activity.map((entry) => (
               <li key={entry.id} className="flex items-start gap-3 px-4 py-2.5">
@@ -257,7 +266,10 @@ export default function InboxPage() {
                   />
                   <p className="mt-0.5 flex items-center gap-2 text-2xs text-subtle">
                     {entry.issue && (
-                      <Link to={`/issues/${entry.issue.identifier}`} className="font-mono hover:text-accent">
+                      <Link
+                        to={`/issues/${entry.issue.identifier}`}
+                        className="font-mono hover:text-accent"
+                      >
                         {entry.issue.identifier}
                       </Link>
                     )}

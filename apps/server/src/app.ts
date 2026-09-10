@@ -1,7 +1,13 @@
 import Fastify, { type FastifyInstance } from 'fastify';
 import { ZodError } from 'zod';
 import { env } from './config/env.js';
-import { AppError, RateLimitError, isAppError, translatePrismaError, zodToFieldErrors } from './lib/errors.js';
+import {
+  AppError,
+  RateLimitError,
+  isAppError,
+  translatePrismaError,
+  zodToFieldErrors,
+} from './lib/errors.js';
 import { notFoundHandler } from './lib/http.js';
 import infrastructure from './plugins/infrastructure.js';
 import { setNotificationPublisher } from './services/notification.service.js';

@@ -36,7 +36,9 @@ const ProfileSettingsPage = lazy(() => import('../../pages/settings/ProfileSetti
 const WorkspaceSettingsPage = lazy(() => import('../../pages/settings/WorkspaceSettingsPage'));
 const MembersSettingsPage = lazy(() => import('../../pages/settings/MembersSettingsPage'));
 const LabelsSettingsPage = lazy(() => import('../../pages/settings/LabelsSettingsPage'));
-const NotificationSettingsPage = lazy(() => import('../../pages/settings/NotificationSettingsPage'));
+const NotificationSettingsPage = lazy(
+  () => import('../../pages/settings/NotificationSettingsPage'),
+);
 const NotFoundPage = lazy(() => import('../../pages/NotFoundPage'));
 
 function RouteFallback() {
@@ -206,8 +208,14 @@ export function App() {
           <Route path="/board" element={lazyPage(<BoardPage />)} />
           <Route path="/projects" element={lazyPage(<ProjectsPage />)} />
           <Route path="/projects/:projectId" element={lazyPage(<ProjectDetailPage />)} />
-          <Route path="/projects/:projectId/settings" element={lazyPage(<ProjectDetailPage settingsMode />)} />
-          <Route path="/projects/:projectId/analytics" element={lazyPage(<ProjectAnalyticsPage />)} />
+          <Route
+            path="/projects/:projectId/settings"
+            element={lazyPage(<ProjectDetailPage settingsMode />)}
+          />
+          <Route
+            path="/projects/:projectId/analytics"
+            element={lazyPage(<ProjectAnalyticsPage />)}
+          />
           <Route path="/cycles" element={lazyPage(<CyclesPage />)} />
           <Route path="/cycles/:cycleId" element={lazyPage(<CycleDetailPage />)} />
           <Route path="/analytics" element={lazyPage(<AnalyticsPage />)} />

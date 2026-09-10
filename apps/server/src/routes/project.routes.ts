@@ -1,8 +1,4 @@
-import {
-  createProjectSchema,
-  percent,
-  updateProjectSchema,
-} from '@orbit/shared';
+import { createProjectSchema, percent, updateProjectSchema } from '@orbit/shared';
 import type { FastifyInstance } from 'fastify';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '../db/client.js';
@@ -99,7 +95,8 @@ export async function projectRoutes(app: FastifyInstance): Promise<void> {
       where: { workspaceId, name: input.name },
       select: { id: true },
     });
-    if (duplicate) throw new ConflictError('A project with that name already exists in this workspace');
+    if (duplicate)
+      throw new ConflictError('A project with that name already exists in this workspace');
 
     if (input.leadId) await assertMember(workspaceId, input.leadId, 'leadId');
     for (const memberId of input.memberIds ?? []) {
@@ -185,7 +182,11 @@ export async function projectRoutes(app: FastifyInstance): Promise<void> {
     const input = parseOrThrow(updateProjectSchema, request.body);
 
     const duplicate = await prisma.project.findFirst({
-      where: { workspaceId: ctx.workspaceId, name: input.name ?? undefined, NOT: { id: projectId } },
+      where: {
+        workspaceId: ctx.workspaceId,
+        name: input.name ?? undefined,
+        NOT: { id: projectId },
+      },
       select: { id: true },
     });
     if (input.name && duplicate) throw new ConflictError('Another project already uses that name');

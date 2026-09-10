@@ -43,7 +43,8 @@ export default function LoginPage() {
         setError(caught.message);
         if (caught.fields) {
           const flat: Record<string, string> = {};
-          for (const [key, messages] of Object.entries(caught.fields)) if (messages[0]) flat[key] = messages[0];
+          for (const [key, messages] of Object.entries(caught.fields))
+            if (messages[0]) flat[key] = messages[0];
           setFields(flat);
         }
       } else {
@@ -105,7 +106,8 @@ export default function LoginPage() {
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
-              }            />
+              }
+            />
           )}
         </Field>
 

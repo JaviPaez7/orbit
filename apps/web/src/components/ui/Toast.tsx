@@ -20,10 +20,12 @@ export interface Toast {
 }
 
 interface ToastContextValue {
-  toast: (input: Omit<Toast, 'id' | 'variant' | 'duration'> & {
-    variant?: ToastVariant;
-    duration?: number;
-  }) => string;
+  toast: (
+    input: Omit<Toast, 'id' | 'variant' | 'duration'> & {
+      variant?: ToastVariant;
+      duration?: number;
+    },
+  ) => string;
   success: (title: string, description?: string, action?: ToastAction) => string;
   error: (title: string, description?: string, action?: ToastAction) => string;
   info: (title: string, description?: string) => string;
@@ -50,7 +52,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const push = useCallback<ToastContextValue['toast']>(
     ({ title, description, variant = 'info', action, duration = 4500 }) => {
       const id = `toast_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
-      setToasts((current) => [...current.slice(-4), { id, title, description, variant, action, duration }]);
+      setToasts((current) => [
+        ...current.slice(-4),
+        { id, title, description, variant, action, duration },
+      ]);
       if (duration > 0) {
         window.setTimeout(() => dismiss(id), duration);
       }
@@ -62,7 +67,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<ToastContextValue>(
     () => ({
       toast: push,
-      success: (title, description, action) => push({ title, description, variant: 'success', action }),
+      success: (title, description, action) =>
+        push({ title, description, variant: 'success', action }),
       error: (title, description, action) =>
         push({ title, description, variant: 'error', duration: 7000, action }),
       info: (title, description) => push({ title, description, variant: 'info' }),

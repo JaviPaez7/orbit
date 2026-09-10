@@ -51,7 +51,9 @@ export const activityInclude = {
 } as const;
 
 const statusLabel = (value: unknown) =>
-  typeof value === 'string' ? (ISSUE_STATUS_LABELS[value as IssueStatus] ?? value) : String(value ?? '—');
+  typeof value === 'string'
+    ? (ISSUE_STATUS_LABELS[value as IssueStatus] ?? value)
+    : String(value ?? '—');
 
 const priorityLabel = (value: unknown) =>
   typeof value === 'string'

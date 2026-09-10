@@ -228,7 +228,14 @@ export interface Analytics {
   byStatus: { key: string; label: string; count: number }[];
   byPriority: { key: string; count: number }[];
   trend: { date: string; created: number; completed: number }[];
-  workload: { userId: string; name: string; avatarUrl: string | null; open: number; completed: number; estimate: number }[];
+  workload: {
+    userId: string;
+    name: string;
+    avatarUrl: string | null;
+    open: number;
+    completed: number;
+    estimate: number;
+  }[];
   projects: {
     id: string;
     name: string;

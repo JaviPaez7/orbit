@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { RealtimeEvent } from '../lib/types';
 
 const WS_URL =
@@ -134,7 +142,8 @@ export function RealtimeProvider({
           attemptsRef.current += 1;
           setReconnectAttempts(attemptsRef.current);
           setStatus('reconnecting');
-          const delay = Math.min(1000 * 2 ** (attemptsRef.current - 1), 15_000) + Math.random() * 400;
+          const delay =
+            Math.min(1000 * 2 ** (attemptsRef.current - 1), 15_000) + Math.random() * 400;
           reconnectTimer.current = window.setTimeout(connect, delay);
         };
 

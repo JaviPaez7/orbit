@@ -10,6 +10,24 @@ export async function loginAs(page: Page, email: string, password = DEMO_PASSWOR
   await page.getByTestId('login-password').fill(password);
   await page.getByTestId('login-submit').click();
   await expect(page).toHaveURL(/\/issues/, { timeout: 20_000 });
+  await waitForShortcuts(page);
+}
+
+/**
+ * Waits until the global keyboard shortcuts are actually registered.
+ *
+ * The listener is attached in an effect, so pressing a single-key shortcut too
+ * early is a real (if narrow) race — waiting for the readiness marker removes
+ * the flake without papering over it.
+ */
+export async function waitForShortcuts(page: Page): Promise<void> {
+  await page.waitForFunction(
+    () => document.documentElement.dataset.shortcutsReady === 'true',
+    null,
+    {
+      timeout: 15_000,
+    },
+  );
 }
 
 /** Signs out through the account menu. */
@@ -82,4 +100,3 @@ export const test = base.extend<{ consoleErrors: string[] }>({
     { auto: true },
   ],
 });
-

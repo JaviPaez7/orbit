@@ -7,7 +7,13 @@ import { generateToken } from '../lib/crypto.js';
 import { BadRequestError } from '../lib/errors.js';
 import { requireWorkspace } from '../lib/guards.js';
 
-const IMAGE_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/svg+xml']);
+const IMAGE_TYPES = new Set([
+  'image/png',
+  'image/jpeg',
+  'image/webp',
+  'image/gif',
+  'image/svg+xml',
+]);
 const DOCUMENT_TYPES = new Set([
   'application/pdf',
   'text/plain',

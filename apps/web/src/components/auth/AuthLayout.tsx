@@ -53,11 +53,24 @@ export function AuthLayout({
               <span>Live</span>
             </div>
             {[
-              { id: 'OLX-142', title: 'Retry failed invoice charges', status: 'In Progress', color: '#e2a83e' },
-              { id: 'OLX-151', title: 'Offline queue drops writes', status: 'In Review', color: '#6c7df6' },
+              {
+                id: 'OLX-142',
+                title: 'Retry failed invoice charges',
+                status: 'In Progress',
+                color: '#e2a83e',
+              },
+              {
+                id: 'OLX-151',
+                title: 'Offline queue drops writes',
+                status: 'In Review',
+                color: '#6c7df6',
+              },
               { id: 'OLX-128', title: 'Cohort retention view', status: 'Done', color: '#42c284' },
             ].map((row) => (
-              <div key={row.id} className="flex items-center gap-3 rounded-lg border border-line bg-app px-3 py-2">
+              <div
+                key={row.id}
+                className="flex items-center gap-3 rounded-lg border border-line bg-app px-3 py-2"
+              >
                 <span className="font-mono text-2xs text-subtle">{row.id}</span>
                 <span className="flex-1 truncate text-xs text-fg">{row.title}</span>
                 <span

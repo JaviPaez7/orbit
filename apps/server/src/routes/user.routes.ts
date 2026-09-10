@@ -11,12 +11,21 @@ import { requireWorkspace, requireUser, userPublicSelect } from '../lib/guards.j
 import { parseOrThrow } from '../lib/http.js';
 import { changePassword, updateProfile } from '../services/auth.service.js';
 
-const ALLOWED_IMAGE_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/svg+xml']);
+const ALLOWED_IMAGE_TYPES = new Set([
+  'image/png',
+  'image/jpeg',
+  'image/webp',
+  'image/gif',
+  'image/svg+xml',
+]);
 
 export async function userRoutes(app: FastifyInstance): Promise<void> {
   app.get('/users/me', async (request, reply) => {
     const user = await requireUser(request);
-    const full = await prisma.user.findUniqueOrThrow({ where: { id: user.id }, select: userPublicSelect });
+    const full = await prisma.user.findUniqueOrThrow({
+      where: { id: user.id },
+      select: userPublicSelect,
+    });
     return reply.send({ user: full });
   });
 
@@ -30,7 +39,12 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
   app.post('/users/me/password', async (request, reply) => {
     const user = await requireUser(request);
     const input = parseOrThrow(changePasswordSchema, request.body);
-    await changePassword(user.id, input.currentPassword, input.newPassword, request.cookies.orbit_session);
+    await changePassword(
+      user.id,
+      input.currentPassword,
+      input.newPassword,
+      request.cookies.orbit_session,
+    );
     return reply.send({ ok: true, message: 'Password updated' });
   });
 

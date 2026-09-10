@@ -16,7 +16,12 @@ export function createTestDatabase(name: string): string {
   const serverRoot = join(here, '..', '..');
   const databaseFile = join(serverRoot, 'prisma', `${name}.db`);
 
-  for (const candidate of [databaseFile, `${databaseFile}-journal`, `${databaseFile}-wal`, `${databaseFile}-shm`]) {
+  for (const candidate of [
+    databaseFile,
+    `${databaseFile}-journal`,
+    `${databaseFile}-wal`,
+    `${databaseFile}-shm`,
+  ]) {
     if (existsSync(candidate)) rmSync(candidate, { force: true });
   }
 

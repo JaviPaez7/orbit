@@ -116,6 +116,7 @@ export function Modal({
               type="button"
               onClick={onClose}
               aria-label="Close dialog"
+              title="Close (Esc)"
               data-skip-focus
               className="btn btn-ghost btn-icon-sm shrink-0"
             >

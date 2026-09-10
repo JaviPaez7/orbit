@@ -54,7 +54,13 @@ interface ProjectAnalytics {
   byStatus: { key: string; label: string; count: number }[];
   byPriority: { key: string; count: number }[];
   trend: { date: string; created: number; completed: number }[];
-  byAssignee: { userId: string; name: string; avatarUrl: string | null; open: number; completed: number }[];
+  byAssignee: {
+    userId: string;
+    name: string;
+    avatarUrl: string | null;
+    open: number;
+    completed: number;
+  }[];
 }
 
 export default function ProjectAnalyticsPage() {
@@ -166,9 +172,20 @@ export default function ProjectAnalyticsPage() {
             <ChartCard title="Created vs completed (last 6 weeks)">
               <ResponsiveContainer width="100%" height={260}>
                 <LineChart data={trendData} margin={{ top: 4, right: 8, left: -18, bottom: 0 }}>
-                  <CartesianGrid stroke="rgb(var(--border-default))" strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }} interval={4} />
-                  <YAxis tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }} allowDecimals={false} />
+                  <CartesianGrid
+                    stroke="rgb(var(--border-default))"
+                    strokeDasharray="3 3"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="label"
+                    tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }}
+                    interval={4}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }}
+                    allowDecimals={false}
+                  />
                   <ChartTooltip
                     contentStyle={{
                       background: 'rgb(var(--bg-elevated))',
@@ -178,8 +195,22 @@ export default function ProjectAnalyticsPage() {
                     }}
                   />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Line type="monotone" dataKey="created" stroke="#6c7df6" strokeWidth={2} dot={false} name="Created" />
-                  <Line type="monotone" dataKey="completed" stroke="#42c284" strokeWidth={2} dot={false} name="Completed" />
+                  <Line
+                    type="monotone"
+                    dataKey="created"
+                    stroke="#6c7df6"
+                    strokeWidth={2}
+                    dot={false}
+                    name="Created"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="completed"
+                    stroke="#42c284"
+                    strokeWidth={2}
+                    dot={false}
+                    name="Completed"
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </ChartCard>
@@ -187,10 +218,20 @@ export default function ProjectAnalyticsPage() {
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <ChartCard title="Issues by status">
                 <ResponsiveContainer width="100%" height={240}>
-                  <BarChart data={analytics.byStatus} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                    <CartesianGrid stroke="rgb(var(--border-default))" strokeDasharray="3 3" vertical={false} />
+                  <BarChart
+                    data={analytics.byStatus}
+                    margin={{ top: 4, right: 8, left: -20, bottom: 0 }}
+                  >
+                    <CartesianGrid
+                      stroke="rgb(var(--border-default))"
+                      strokeDasharray="3 3"
+                      vertical={false}
+                    />
                     <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }} />
-                    <YAxis tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }} allowDecimals={false} />
+                    <YAxis
+                      tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }}
+                      allowDecimals={false}
+                    />
                     <ChartTooltip
                       contentStyle={{
                         background: 'rgb(var(--bg-elevated))',
@@ -237,7 +278,9 @@ export default function ProjectAnalyticsPage() {
                     />
                     <Legend
                       wrapperStyle={{ fontSize: 11 }}
-                      formatter={(value: string) => ISSUE_PRIORITY_LABELS[value as IssuePriority] ?? value}
+                      formatter={(value: string) =>
+                        ISSUE_PRIORITY_LABELS[value as IssuePriority] ?? value
+                      }
                     />
                   </PieChart>
                 </ResponsiveContainer>
@@ -245,14 +288,25 @@ export default function ProjectAnalyticsPage() {
             </div>
 
             <ChartCard title="Workload per member">
-              <ResponsiveContainer width="100%" height={Math.max(180, analytics.byAssignee.length * 34)}>
+              <ResponsiveContainer
+                width="100%"
+                height={Math.max(180, analytics.byAssignee.length * 34)}
+              >
                 <BarChart
                   data={analytics.byAssignee}
                   layout="vertical"
                   margin={{ top: 4, right: 16, left: 40, bottom: 0 }}
                 >
-                  <CartesianGrid stroke="rgb(var(--border-default))" strokeDasharray="3 3" horizontal={false} />
-                  <XAxis type="number" tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }} allowDecimals={false} />
+                  <CartesianGrid
+                    stroke="rgb(var(--border-default))"
+                    strokeDasharray="3 3"
+                    horizontal={false}
+                  />
+                  <XAxis
+                    type="number"
+                    tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }}
+                    allowDecimals={false}
+                  />
                   <YAxis
                     type="category"
                     dataKey="name"
@@ -268,8 +322,20 @@ export default function ProjectAnalyticsPage() {
                     }}
                   />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Bar dataKey="open" stackId="a" fill="#6c7df6" name="Open" radius={[0, 0, 0, 0]} />
-                  <Bar dataKey="completed" stackId="a" fill="#42c284" name="Completed" radius={[0, 4, 4, 0]} />
+                  <Bar
+                    dataKey="open"
+                    stackId="a"
+                    fill="#6c7df6"
+                    name="Open"
+                    radius={[0, 0, 0, 0]}
+                  />
+                  <Bar
+                    dataKey="completed"
+                    stackId="a"
+                    fill="#42c284"
+                    name="Completed"
+                    radius={[0, 4, 4, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </ChartCard>
@@ -280,7 +346,15 @@ export default function ProjectAnalyticsPage() {
   );
 }
 
-function StatCard({ label, value, hint }: { label: string; value: string | number; hint?: string }) {
+function StatCard({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string | number;
+  hint?: string;
+}) {
   return (
     <div className="card p-3">
       <p className="text-2xs uppercase tracking-wider text-subtle">{label}</p>

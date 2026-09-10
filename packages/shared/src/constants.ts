@@ -43,7 +43,13 @@ export const ISSUE_PRIORITY_WEIGHT: Record<IssuePriority, number> = {
   none: 0,
 };
 
-export const PROJECT_STATUSES = ['planned', 'in_progress', 'paused', 'completed', 'cancelled'] as const;
+export const PROJECT_STATUSES = [
+  'planned',
+  'in_progress',
+  'paused',
+  'completed',
+  'cancelled',
+] as const;
 export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 
 export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {

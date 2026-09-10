@@ -8,7 +8,12 @@ import { Header } from '../../components/layout/Header';
 const SECTIONS = [
   { to: '/settings/profile', label: 'Profile', icon: User, permission: null },
   { to: '/settings/notifications', label: 'Notifications', icon: Bell, permission: null },
-  { to: '/settings/workspace', label: 'Workspace', icon: Settings, permission: 'canManageWorkspace' },
+  {
+    to: '/settings/workspace',
+    label: 'Workspace',
+    icon: Settings,
+    permission: 'canManageWorkspace',
+  },
   { to: '/settings/members', label: 'Members', icon: Users, permission: 'canManageMembers' },
   { to: '/settings/labels', label: 'Labels', icon: Tag, permission: 'canManageLabels' },
 ] as const;

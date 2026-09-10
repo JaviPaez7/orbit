@@ -110,8 +110,13 @@ export function useGlobalShortcuts(handlers: ShortcutHandlers): void {
     };
 
     document.addEventListener('keydown', onKeyDown);
+    // Readiness marker: the shortcuts are only live once this effect has run.
+    // E2E tests (and debugging tools) wait for it instead of guessing.
+    document.documentElement.dataset.shortcutsReady = 'true';
+
     return () => {
       document.removeEventListener('keydown', onKeyDown);
+      delete document.documentElement.dataset.shortcutsReady;
       if (prefixTimer.current) window.clearTimeout(prefixTimer.current);
     };
   }, [handlers]);

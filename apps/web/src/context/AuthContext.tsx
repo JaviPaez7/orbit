@@ -140,17 +140,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [queryClient]);
 
-  const setWorkspaceId = useCallback(
-    (next: string) => {
-      setWorkspaceIdState(next);
-      try {
-        localStorage.setItem(ACTIVE_WORKSPACE_KEY, next);
-      } catch {
-        /* ignore */
-      }
-    },
-    [],
-  );
+  const setWorkspaceId = useCallback((next: string) => {
+    setWorkspaceIdState(next);
+    try {
+      localStorage.setItem(ACTIVE_WORKSPACE_KEY, next);
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const workspace = useMemo(
     () => workspaces.find((entry) => entry.id === workspaceId) ?? workspaces[0] ?? null,

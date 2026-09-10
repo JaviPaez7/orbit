@@ -26,7 +26,9 @@ export function IssueListSkeleton({ rows = 8 }: { rows?: number }) {
         <div key={index} className="flex items-center gap-3 px-4 py-2.5">
           <Skeleton className="h-4 w-4 rounded" />
           <Skeleton className="h-3 w-14" />
-          <Skeleton className={cn('h-3', index % 3 === 0 ? 'w-64' : index % 3 === 1 ? 'w-80' : 'w-48')} />
+          <Skeleton
+            className={cn('h-3', index % 3 === 0 ? 'w-64' : index % 3 === 1 ? 'w-80' : 'w-48')}
+          />
           <div className="ml-auto flex items-center gap-2">
             <Skeleton className="h-4 w-4 rounded-full" />
             <Skeleton className="h-3 w-10" />
@@ -41,7 +43,10 @@ export function BoardSkeleton({ columns = 3 }: { columns?: number }) {
   return (
     <div className="flex gap-3 overflow-hidden p-4">
       {Array.from({ length: columns }).map((_, columnIndex) => (
-        <div key={columnIndex} className="w-72 shrink-0 space-y-2 rounded-xl border border-line bg-sunken/40 p-2">
+        <div
+          key={columnIndex}
+          className="w-72 shrink-0 space-y-2 rounded-xl border border-line bg-sunken/40 p-2"
+        >
           <Skeleton className="h-4 w-28" />
           {Array.from({ length: 3 + (columnIndex % 2) }).map((__, cardIndex) => (
             <div key={cardIndex} className="space-y-2 rounded-lg border border-line bg-surface p-3">

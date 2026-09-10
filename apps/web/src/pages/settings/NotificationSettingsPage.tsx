@@ -110,7 +110,9 @@ export default function NotificationSettingsPage() {
         <h2 className="flex items-center gap-1.5 text-sm font-medium text-fg">
           {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />} Appearance
         </h2>
-        <p className="mt-0.5 text-xs text-muted">The theme is stored locally and applied before first paint.</p>
+        <p className="mt-0.5 text-xs text-muted">
+          The theme is stored locally and applied before first paint.
+        </p>
         <div className="mt-3 flex items-center gap-2">
           {(
             [
@@ -125,7 +127,9 @@ export default function NotificationSettingsPage() {
               onClick={() => setTheme(option.id)}
               className={cn(
                 'flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs transition-colors',
-                theme === option.id ? 'border-accent text-fg' : 'border-line text-muted hover:text-fg',
+                theme === option.id
+                  ? 'border-accent text-fg'
+                  : 'border-line text-muted hover:text-fg',
               )}
               data-testid={`theme-${option.id}`}
             >
@@ -143,9 +147,14 @@ export default function NotificationSettingsPage() {
         </p>
         <div className="mt-3 overflow-hidden rounded-lg border border-line">
           {notificationsQuery.isLoading && <Skeleton className="h-24" />}
-          {!notificationsQuery.isLoading && (notificationsQuery.data?.notifications.length ?? 0) === 0 && (
-            <EmptyState compact title="Nothing here yet" description="Notifications appear as work happens." />
-          )}
+          {!notificationsQuery.isLoading &&
+            (notificationsQuery.data?.notifications.length ?? 0) === 0 && (
+              <EmptyState
+                compact
+                title="Nothing here yet"
+                description="Notifications appear as work happens."
+              />
+            )}
           <ul className="divide-y divide-line">
             {(notificationsQuery.data?.notifications ?? []).map((notification) => (
               <li key={notification.id} className="flex items-start gap-2 px-3 py-2">

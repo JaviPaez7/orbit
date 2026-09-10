@@ -95,6 +95,10 @@ export function visibleStatuses(_role: WorkspaceRole): IssueStatus[] {
 }
 
 /** Priority ordering helper shared by list sorting on client and server. */
-export function comparePriority(a: IssuePriority, b: IssuePriority, weights: Record<IssuePriority, number>): number {
+export function comparePriority(
+  a: IssuePriority,
+  b: IssuePriority,
+  weights: Record<IssuePriority, number>,
+): number {
   return weights[b] - weights[a];
 }

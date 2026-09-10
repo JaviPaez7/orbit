@@ -60,7 +60,10 @@ export async function searchRoutes(app: FastifyInstance): Promise<void> {
         : Promise.resolve([]),
       types.has('project')
         ? prisma.project.findMany({
-            where: { workspaceId, OR: [{ name: { contains: lower } }, { description: { contains: lower } }] },
+            where: {
+              workspaceId,
+              OR: [{ name: { contains: lower } }, { description: { contains: lower } }],
+            },
             orderBy: { updatedAt: 'desc' },
             take: limit,
           })
@@ -69,7 +72,11 @@ export async function searchRoutes(app: FastifyInstance): Promise<void> {
         ? prisma.user.findMany({
             where: {
               memberships: { some: { workspaceId, status: 'active' } },
-              OR: [{ name: { contains: lower } }, { handle: { contains: lower } }, { email: { contains: lower } }],
+              OR: [
+                { name: { contains: lower } },
+                { handle: { contains: lower } },
+                { email: { contains: lower } },
+              ],
             },
             select: userSummarySelect,
             take: limit,
@@ -156,7 +163,10 @@ export async function searchRoutes(app: FastifyInstance): Promise<void> {
 
   /** Resolves an `ORB-123` identifier (used by deep links and the palette). */
   app.get('/workspaces/:workspaceId/issues/by-identifier/:identifier', async (request, reply) => {
-    const { workspaceId, identifier } = request.params as { workspaceId: string; identifier: string };
+    const { workspaceId, identifier } = request.params as {
+      workspaceId: string;
+      identifier: string;
+    };
     await requireWorkspace(request, workspaceId);
     const parsed = issueIdentifierSchema.safeParse(identifier.toUpperCase());
     if (!parsed.success) throw new NotFoundError('Issue');

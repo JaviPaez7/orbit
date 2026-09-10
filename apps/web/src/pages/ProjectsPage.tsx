@@ -3,7 +3,12 @@ import { useIssueComposer } from '../context/IssueComposerContext';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Box, LayoutGrid, List, Plus, Search } from 'lucide-react';
-import { PROJECT_ICONS, PROJECT_STATUSES, PROJECT_STATUS_LABELS, type ProjectStatus } from '@orbit/shared';
+import {
+  PROJECT_ICONS,
+  PROJECT_STATUSES,
+  PROJECT_STATUS_LABELS,
+  type ProjectStatus,
+} from '@orbit/shared';
 import { useAuth, usePermissions } from '../context/AuthContext';
 import { ApiError, api } from '../lib/api';
 import { queryKeys } from '../lib/query-client';
@@ -72,9 +77,10 @@ export default function ProjectsPage() {
 
   const members = useQuery({
     queryKey: queryKeys.members(workspaceId),
-    queryFn: () => api.get<{ members: { id: string; user: { id: string; name: string; avatarUrl: string | null } }[] }>(
-      `/workspaces/${workspaceId}/members`,
-    ),
+    queryFn: () =>
+      api.get<{
+        members: { id: string; user: { id: string; name: string; avatarUrl: string | null } }[];
+      }>(`/workspaces/${workspaceId}/members`),
     enabled: Boolean(workspaceId),
     select: (data) => data.members.map((member) => member.user),
   });
@@ -124,10 +130,14 @@ export default function ProjectsPage() {
     onError: (error) => {
       if (error instanceof ApiError && error.fields) {
         const flat: Record<string, string> = {};
-        for (const [key, messages] of Object.entries(error.fields)) if (messages[0]) flat[key] = messages[0];
+        for (const [key, messages] of Object.entries(error.fields))
+          if (messages[0]) flat[key] = messages[0];
         setErrors(flat);
       }
-      toast.error('Could not create the project', error instanceof ApiError ? error.message : undefined);
+      toast.error(
+        'Could not create the project',
+        error instanceof ApiError ? error.message : undefined,
+      );
     },
   });
 
@@ -230,7 +240,8 @@ export default function ProjectsPage() {
       {header}
 
       <div className="flex-1 overflow-y-auto p-4">
-        {projectsQuery.isLoading && (view === 'grid' ? <CardGridSkeleton /> : <Skeleton className="h-40" />)}
+        {projectsQuery.isLoading &&
+          (view === 'grid' ? <CardGridSkeleton /> : <Skeleton className="h-40" />)}
         {projectsQuery.isError && (
           <ErrorState
             title="Could not load projects"
@@ -287,7 +298,10 @@ export default function ProjectsPage() {
                 {projects.map((project) => (
                   <tr key={project.id} className="table-row">
                     <td className="px-3 py-2">
-                      <Link to={`/projects/${project.id}`} className="flex items-center gap-2 hover:text-accent">
+                      <Link
+                        to={`/projects/${project.id}`}
+                        className="flex items-center gap-2 hover:text-accent"
+                      >
                         <span
                           className="flex h-5 w-5 items-center justify-center rounded text-[9px] font-bold text-white"
                           style={{ backgroundColor: project.color }}
@@ -318,7 +332,9 @@ export default function ProjectsPage() {
                     <td className="w-32 px-3 py-2">
                       <ProgressBar value={project.progress} color={project.color} />
                     </td>
-                    <td className="px-3 py-2 text-xs text-muted">{formatDateShort(project.targetDate)}</td>
+                    <td className="px-3 py-2 text-xs text-muted">
+                      {formatDateShort(project.targetDate)}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -362,7 +378,9 @@ export default function ProjectsPage() {
                 id={id}
                 {...rest}
                 value={form.name}
-                onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
+                onChange={(event) =>
+                  setForm((current) => ({ ...current, name: event.target.value }))
+                }
                 placeholder="Payments Platform"
                 data-autofocus
                 data-testid="project-name-input"
@@ -395,7 +413,9 @@ export default function ProjectsPage() {
                     color: STATUS_COLORS[status],
                   }))}
                   value={form.status}
-                  onChange={(value) => setForm((current) => ({ ...current, status: value as ProjectStatus }))}
+                  onChange={(value) =>
+                    setForm((current) => ({ ...current, status: value as ProjectStatus }))
+                  }
                   width={200}
                   ariaLabel="Status"
                 />
@@ -428,7 +448,9 @@ export default function ProjectsPage() {
                   id={id}
                   type="date"
                   value={form.startDate}
-                  onChange={(event) => setForm((current) => ({ ...current, startDate: event.target.value }))}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, startDate: event.target.value }))
+                  }
                 />
               )}
             </Field>
@@ -439,7 +461,9 @@ export default function ProjectsPage() {
                   id={id}
                   type="date"
                   value={form.targetDate}
-                  onChange={(event) => setForm((current) => ({ ...current, targetDate: event.target.value }))}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, targetDate: event.target.value }))
+                  }
                 />
               )}
             </Field>
@@ -455,7 +479,9 @@ export default function ProjectsPage() {
                     onClick={() => setForm((current) => ({ ...current, icon }))}
                     className={cn(
                       'rounded-md border px-2 py-1 text-xs capitalize transition-colors',
-                      form.icon === icon ? 'border-accent text-fg' : 'border-line text-muted hover:text-fg',
+                      form.icon === icon
+                        ? 'border-accent text-fg'
+                        : 'border-line text-muted hover:text-fg',
                     )}
                   >
                     {icon}
@@ -504,7 +530,9 @@ export default function ProjectsPage() {
                       }
                       className={cn(
                         'flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs transition-colors',
-                        active ? 'border-accent bg-accent/10 text-fg' : 'border-line text-muted hover:text-fg',
+                        active
+                          ? 'border-accent bg-accent/10 text-fg'
+                          : 'border-line text-muted hover:text-fg',
                       )}
                     >
                       <Avatar name={member.name} src={member.avatarUrl} size="xs" />
@@ -536,7 +564,9 @@ function ProjectCard({ project }: { project: Project }) {
           {project.name.slice(0, 1).toUpperCase()}
         </span>
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-sm font-medium text-fg group-hover:text-accent">{project.name}</h3>
+          <h3 className="truncate text-sm font-medium text-fg group-hover:text-accent">
+            {project.name}
+          </h3>
           <p className="mt-0.5 flex items-center gap-1.5 text-2xs text-subtle">
             <span style={{ color: STATUS_COLORS[project.status] }}>
               {PROJECT_STATUS_LABELS[project.status as ProjectStatus] ?? project.status}

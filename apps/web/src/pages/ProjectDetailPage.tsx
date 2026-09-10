@@ -2,15 +2,7 @@ import { useState } from 'react';
 import { useIssueComposer } from '../context/IssueComposerContext';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  BarChart3,
-  Box,
-  CalendarDays,
-  ListChecks,
-  Settings,
-  Target,
-  Users,
-} from 'lucide-react';
+import { BarChart3, Box, CalendarDays, ListChecks, Settings, Target, Users } from 'lucide-react';
 import {
   PROJECT_ICONS,
   PROJECT_STATUSES,
@@ -74,9 +66,13 @@ export default function ProjectDetailPage({ settingsMode = false }: { settingsMo
   const members = useQuery({
     queryKey: queryKeys.members(workspaceId),
     queryFn: () =>
-      api.get<{ members: { id: string; role: string; user: { id: string; name: string; avatarUrl: string | null } }[] }>(
-        `/workspaces/${workspaceId}/members`,
-      ),
+      api.get<{
+        members: {
+          id: string;
+          role: string;
+          user: { id: string; name: string; avatarUrl: string | null };
+        }[];
+      }>(`/workspaces/${workspaceId}/members`),
     enabled: Boolean(workspaceId),
     select: (data) => data.members,
   });
@@ -95,7 +91,10 @@ export default function ProjectDetailPage({ settingsMode = false }: { settingsMo
       setDraft({});
     },
     onError: (error) =>
-      toast.error('Could not update the project', error instanceof ApiError ? error.message : undefined),
+      toast.error(
+        'Could not update the project',
+        error instanceof ApiError ? error.message : undefined,
+      ),
   });
 
   const deleteMutation = useMutation({
@@ -106,7 +105,10 @@ export default function ProjectDetailPage({ settingsMode = false }: { settingsMo
       navigate('/projects');
     },
     onError: (error) =>
-      toast.error('Could not delete the project', error instanceof ApiError ? error.message : undefined),
+      toast.error(
+        'Could not delete the project',
+        error instanceof ApiError ? error.message : undefined,
+      ),
   });
 
   if (projectQuery.isLoading) {
@@ -141,7 +143,9 @@ export default function ProjectDetailPage({ settingsMode = false }: { settingsMo
   }
 
   const issues = issuesQuery.data?.items ?? [];
-  const openIssues = issues.filter((issue) => issue.status !== 'done' && issue.status !== 'cancelled');
+  const openIssues = issues.filter(
+    (issue) => issue.status !== 'done' && issue.status !== 'cancelled',
+  );
 
   return (
     <div className="flex h-full flex-col">
@@ -191,7 +195,10 @@ export default function ProjectDetailPage({ settingsMode = false }: { settingsMo
         }
       />
 
-      <nav className="flex items-center gap-1 border-b border-line px-3 py-1.5" aria-label="Project sections">
+      <nav
+        className="flex items-center gap-1 border-b border-line px-3 py-1.5"
+        aria-label="Project sections"
+      >
         {(
           [
             { id: 'overview', label: 'Overview', icon: Box },
@@ -223,9 +230,7 @@ export default function ProjectDetailPage({ settingsMode = false }: { settingsMo
                 <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-subtle">
                   About
                 </h2>
-                <p className="text-sm text-fg">
-                  {project.description ?? 'No description yet.'}
-                </p>
+                <p className="text-sm text-fg">{project.description ?? 'No description yet.'}</p>
                 <dl className="mt-4 grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
                   <div>
                     <dt className="text-subtle">Start</dt>
@@ -250,7 +255,9 @@ export default function ProjectDetailPage({ settingsMode = false }: { settingsMo
                   </div>
                   <div>
                     <dt className="text-subtle">Days remaining</dt>
-                    <dd className={cn('text-fg', (project.daysRemaining ?? 0) < 0 && 'text-danger')}>
+                    <dd
+                      className={cn('text-fg', (project.daysRemaining ?? 0) < 0 && 'text-danger')}
+                    >
                       {project.daysRemaining === null
                         ? '—'
                         : project.daysRemaining < 0
@@ -372,7 +379,9 @@ export default function ProjectDetailPage({ settingsMode = false }: { settingsMo
                     <Input
                       id={id}
                       value={draft.name ?? project.name}
-                      onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))}
+                      onChange={(event) =>
+                        setDraft((current) => ({ ...current, name: event.target.value }))
+                      }
                     />
                   )}
                 </Field>
@@ -418,7 +427,9 @@ export default function ProjectDetailPage({ settingsMode = false }: { settingsMo
                           avatar: { name: member.user.name, avatarUrl: member.user.avatarUrl },
                         }))}
                         value={draft.leadId ?? project.leadId ?? ''}
-                        onChange={(value) => setDraft((current) => ({ ...current, leadId: value || null }))}
+                        onChange={(value) =>
+                          setDraft((current) => ({ ...current, leadId: value || null }))
+                        }
                         width={220}
                         ariaLabel="Lead"
                       />
@@ -431,7 +442,10 @@ export default function ProjectDetailPage({ settingsMode = false }: { settingsMo
                         type="date"
                         value={toDateInput(draft.startDate ?? project.startDate)}
                         onChange={(event) =>
-                          setDraft((current) => ({ ...current, startDate: event.target.value || null }))
+                          setDraft((current) => ({
+                            ...current,
+                            startDate: event.target.value || null,
+                          }))
                         }
                       />
                     )}
@@ -443,7 +457,10 @@ export default function ProjectDetailPage({ settingsMode = false }: { settingsMo
                         type="date"
                         value={toDateInput(draft.targetDate ?? project.targetDate)}
                         onChange={(event) =>
-                          setDraft((current) => ({ ...current, targetDate: event.target.value || null }))
+                          setDraft((current) => ({
+                            ...current,
+                            targetDate: event.target.value || null,
+                          }))
                         }
                       />
                     )}
@@ -492,7 +509,9 @@ export default function ProjectDetailPage({ settingsMode = false }: { settingsMo
                             }
                             className={cn(
                               'flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs',
-                              active ? 'border-accent bg-accent/10 text-fg' : 'border-line text-muted',
+                              active
+                                ? 'border-accent bg-accent/10 text-fg'
+                                : 'border-line text-muted',
                             )}
                           >
                             <Avatar name={member.user.name} src={member.user.avatarUrl} size="xs" />

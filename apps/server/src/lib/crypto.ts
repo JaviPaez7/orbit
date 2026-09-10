@@ -44,6 +44,9 @@ export function toHandle(name: string, fallbackSeed: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '')
     .slice(0, 24);
-  const seed = fallbackSeed.replace(/[^a-z0-9]+/gi, '').slice(0, 4).toLowerCase();
+  const seed = fallbackSeed
+    .replace(/[^a-z0-9]+/gi, '')
+    .slice(0, 4)
+    .toLowerCase();
   return (base || `user${seed}`).slice(0, 30);
 }

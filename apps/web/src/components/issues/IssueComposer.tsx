@@ -120,9 +120,9 @@ export function IssueComposer({
   const assignable = useQuery({
     queryKey: queryKeys.assignable(workspaceId),
     queryFn: () =>
-      api.get<{ members: { id: string; name: string; handle: string; avatarUrl: string | null }[] }>(
-        `/workspaces/${workspaceId}/assignable`,
-      ),
+      api.get<{
+        members: { id: string; name: string; handle: string; avatarUrl: string | null }[];
+      }>(`/workspaces/${workspaceId}/assignable`),
     enabled: open && Boolean(workspaceId),
     select: (data) => data.members,
   });
@@ -206,7 +206,9 @@ export function IssueComposer({
       onClose={onClose}
       title={isEditing ? `Edit ${issue?.identifier}` : 'New issue'}
       description={
-        isEditing ? 'Changes are saved to the workspace immediately.' : `Creating in ${workspace?.name}`
+        isEditing
+          ? 'Changes are saved to the workspace immediately.'
+          : `Creating in ${workspace?.name}`
       }
       size="lg"
       footer={
@@ -244,7 +246,11 @@ export function IssueComposer({
           )}
         </Field>
 
-        <Field label="Description" hint="Markdown supported. Cmd/Ctrl+Enter to submit." error={errors.description}>
+        <Field
+          label="Description"
+          hint="Markdown supported. Cmd/Ctrl+Enter to submit."
+          error={errors.description}
+        >
           {({ id, ...rest }) => (
             <Textarea
               id={id}
@@ -311,7 +317,8 @@ export function IssueComposer({
                   <>
                     <UserCircle2 className="h-3.5 w-3.5" />
                     <span className="truncate">
-                      {assignable.data?.find((member) => member.id === assigneeId)?.name ?? 'Unassigned'}
+                      {assignable.data?.find((member) => member.id === assigneeId)?.name ??
+                        'Unassigned'}
                     </span>
                   </>
                 }
@@ -339,7 +346,8 @@ export function IssueComposer({
                   <>
                     <Box className="h-3.5 w-3.5" />
                     <span className="truncate">
-                      {projects.data?.find((project) => project.id === projectId)?.name ?? 'No project'}
+                      {projects.data?.find((project) => project.id === projectId)?.name ??
+                        'No project'}
                     </span>
                   </>
                 }
@@ -379,7 +387,10 @@ export function IssueComposer({
               <Select
                 options={[
                   { value: '', label: 'No estimate' },
-                  ...ESTIMATE_OPTIONS.map((value) => ({ value: String(value), label: `${value} points` })),
+                  ...ESTIMATE_OPTIONS.map((value) => ({
+                    value: String(value),
+                    label: `${value} points`,
+                  })),
                 ]}
                 value={estimate}
                 onChange={setEstimate}

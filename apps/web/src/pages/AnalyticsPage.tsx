@@ -21,7 +21,12 @@ import {
   YAxis,
 } from 'recharts';
 import { BarChart3, Download, TrendingUp } from 'lucide-react';
-import { ISSUE_PRIORITY_LABELS, PROJECT_STATUS_LABELS, type IssuePriority, type ProjectStatus } from '@orbit/shared';
+import {
+  ISSUE_PRIORITY_LABELS,
+  PROJECT_STATUS_LABELS,
+  type IssuePriority,
+  type ProjectStatus,
+} from '@orbit/shared';
 import { useAuth } from '../context/AuthContext';
 import { api, downloadText } from '../lib/api';
 import { queryKeys } from '../lib/query-client';
@@ -77,9 +82,10 @@ export default function AnalyticsPage() {
 
   const analyticsQuery = useQuery({
     queryKey: queryKeys.analytics(workspaceId, days),
-    queryFn: () => api.get<{ analytics: Analytics; windowDays: number }>(
-      `/workspaces/${workspaceId}/analytics?days=${days}`,
-    ),
+    queryFn: () =>
+      api.get<{ analytics: Analytics; windowDays: number }>(
+        `/workspaces/${workspaceId}/analytics?days=${days}`,
+      ),
     enabled: Boolean(workspaceId),
   });
 
@@ -141,7 +147,12 @@ export default function AnalyticsPage() {
           </>
         }
         actions={
-          <Button variant="ghost" size="sm" leftIcon={<Download className="h-3.5 w-3.5" />} onClick={exportAnalytics}>
+          <Button
+            variant="ghost"
+            size="sm"
+            leftIcon={<Download className="h-3.5 w-3.5" />}
+            onClick={exportAnalytics}
+          >
             Export raw data
           </Button>
         }
@@ -197,7 +208,9 @@ export default function AnalyticsPage() {
               <Stat
                 label="Overdue"
                 value={analytics.totals.overdue}
-                hint={analytics.totals.overdue > 0 ? 'past due date and still open' : 'nothing overdue'}
+                hint={
+                  analytics.totals.overdue > 0 ? 'past due date and still open' : 'nothing overdue'
+                }
                 danger={analytics.totals.overdue > 0}
               />
             </div>
@@ -216,9 +229,20 @@ export default function AnalyticsPage() {
                         <stop offset="100%" stopColor="#42c284" stopOpacity={0.02} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid stroke="rgb(var(--border-default))" strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }} interval={Math.ceil(trend.length / 8)} />
-                    <YAxis tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }} allowDecimals={false} />
+                    <CartesianGrid
+                      stroke="rgb(var(--border-default))"
+                      strokeDasharray="3 3"
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="label"
+                      tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }}
+                      interval={Math.ceil(trend.length / 8)}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }}
+                      allowDecimals={false}
+                    />
                     <ChartTooltip contentStyle={CHART_TOOLTIP_STYLE} />
                     <Legend wrapperStyle={{ fontSize: 11 }} />
                     <Area
@@ -274,10 +298,20 @@ export default function AnalyticsPage() {
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <ChartCard title="Issues by status">
                 <ResponsiveContainer width="100%" height={240}>
-                  <BarChart data={analytics.byStatus} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                    <CartesianGrid stroke="rgb(var(--border-default))" strokeDasharray="3 3" vertical={false} />
+                  <BarChart
+                    data={analytics.byStatus}
+                    margin={{ top: 4, right: 8, left: -20, bottom: 0 }}
+                  >
+                    <CartesianGrid
+                      stroke="rgb(var(--border-default))"
+                      strokeDasharray="3 3"
+                      vertical={false}
+                    />
                     <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }} />
-                    <YAxis tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }} allowDecimals={false} />
+                    <YAxis
+                      tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }}
+                      allowDecimals={false}
+                    />
                     <ChartTooltip contentStyle={CHART_TOOLTIP_STYLE} />
                     <Bar dataKey="count" radius={[4, 4, 0, 0]} name="Issues">
                       {analytics.byStatus.map((entry) => (
@@ -311,7 +345,9 @@ export default function AnalyticsPage() {
                     />
                     <Legend
                       wrapperStyle={{ fontSize: 11 }}
-                      formatter={(value: string) => ISSUE_PRIORITY_LABELS[value as IssuePriority] ?? value}
+                      formatter={(value: string) =>
+                        ISSUE_PRIORITY_LABELS[value as IssuePriority] ?? value
+                      }
                     />
                   </PieChart>
                 </ResponsiveContainer>
@@ -319,14 +355,25 @@ export default function AnalyticsPage() {
             </div>
 
             <ChartCard title="Workload per member">
-              <ResponsiveContainer width="100%" height={Math.max(200, analytics.workload.length * 32)}>
+              <ResponsiveContainer
+                width="100%"
+                height={Math.max(200, analytics.workload.length * 32)}
+              >
                 <BarChart
                   data={analytics.workload}
                   layout="vertical"
                   margin={{ top: 4, right: 16, left: 30, bottom: 0 }}
                 >
-                  <CartesianGrid stroke="rgb(var(--border-default))" strokeDasharray="3 3" horizontal={false} />
-                  <XAxis type="number" tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }} allowDecimals={false} />
+                  <CartesianGrid
+                    stroke="rgb(var(--border-default))"
+                    strokeDasharray="3 3"
+                    horizontal={false}
+                  />
+                  <XAxis
+                    type="number"
+                    tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }}
+                    allowDecimals={false}
+                  />
                   <YAxis
                     type="category"
                     dataKey="name"
@@ -336,7 +383,13 @@ export default function AnalyticsPage() {
                   <ChartTooltip contentStyle={CHART_TOOLTIP_STYLE} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   <Bar dataKey="open" stackId="a" fill="#6c7df6" name="Open" />
-                  <Bar dataKey="completed" stackId="a" fill="#42c284" name="Completed" radius={[0, 4, 4, 0]} />
+                  <Bar
+                    dataKey="completed"
+                    stackId="a"
+                    fill="#42c284"
+                    name="Completed"
+                    radius={[0, 4, 4, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </ChartCard>
@@ -344,17 +397,38 @@ export default function AnalyticsPage() {
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <ChartCard title="Cycle velocity (completed points)">
                 {velocity.length === 0 ? (
-                  <EmptyState compact title="No cycles yet" description="Velocity appears once cycles exist." />
+                  <EmptyState
+                    compact
+                    title="No cycles yet"
+                    description="Velocity appears once cycles exist."
+                  />
                 ) : (
                   <ResponsiveContainer width="100%" height={260}>
                     <BarChart data={velocity} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                      <CartesianGrid stroke="rgb(var(--border-default))" strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }} />
+                      <CartesianGrid
+                        stroke="rgb(var(--border-default))"
+                        strokeDasharray="3 3"
+                        vertical={false}
+                      />
+                      <XAxis
+                        dataKey="name"
+                        tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }}
+                      />
                       <YAxis tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }} />
                       <ChartTooltip contentStyle={CHART_TOOLTIP_STYLE} />
                       <Legend wrapperStyle={{ fontSize: 11 }} />
-                      <Bar dataKey="completed" fill="#42c284" name="Completed points" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="total" fill="#2b3140" name="Total scope" radius={[4, 4, 0, 0]} />
+                      <Bar
+                        dataKey="completed"
+                        fill="#42c284"
+                        name="Completed points"
+                        radius={[4, 4, 0, 0]}
+                      />
+                      <Bar
+                        dataKey="total"
+                        fill="#2b3140"
+                        name="Total scope"
+                        radius={[4, 4, 0, 0]}
+                      />
                     </BarChart>
                   </ResponsiveContainer>
                 )}
@@ -363,13 +437,20 @@ export default function AnalyticsPage() {
               <ChartCard title="Throughput (issues completed per day)">
                 <ResponsiveContainer width="100%" height={260}>
                   <LineChart data={throughput} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                    <CartesianGrid stroke="rgb(var(--border-default))" strokeDasharray="3 3" vertical={false} />
+                    <CartesianGrid
+                      stroke="rgb(var(--border-default))"
+                      strokeDasharray="3 3"
+                      vertical={false}
+                    />
                     <XAxis
                       dataKey="label"
                       tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }}
                       interval={Math.ceil(throughput.length / 8)}
                     />
-                    <YAxis tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }} allowDecimals={false} />
+                    <YAxis
+                      tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }}
+                      allowDecimals={false}
+                    />
                     <ChartTooltip contentStyle={CHART_TOOLTIP_STYLE} />
                     <Line
                       type="monotone"
@@ -390,9 +471,15 @@ export default function AnalyticsPage() {
                   {analytics.projects.map((project) => (
                     <li key={project.id}>
                       <div className="mb-1 flex items-center gap-2 text-xs">
-                        <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: project.color }} />
+                        <span
+                          className="h-2.5 w-2.5 rounded-sm"
+                          style={{ backgroundColor: project.color }}
+                        />
                         <span className="min-w-0 flex-1 truncate text-fg">{project.name}</span>
-                        <span className="chip" style={{ color: PROJECT_STATUS_COLORS[project.status] }}>
+                        <span
+                          className="chip"
+                          style={{ color: PROJECT_STATUS_COLORS[project.status] }}
+                        >
                           {PROJECT_STATUS_LABELS[project.status as ProjectStatus] ?? project.status}
                         </span>
                         <span className="w-16 text-right text-subtle">
@@ -411,7 +498,11 @@ export default function AnalyticsPage() {
 
               <ChartCard title="Labels in use">
                 {analytics.labels.length === 0 ? (
-                  <EmptyState compact title="No labels yet" description="Create labels to categorise issues." />
+                  <EmptyState
+                    compact
+                    title="No labels yet"
+                    description="Create labels to categorise issues."
+                  />
                 ) : (
                   <ul className="space-y-2.5">
                     {analytics.labels.slice(0, 10).map((label) => {
@@ -452,12 +543,23 @@ export default function AnalyticsPage() {
                     }))}
                     margin={{ top: 4, right: 8, left: -20, bottom: 0 }}
                   >
-                    <CartesianGrid stroke="rgb(var(--border-default))" strokeDasharray="3 3" vertical={false} />
+                    <CartesianGrid
+                      stroke="rgb(var(--border-default))"
+                      strokeDasharray="3 3"
+                      vertical={false}
+                    />
                     <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }} />
                     <YAxis tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }} />
                     <ChartTooltip contentStyle={CHART_TOOLTIP_STYLE} />
                     <Legend wrapperStyle={{ fontSize: 11 }} />
-                    <Line type="monotone" dataKey="remaining" stroke="#6c7df6" strokeWidth={2} dot={false} name="Remaining" />
+                    <Line
+                      type="monotone"
+                      dataKey="remaining"
+                      stroke="#6c7df6"
+                      strokeWidth={2}
+                      dot={false}
+                      name="Remaining"
+                    />
                     <Line
                       type="monotone"
                       dataKey="ideal"
@@ -478,7 +580,10 @@ export default function AnalyticsPage() {
               </h2>
               <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {analytics.workload.map((member) => (
-                  <li key={member.userId} className="flex items-center gap-2 rounded-lg border border-line p-2">
+                  <li
+                    key={member.userId}
+                    className="flex items-center gap-2 rounded-lg border border-line p-2"
+                  >
                     <Avatar name={member.name} src={member.avatarUrl} size="md" />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-xs text-fg">{member.name}</span>
@@ -512,7 +617,9 @@ function Stat({
   return (
     <div className="card p-3">
       <p className="text-2xs uppercase tracking-wider text-subtle">{label}</p>
-      <p className={cn('mt-1 text-2xl font-semibold', danger ? 'text-danger' : 'text-fg')}>{value}</p>
+      <p className={cn('mt-1 text-2xl font-semibold', danger ? 'text-danger' : 'text-fg')}>
+        {value}
+      </p>
       {hint && <p className="mt-0.5 text-2xs text-subtle">{hint}</p>}
     </div>
   );

@@ -12,7 +12,13 @@ import type { FastifyInstance } from 'fastify';
 import { prisma, toJsonColumn } from '../db/client.js';
 import { generateToken } from '../lib/crypto.js';
 import { BadRequestError, ConflictError, ForbiddenError, NotFoundError } from '../lib/errors.js';
-import { assertMemberOfWorkspace, parsePendingInvites, requireUser, requireWorkspace, userPublicSelect } from '../lib/guards.js';
+import {
+  assertMemberOfWorkspace,
+  parsePendingInvites,
+  requireUser,
+  requireWorkspace,
+  userPublicSelect,
+} from '../lib/guards.js';
 import { parseOrThrow } from '../lib/http.js';
 import { recordActivity } from '../services/activity.service.js';
 import { notify } from '../services/notification.service.js';
@@ -89,7 +95,9 @@ export async function workspaceRoutes(app: FastifyInstance): Promise<void> {
       });
 
       realtimeHub.grantWorkspace(user.id, workspace.id);
-      return reply.status(201).send({ workspace: serializeWorkspace(workspace as never), role: 'owner' });
+      return reply
+        .status(201)
+        .send({ workspace: serializeWorkspace(workspace as never), role: 'owner' });
     },
   });
 
@@ -116,7 +124,11 @@ export async function workspaceRoutes(app: FastifyInstance): Promise<void> {
     const ctx = await requireWorkspace(request, workspaceId, 'workspace:update');
     const input = parseOrThrow(updateWorkspaceSchema, request.body);
 
-    if (input.name === undefined && input.description === undefined && input.logoColor === undefined) {
+    if (
+      input.name === undefined &&
+      input.description === undefined &&
+      input.logoColor === undefined
+    ) {
       throw new BadRequestError('Nothing to update');
     }
 
@@ -195,8 +207,12 @@ export async function workspaceRoutes(app: FastifyInstance): Promise<void> {
         .sort((a, b) => (roleOrder[a.role] ?? 9) - (roleOrder[b.role] ?? 9)),
       role: ctx.role,
       pendingInvites: parsePendingInvites(
-        (await prisma.workspace.findUniqueOrThrow({ where: { id: workspaceId }, select: { pendingInvites: true } }))
-          .pendingInvites,
+        (
+          await prisma.workspace.findUniqueOrThrow({
+            where: { id: workspaceId },
+            select: { pendingInvites: true },
+          })
+        ).pendingInvites,
       ).map((invite) => ({ email: invite.email, role: invite.role })),
     });
   });
@@ -255,7 +271,10 @@ export async function workspaceRoutes(app: FastifyInstance): Promise<void> {
       entityId: existingUser.id,
       action: 'member_added',
       entityLabel: existingUser.name,
-      changes: { member: { from: null, to: existingUser.name }, role: { from: null, to: input.role } },
+      changes: {
+        member: { from: null, to: existingUser.name },
+        role: { from: null, to: input.role },
+      },
     });
 
     await notify({
@@ -308,7 +327,10 @@ export async function workspaceRoutes(app: FastifyInstance): Promise<void> {
       entityId: target.userId,
       action: 'role_changed',
       entityLabel: target.user.name,
-      changes: { role: { from: target.role, to: input.role }, member: { from: null, to: target.user.name } },
+      changes: {
+        role: { from: target.role, to: input.role },
+        member: { from: null, to: target.user.name },
+      },
     });
 
     realtimeHub.broadcast({
@@ -370,7 +392,9 @@ export async function workspaceRoutes(app: FastifyInstance): Promise<void> {
     const { workspaceId } = request.params as { workspaceId: string };
     const ctx = await requireWorkspace(request, workspaceId);
     if (ctx.role === 'owner') {
-      throw new ForbiddenError('Owners cannot leave their own workspace — delete it or transfer ownership');
+      throw new ForbiddenError(
+        'Owners cannot leave their own workspace — delete it or transfer ownership',
+      );
     }
     await prisma.workspaceMember.delete({
       where: { workspaceId_userId: { workspaceId, userId: ctx.user.id } },
@@ -383,7 +407,9 @@ export async function workspaceRoutes(app: FastifyInstance): Promise<void> {
   app.post('/workspaces/invites/:token/accept', async (request, reply) => {
     const { token } = request.params as { token: string };
     const user = await requireUser(request);
-    const workspaces = await prisma.workspace.findMany({ select: { id: true, pendingInvites: true } });
+    const workspaces = await prisma.workspace.findMany({
+      select: { id: true, pendingInvites: true },
+    });
     for (const workspace of workspaces) {
       const invites = parsePendingInvites(workspace.pendingInvites);
       const match = invites.find((invite) => invite.token === token);

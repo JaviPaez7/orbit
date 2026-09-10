@@ -18,7 +18,10 @@ function cycleStats(
   const cancelled = owned.filter((issue) => issue.status === 'cancelled');
   const scope = owned.reduce((sum, issue) => sum + (issue.estimate ?? 0), 0);
   const points = done.reduce((sum, issue) => sum + (issue.estimate ?? 0), 0);
-  const days = Math.max(1, Math.round((cycle.endDate.getTime() - cycle.startDate.getTime()) / 86400000));
+  const days = Math.max(
+    1,
+    Math.round((cycle.endDate.getTime() - cycle.startDate.getTime()) / 86400000),
+  );
   const elapsed = Math.min(
     days,
     Math.max(0, Math.round((Date.now() - cycle.startDate.getTime()) / 86400000)),
@@ -206,7 +209,11 @@ export async function cycleRoutes(app: FastifyInstance): Promise<void> {
     const remove = body.remove === true;
     if (issueIds.length === 0) {
       return reply.status(422).send({
-        error: { code: 'validation_error', message: 'issueIds is required', fields: { issueIds: ['Required'] } },
+        error: {
+          code: 'validation_error',
+          message: 'issueIds is required',
+          fields: { issueIds: ['Required'] },
+        },
       });
     }
 

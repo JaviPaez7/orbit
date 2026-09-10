@@ -55,7 +55,10 @@ describe('auth API', () => {
     // The session is valid and the workspace membership is owner.
     const me = await api('GET', '/auth/me', { headers: { cookie } });
     expect(me.status).toBe(200);
-    const meBody = me.body as { user: { name: string }; workspaces: { role: string; name: string }[] };
+    const meBody = me.body as {
+      user: { name: string };
+      workspaces: { role: string; name: string }[];
+    };
     expect(meBody.user.name).toBe('Ada Lovelace');
     expect(meBody.workspaces[0]!.role).toBe('owner');
     expect(meBody.workspaces[0]!.name).toBe('Ada Engineering');
@@ -113,7 +116,9 @@ describe('auth API', () => {
     expect(anonymous.status).toBe(401);
     expect((anonymous.body as { error: { code: string } }).error.code).toBe('unauthorized');
 
-    const bogus = await api('GET', '/workspaces', { headers: { cookie: 'orbit_session=not-a-token' } });
+    const bogus = await api('GET', '/workspaces', {
+      headers: { cookie: 'orbit_session=not-a-token' },
+    });
     expect(bogus.status).toBe(401);
   });
 
@@ -250,7 +255,9 @@ describe('auth API', () => {
     });
     const member = workspace.members.member!;
 
-    const members = await api('GET', `/workspaces/${workspace.id}/members`, { user: workspace.owner });
+    const members = await api('GET', `/workspaces/${workspace.id}/members`, {
+      user: workspace.owner,
+    });
     expect(members.status).toBe(200);
     expect(members.raw.body).not.toContain('passwordHash');
     expect(members.raw.body).not.toContain('$2a$');

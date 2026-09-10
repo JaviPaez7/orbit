@@ -78,7 +78,11 @@ export class RealtimeHub {
   /** Broadcast to every tab of every member of a workspace. */
   broadcast(event: Omit<RealtimeEvent, 'seq' | 'at'> & { at?: string }): void {
     this.seq += 1;
-    const envelope: RealtimeEvent = { ...event, seq: this.seq, at: event.at ?? new Date().toISOString() };
+    const envelope: RealtimeEvent = {
+      ...event,
+      seq: this.seq,
+      at: event.at ?? new Date().toISOString(),
+    };
     const payload = JSON.stringify(envelope);
     for (const meta of this.clients.values()) {
       if (!meta.workspaceIds.has(event.workspaceId)) continue;
@@ -97,7 +101,11 @@ export class RealtimeHub {
   /** Send an event to a single user across all of their tabs. */
   sendToUser(userId: string, event: Omit<RealtimeEvent, 'seq' | 'at'> & { at?: string }): void {
     this.seq += 1;
-    const payload = JSON.stringify({ ...event, seq: this.seq, at: event.at ?? new Date().toISOString() });
+    const payload = JSON.stringify({
+      ...event,
+      seq: this.seq,
+      at: event.at ?? new Date().toISOString(),
+    });
     for (const meta of this.clients.values()) {
       if (meta.userId !== userId) continue;
       for (const socket of meta.sockets) {

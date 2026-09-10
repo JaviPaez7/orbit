@@ -71,18 +71,20 @@ export function priorityLabel(priority: string): string {
   return ISSUE_PRIORITY_LABELS[priority as IssuePriority] ?? priority;
 }
 
-export const STATUS_OPTIONS = (['backlog', 'todo', 'in_progress', 'in_review', 'done', 'cancelled'] as const).map(
-  (status) => ({
-    value: status,
-    label: ISSUE_STATUS_LABELS[status],
-    color: STATUS_COLORS[status],
+export const STATUS_OPTIONS = (
+  ['backlog', 'todo', 'in_progress', 'in_review', 'done', 'cancelled'] as const
+).map((status) => ({
+  value: status,
+  label: ISSUE_STATUS_LABELS[status],
+  color: STATUS_COLORS[status],
+}));
+
+export const PRIORITY_OPTIONS = (['urgent', 'high', 'medium', 'low', 'none'] as const).map(
+  (priority) => ({
+    value: priority,
+    label: ISSUE_PRIORITY_LABELS[priority],
   }),
 );
-
-export const PRIORITY_OPTIONS = (['urgent', 'high', 'medium', 'low', 'none'] as const).map((priority) => ({
-  value: priority,
-  label: ISSUE_PRIORITY_LABELS[priority],
-}));
 
 export function StatusLabel({ status }: { status: string }) {
   return (

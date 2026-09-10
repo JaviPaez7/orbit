@@ -10,7 +10,10 @@ test.describe('application shell and routing', () => {
     await loginAs(page, DEMO_USERS.owner.email);
   });
 
-  test('renders the seeded workspace with issues, projects and cycles', async ({ page, consoleErrors }) => {
+  test('renders the seeded workspace with issues, projects and cycles', async ({
+    page,
+    consoleErrors,
+  }) => {
     await expect(page.getByTestId('sidebar')).toBeVisible();
     await expect(page.getByTestId('workspace-switcher')).toContainText('Orbit Labs');
 
@@ -18,7 +21,8 @@ test.describe('application shell and routing', () => {
     // status bar shows a skeleton while the first request is in flight).
     await expect
       .poll(
-        async () => Number((await page.getByTestId('issue-count').textContent())?.replace(/\D/g, '') ?? '0'),
+        async () =>
+          Number((await page.getByTestId('issue-count').textContent())?.replace(/\D/g, '') ?? '0'),
         { timeout: 20_000 },
       )
       .toBeGreaterThan(20);
@@ -107,9 +111,13 @@ test.describe('application shell and routing', () => {
     await expect(page.getByText('Workload per member')).toBeVisible();
     // Recharts renders SVG; at least one chart must have produced geometry.
     await expect
-      .poll(async () => page.locator('svg .recharts-line, svg .recharts-bar, svg .recharts-area').count(), {
-        timeout: 15_000,
-      })
+      .poll(
+        async () =>
+          page.locator('svg .recharts-line, svg .recharts-bar, svg .recharts-area').count(),
+        {
+          timeout: 15_000,
+        },
+      )
       .toBeGreaterThan(0);
 
     expect(consoleErrors, `console errors: ${consoleErrors.join(' | ')}`).toEqual([]);
@@ -125,7 +133,10 @@ test.describe('application shell and routing', () => {
     expect(consoleErrors, `console errors: ${consoleErrors.join(' | ')}`).toEqual([]);
   });
 
-  test('issue detail, project detail and cycle detail all resolve', async ({ page, consoleErrors }) => {
+  test('issue detail, project detail and cycle detail all resolve', async ({
+    page,
+    consoleErrors,
+  }) => {
     // Pick a real identifier from the list so the deep link is exercised.
     await page.goto('/issues');
     const firstRow = page.locator('[data-testid^="issue-row-"]').first();

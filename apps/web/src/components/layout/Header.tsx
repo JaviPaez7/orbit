@@ -126,7 +126,10 @@ export function Header({
             <span key={`${crumb.label}-${index}`} className="flex min-w-0 items-center gap-1">
               <ChevronRight className="h-3.5 w-3.5 shrink-0 text-subtle" />
               {crumb.to ? (
-                <Link to={crumb.to} className="truncate rounded px-1 text-xs text-muted hover:text-fg">
+                <Link
+                  to={crumb.to}
+                  className="truncate rounded px-1 text-xs text-muted hover:text-fg"
+                >
                   {crumb.label}
                 </Link>
               ) : (
@@ -225,15 +228,22 @@ export function Header({
               )}
             </div>
             <div className="max-h-80 overflow-y-auto">
-              {notifications.isLoading && <p className="px-2 py-4 text-center text-xs text-subtle">Loading…</p>}
-              {(notifications.data?.notifications ?? []).length === 0 && !notifications.isLoading && (
-                <p className="px-2 py-6 text-center text-xs text-subtle">You are all caught up.</p>
+              {notifications.isLoading && (
+                <p className="px-2 py-4 text-center text-xs text-subtle">Loading…</p>
               )}
+              {(notifications.data?.notifications ?? []).length === 0 &&
+                !notifications.isLoading && (
+                  <p className="px-2 py-6 text-center text-xs text-subtle">
+                    You are all caught up.
+                  </p>
+                )}
               {(notifications.data?.notifications ?? []).map((notification) => (
                 <MenuItem
                   key={notification.id}
                   onClick={() => {
-                    void api.post(`/workspaces/${workspaceId}/notifications/read`, { ids: [notification.id] });
+                    void api.post(`/workspaces/${workspaceId}/notifications/read`, {
+                      ids: [notification.id],
+                    });
                     setUnreadNotifications(Math.max(0, unread - 1));
                     void notifications.refetch();
                   }}
@@ -243,7 +253,9 @@ export function Header({
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-xs text-fg">{notification.title}</span>
                       {notification.body && (
-                        <span className="mt-0.5 block truncate text-2xs text-muted">{notification.body}</span>
+                        <span className="mt-0.5 block truncate text-2xs text-muted">
+                          {notification.body}
+                        </span>
                       )}
                       <span className="mt-0.5 block text-2xs text-subtle">
                         {relativeTime(notification.createdAt)}
@@ -310,7 +322,9 @@ export function useProjectCrumb(projectId: string | undefined, workspaceId: stri
     select: (data) => data.projects,
   });
   const project = projects.data?.find((entry) => entry.id === projectId);
-  return project ? ([{ label: 'Projects', to: '/projects' }, { label: project.name }] as Crumb[]) : undefined;
+  return project
+    ? ([{ label: 'Projects', to: '/projects' }, { label: project.name }] as Crumb[])
+    : undefined;
 }
 
 export function useCycleCrumb(cycleId: string | undefined, workspaceId: string | undefined) {
@@ -321,14 +335,17 @@ export function useCycleCrumb(cycleId: string | undefined, workspaceId: string |
     select: (data) => data.cycles,
   });
   const cycle = cycles.data?.find((entry) => entry.id === cycleId);
-  return cycle ? ([{ label: 'Cycles', to: '/cycles' }, { label: cycle.name }] as Crumb[]) : undefined;
+  return cycle
+    ? ([{ label: 'Cycles', to: '/cycles' }, { label: cycle.name }] as Crumb[])
+    : undefined;
 }
 
 export function useIssueCrumb(issue: Issue | undefined) {
   return useMemo(() => {
     if (!issue) return undefined;
     const list: Crumb[] = [{ label: 'Issues', to: '/issues' }];
-    if (issue.project) list.push({ label: issue.project.name, to: `/projects/${issue.project.id}` });
+    if (issue.project)
+      list.push({ label: issue.project.name, to: `/projects/${issue.project.id}` });
     list.push({ label: issue.identifier });
     return list;
   }, [issue]);

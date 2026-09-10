@@ -80,7 +80,9 @@ function main(): void {
   }
 
   const applied = new Set(
-    (db.prepare('SELECT name FROM "_orbit_migrations"').all() as { name: string }[]).map((r) => r.name),
+    (db.prepare('SELECT name FROM "_orbit_migrations"').all() as { name: string }[]).map(
+      (r) => r.name,
+    ),
   );
   const folders = migrationFolders();
   const pending = folders.filter((folder) => !applied.has(folder));
@@ -110,7 +112,9 @@ function main(): void {
       db.prepare('INSERT INTO "_orbit_migrations" ("name") VALUES (?)').run(folder);
       db.exec('COMMIT');
       const created = db
-        .prepare(`SELECT count(*) AS n FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'`)
+        .prepare(
+          `SELECT count(*) AS n FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'`,
+        )
         .get() as { n: number };
       console.log(`✔ applied ${folder} (${created.n} tables present)`);
     } catch (error) {

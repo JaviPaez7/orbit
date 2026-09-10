@@ -25,7 +25,10 @@ interface RowError {
 /** Accepts either the canonical key (`in_progress`) or the display label. */
 function matchStatus(raw: string | undefined): IssueStatus | null {
   if (!raw) return null;
-  const value = raw.trim().toLowerCase().replace(/[\s-]+/g, '_');
+  const value = raw
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_');
   if ((ISSUE_STATUSES as readonly string[]).includes(value)) return value as IssueStatus;
   const byLabel = ISSUE_STATUSES.find(
     (status) => ISSUE_STATUS_LABELS[status].toLowerCase() === raw.trim().toLowerCase(),
@@ -107,11 +110,17 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
 
       const [projects, cycles, labels, members] = await Promise.all([
         prisma.project.findMany({ where: { workspaceId }, select: { id: true, name: true } }),
-        prisma.cycle.findMany({ where: { workspaceId }, select: { id: true, name: true, number: true } }),
+        prisma.cycle.findMany({
+          where: { workspaceId },
+          select: { id: true, name: true, number: true },
+        }),
         prisma.label.findMany({ where: { workspaceId }, select: { id: true, name: true } }),
         prisma.workspaceMember.findMany({
           where: { workspaceId, status: 'active' },
-          select: { role: true, user: { select: { id: true, name: true, email: true, handle: true } } },
+          select: {
+            role: true,
+            user: { select: { id: true, name: true, email: true, handle: true } },
+          },
         }),
       ]);
 
@@ -165,7 +174,9 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
         let projectId: string | null = null;
         const projectRaw = get('project');
         if (projectRaw) {
-          const match = projects.find((project) => project.name.toLowerCase() === projectRaw.toLowerCase());
+          const match = projects.find(
+            (project) => project.name.toLowerCase() === projectRaw.toLowerCase(),
+          );
           if (!match) {
             warnings.push({
               row: lineNumber,
@@ -180,7 +191,8 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
         if (cycleRaw) {
           const match = cycles.find(
             (cycle) =>
-              cycle.name.toLowerCase() === cycleRaw.toLowerCase() || String(cycle.number) === cycleRaw,
+              cycle.name.toLowerCase() === cycleRaw.toLowerCase() ||
+              String(cycle.number) === cycleRaw,
           );
           if (!match) {
             warnings.push({
@@ -210,7 +222,12 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
         }
 
         if (Object.keys(fields).length > 0) {
-          errors.push({ row: lineNumber, identifier: title || `row ${lineNumber}`, message: 'Row skipped', fields });
+          errors.push({
+            row: lineNumber,
+            identifier: title || `row ${lineNumber}`,
+            message: 'Row skipped',
+            fields,
+          });
           continue;
         }
 
@@ -294,9 +311,13 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
         creator: (serialized.creator as { name?: string } | null)?.name ?? '',
         project: (serialized.project as { name?: string } | null)?.name ?? '',
         cycle: (serialized.cycle as { name?: string } | null)?.name ?? '',
-        labels: ((serialized.labels as { name: string }[]) ?? []).map((label) => label.name).join('|'),
+        labels: ((serialized.labels as { name: string }[]) ?? [])
+          .map((label) => label.name)
+          .join('|'),
         estimate: serialized.estimate ?? '',
-        dueDate: serialized.dueDate ? new Date(String(serialized.dueDate)).toISOString().slice(0, 10) : '',
+        dueDate: serialized.dueDate
+          ? new Date(String(serialized.dueDate)).toISOString().slice(0, 10)
+          : '',
         createdAt: new Date(String(serialized.createdAt)).toISOString(),
         updatedAt: new Date(String(serialized.updatedAt)).toISOString(),
       };

@@ -58,7 +58,9 @@ const optionalText = (max: number) =>
   z
     .union([z.string(), z.null()])
     .optional()
-    .transform((v) => (v === undefined ? undefined : v === null ? null : v.trim().slice(0, max) || null));
+    .transform((v) =>
+      v === undefined ? undefined : v === null ? null : v.trim().slice(0, max) || null,
+    );
 
 /* -------------------------------------------------------------------------- */
 /*  Auth                                                                      */
@@ -195,7 +197,10 @@ export const createIssueSchema = z.object({
   estimate: z
     .union([z.number().int().min(0).max(1000), z.null()])
     .optional()
-    .refine((v) => v === undefined || v === null || ESTIMATE_OPTIONS.includes(v as never), 'Invalid estimate'),
+    .refine(
+      (v) => v === undefined || v === null || ESTIMATE_OPTIONS.includes(v as never),
+      'Invalid estimate',
+    ),
   dueDate: optionalIsoDate,
 });
 export type CreateIssueInput = z.infer<typeof createIssueSchema>;
@@ -252,7 +257,9 @@ function csvArray<T extends z.ZodTypeAny>(item: T, max = 100) {
     if (value === undefined || value === null || value === '') return undefined;
     if (Array.isArray(value)) {
       return value.flatMap((entry) =>
-        typeof entry === 'string' && entry.includes(',') ? entry.split(',').filter(Boolean) : [entry],
+        typeof entry === 'string' && entry.includes(',')
+          ? entry.split(',').filter(Boolean)
+          : [entry],
       );
     }
     if (typeof value === 'string') return value.split(',').filter(Boolean);

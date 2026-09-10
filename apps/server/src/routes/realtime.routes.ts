@@ -97,7 +97,11 @@ export async function realtimeRoutes(app: FastifyInstance): Promise<void> {
         return;
       }
 
-      if (parsed.type === 'subscribe' && parsed.workspaceId && workspaceIds.includes(parsed.workspaceId)) {
+      if (
+        parsed.type === 'subscribe' &&
+        parsed.workspaceId &&
+        workspaceIds.includes(parsed.workspaceId)
+      ) {
         realtimeHub.setActiveWorkspace(meta.id, parsed.workspaceId);
         realtimeHub.sendToUser(user.id, {
           type: 'presence.sync',

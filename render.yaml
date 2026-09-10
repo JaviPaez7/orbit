@@ -1,0 +1,41 @@
+# ---------------------------------------------------------------------------
+# Render blueprint — API + PostgreSQL (+ static client served from the API host).
+#
+# 1. Create a new Blueprint on render.com and point it at this repository.
+# 2. Render provisions the database and injects DATABASE_URL.
+# 3. After the first deploy, run once:  pnpm db:use-postgres && pnpm db:generate
+#    (Render rebuilds with PostgreSQL enums; see README → Database setup.)
+# ---------------------------------------------------------------------------
+services:
+  - type: web
+    name: orbit-api
+    runtime: node
+    plan: starter
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
+    startCommand: pnpm --filter @orbit/server start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: orbit-db
+          property: connectionString
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: APP_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: COOKIE_SECURE
+        value: 'true'
+      - key: EXPOSE_RESET_TOKEN
+        value: 'false'
+
+databases:
+  - name: orbit-db
+    plan: basic-256mb
+    databaseName: orbit
+    user: orbit

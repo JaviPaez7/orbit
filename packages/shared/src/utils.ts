@@ -147,7 +147,10 @@ export function parseCsv(text: string): string[][] {
   let row: string[] = [];
   let cell = '';
   let inQuotes = false;
-  const input = text.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const input = text
+    .replace(/^\uFEFF/, '')
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n');
 
   for (let i = 0; i < input.length; i += 1) {
     const char = input[i]!;
@@ -202,7 +205,10 @@ export function toCsv(rows: Record<string, unknown>[], columns: readonly string[
 /*  Misc                                                                      */
 /* -------------------------------------------------------------------------- */
 
-export function groupBy<T, K extends string | number>(items: T[], key: (item: T) => K): Map<K, T[]> {
+export function groupBy<T, K extends string | number>(
+  items: T[],
+  key: (item: T) => K,
+): Map<K, T[]> {
   const map = new Map<K, T[]>();
   for (const item of items) {
     const k = key(item);

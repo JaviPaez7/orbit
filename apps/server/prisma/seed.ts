@@ -62,7 +62,9 @@ async function reset(): Promise<void> {
   await prisma.user.deleteMany();
 }
 
-async function createUsers(): Promise<Map<string, { id: string; name: string; email: string; handle: string }>> {
+async function createUsers(): Promise<
+  Map<string, { id: string; name: string; email: string; handle: string }>
+> {
   const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
   const map = new Map<string, { id: string; name: string; email: string; handle: string }>();
 
@@ -142,7 +144,10 @@ async function buildWorkspace(
   const labelNames = blueprint.labels.map((label) => label.name);
 
   // ---- projects -----------------------------------------------------------
-  const projects = new Map<string, { id: string; blueprint: (typeof blueprint.projects)[number] }>();
+  const projects = new Map<
+    string,
+    { id: string; blueprint: (typeof blueprint.projects)[number] }
+  >();
   for (const project of blueprint.projects) {
     const lead = users.get(project.leadHandle);
     const created = await prisma.project.create({
@@ -172,8 +177,7 @@ async function buildWorkspace(
   const cycles: CycleRecord[] = [];
   const anchorEnd = new Date(Date.now() + 4 * DAY);
   for (let index = blueprint.cyclesBack; index >= -blueprint.cyclesForward; index -= 1) {
-    const number =
-      blueprint.cyclesBack - index + 1; // 1..N, increasing with time
+    const number = blueprint.cyclesBack - index + 1; // 1..N, increasing with time
     const endDate = new Date(anchorEnd.getTime() - index * blueprint.cycleLengthDays * DAY);
     const startDate = new Date(endDate.getTime() - blueprint.cycleLengthDays * DAY);
     const status = index > 0 ? 'completed' : index === 0 ? 'active' : 'upcoming';
@@ -192,7 +196,8 @@ async function buildWorkspace(
     });
     cycles.push(created);
   }
-  const activeCycle = cycles.find((cycle) => cycle.status === 'active') ?? cycles[cycles.length - 1]!;
+  const activeCycle =
+    cycles.find((cycle) => cycle.status === 'active') ?? cycles[cycles.length - 1]!;
   const pastCycles = cycles.filter((cycle) => cycle.status !== 'upcoming');
 
   // ---- issues -------------------------------------------------------------
@@ -203,10 +208,7 @@ async function buildWorkspace(
   for (const [projectName, entry] of projects) {
     const blueprintProject = entry.blueprint;
     const pool = ISSUE_TITLES[projectName] ?? [];
-    const count = Math.max(
-      pool.length,
-      Math.round(totalTarget * (blueprintProject.weight / 8)),
-    );
+    const count = Math.max(pool.length, Math.round(totalTarget * (blueprintProject.weight / 8)));
 
     for (let i = 0; i < count; i += 1) {
       issueCounter += 1;
@@ -241,7 +243,10 @@ async function buildWorkspace(
 
       const ageDays =
         blueprintProject.status === 'completed'
-          ? intBetween(projectAgeFloor(blueprintProject.startOffsetDays), blueprintProject.startOffsetDays)
+          ? intBetween(
+              projectAgeFloor(blueprintProject.startOffsetDays),
+              blueprintProject.startOffsetDays,
+            )
           : intBetween(1, Math.max(3, Math.min(110, blueprintProject.startOffsetDays)));
 
       const createdAt = daysAgo(ageDays);
@@ -258,7 +263,8 @@ async function buildWorkspace(
       const creatorId =
         rand() < 0.4 ? (users.get(blueprint.ownerHandle)!.id as string) : pick(memberIds);
 
-      const dueDate = rand() < 0.55 ? new Date(createdAt.getTime() + intBetween(7, 60) * DAY) : null;
+      const dueDate =
+        rand() < 0.55 ? new Date(createdAt.getTime() + intBetween(7, 60) * DAY) : null;
       const estimate = rand() < 0.72 ? pick([0, 1, 2, 3, 5, 8, 13] as const) : null;
 
       const created = await prisma.issue.create({
@@ -345,7 +351,8 @@ async function buildWorkspace(
           'unexpected spike in queue depth',
           'follow-up from the incident review',
         ])}`,
-        description: 'Raised outside the normal planning flow — needs scoping before it can be scheduled.',
+        description:
+          'Raised outside the normal planning flow — needs scoping before it can be scheduled.',
         status,
         priority,
         boardOrder: 900_000 + i,
@@ -355,7 +362,8 @@ async function buildWorkspace(
         creatorId: pick(memberIds),
         estimate: null,
         dueDate: null,
-        completedAt: status === 'done' ? new Date(Math.min(Date.now(), createdAt.getTime() + 3 * DAY)) : null,
+        completedAt:
+          status === 'done' ? new Date(Math.min(Date.now(), createdAt.getTime() + 3 * DAY)) : null,
         createdAt,
         updatedAt: createdAt,
         labels: {
@@ -554,7 +562,13 @@ async function buildWorkspace(
       data: {
         issueId: issue.id,
         uploaderId: pick(memberIds),
-        filename: pick(['trace.log', 'screenshot.png', 'query-plan.txt', 'flamegraph.svg', 'repro.mp4']),
+        filename: pick([
+          'trace.log',
+          'screenshot.png',
+          'query-plan.txt',
+          'flamegraph.svg',
+          'repro.mp4',
+        ]),
         url: 'https://example.com/orbit-demo-attachment',
         mimeType: 'text/plain',
         size: intBetween(2048, 900_000),
@@ -580,7 +594,11 @@ async function buildWorkspace(
   const actorOf = (handle: string) => {
     const record = users.get(handle)!;
     const seed = USERS.find((user) => user.handle === handle)!;
-    return { id: record.id, name: record.name, avatarUrl: avatarDataUrl(seed.name, seed.avatarColor) };
+    return {
+      id: record.id,
+      name: record.name,
+      avatarUrl: avatarDataUrl(seed.name, seed.avatarColor),
+    };
   };
 
   for (const issue of ownerIssues.slice(0, 12)) {
@@ -724,7 +742,9 @@ async function main(): Promise<void> {
     );
   }
   console.log('');
-  console.log(`  labels: ${labels}   comments: ${comments}   activity: ${activities}   notifications: ${notifications}`);
+  console.log(
+    `  labels: ${labels}   comments: ${comments}   activity: ${activities}   notifications: ${notifications}`,
+  );
   console.log(`  active sessions: ${sessions} (cleared — sign in to create one)`);
   console.log(`  total issues: ${totalIssues}   tracked activity events: ${totalActivity}`);
   console.log('');

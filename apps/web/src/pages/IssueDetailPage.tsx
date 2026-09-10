@@ -33,7 +33,13 @@ import { useAuth, usePermissions } from '../context/AuthContext';
 import { useRealtime } from '../context/RealtimeContext';
 import { ApiError, api, apiUpload } from '../lib/api';
 import { queryKeys } from '../lib/query-client';
-import { formatDateTime, formatBytes, relativeTime, renderMarkdown, toDateInput } from '../lib/utils';
+import {
+  formatDateTime,
+  formatBytes,
+  relativeTime,
+  renderMarkdown,
+  toDateInput,
+} from '../lib/utils';
 import type { Activity, Cycle, Issue, Label, Project } from '../lib/types';
 import type { Comment } from '../lib/types';
 import { Header } from '../components/layout/Header';
@@ -85,8 +91,7 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
   // A second fetch (by id) provides the detail-only relations/children payload.
   const detailQuery = useQuery({
     queryKey: queryKeys.issue(workspaceId, issue?.id ?? 'pending'),
-    queryFn: () =>
-      api.get<{ issue: Issue }>(`/workspaces/${workspaceId}/issues/${issue!.id}`),
+    queryFn: () => api.get<{ issue: Issue }>(`/workspaces/${workspaceId}/issues/${issue!.id}`),
     enabled: Boolean(workspaceId && issue?.id),
     staleTime: 5000,
   });
@@ -95,13 +100,15 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
 
   const commentsQuery = useQuery({
     queryKey: queryKeys.comments(workspaceId, detail?.id ?? 'pending'),
-    queryFn: () => api.get<{ comments: Comment[] }>(`/workspaces/${workspaceId}/issues/${detail!.id}/comments`),
+    queryFn: () =>
+      api.get<{ comments: Comment[] }>(`/workspaces/${workspaceId}/issues/${detail!.id}/comments`),
     enabled: Boolean(workspaceId && detail?.id),
   });
 
   const activityQuery = useQuery({
     queryKey: queryKeys.activity(workspaceId, detail?.id ?? 'pending'),
-    queryFn: () => api.get<{ activity: Activity[] }>(`/workspaces/${workspaceId}/issues/${detail!.id}/activity`),
+    queryFn: () =>
+      api.get<{ activity: Activity[] }>(`/workspaces/${workspaceId}/issues/${detail!.id}/activity`),
     enabled: Boolean(workspaceId && detail?.id),
   });
 
@@ -146,8 +153,12 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
       if (event.workspaceId !== workspaceId) return;
       const payload = event.payload as { issue?: Issue; issueId?: string };
       if (event.type === 'comment.created' && payload.issueId === detail?.id) {
-        void queryClient.invalidateQueries({ queryKey: queryKeys.comments(workspaceId, detail!.id) });
-        void queryClient.invalidateQueries({ queryKey: queryKeys.activity(workspaceId, detail!.id) });
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.comments(workspaceId, detail!.id),
+        });
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.activity(workspaceId, detail!.id),
+        });
       }
       if (event.type.startsWith('issue.')) {
         const relevant =
@@ -170,7 +181,10 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
       api.patch<{ issue: Issue }>(`/workspaces/${workspaceId}/issues/${detail!.id}`, payload),
     onError: (error) => {
       void queryClient.invalidateQueries({ queryKey: ['issue'] });
-      toast.error('Could not save the change', error instanceof ApiError ? error.message : undefined);
+      toast.error(
+        'Could not save the change',
+        error instanceof ApiError ? error.message : undefined,
+      );
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['issue'] });
@@ -212,7 +226,10 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
       void queryClient.invalidateQueries({ queryKey: ['issues'] });
     },
     onError: (error) =>
-      toast.error('Could not post the comment', error instanceof ApiError ? error.message : undefined),
+      toast.error(
+        'Could not post the comment',
+        error instanceof ApiError ? error.message : undefined,
+      ),
   });
 
   const commentEditMutation = useMutation({
@@ -223,17 +240,24 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
       void queryClient.invalidateQueries({ queryKey: queryKeys.comments(workspaceId, detail!.id) });
     },
     onError: (error) =>
-      toast.error('Could not edit the comment', error instanceof ApiError ? error.message : undefined),
+      toast.error(
+        'Could not edit the comment',
+        error instanceof ApiError ? error.message : undefined,
+      ),
   });
 
   const commentDeleteMutation = useMutation({
-    mutationFn: (commentId: string) => api.delete(`/workspaces/${workspaceId}/comments/${commentId}`),
+    mutationFn: (commentId: string) =>
+      api.delete(`/workspaces/${workspaceId}/comments/${commentId}`),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.comments(workspaceId, detail!.id) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.activity(workspaceId, detail!.id) });
     },
     onError: (error) =>
-      toast.error('Could not delete the comment', error instanceof ApiError ? error.message : undefined),
+      toast.error(
+        'Could not delete the comment',
+        error instanceof ApiError ? error.message : undefined,
+      ),
   });
 
   const relationMutation = useMutation({
@@ -249,7 +273,10 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
       toast.success('Issue linked');
     },
     onError: (error) =>
-      toast.error('Could not link the issue', error instanceof ApiError ? error.message : undefined),
+      toast.error(
+        'Could not link the issue',
+        error instanceof ApiError ? error.message : undefined,
+      ),
   });
 
   const relationDeleteMutation = useMutation({
@@ -286,7 +313,10 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
-      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+      if (
+        target &&
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
+      ) {
         return;
       }
       if (document.querySelector('[role="dialog"][aria-modal="true"]')) return;
@@ -307,7 +337,11 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
 
   const relations = useMemo(() => {
     if (!detail) return [];
-    const out: { id: string; type: string; issue: { id: string; identifier: string; title: string } }[] = [];
+    const out: {
+      id: string;
+      type: string;
+      issue: { id: string; identifier: string; title: string };
+    }[] = [];
     for (const relation of detail.relationsFrom ?? []) {
       out.push({ id: relation.id, type: relation.type, issue: relation.relatedIssue });
     }
@@ -405,12 +439,20 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
 
           <div className="mt-6">
             <div className="mb-2 flex items-center gap-2">
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-subtle">Description</h2>
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-subtle">
+                Description
+              </h2>
               {canEditIssues && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  leftIcon={editingDescription ? <X className="h-3.5 w-3.5" /> : <Pencil className="h-3.5 w-3.5" />}
+                  leftIcon={
+                    editingDescription ? (
+                      <X className="h-3.5 w-3.5" />
+                    ) : (
+                      <Pencil className="h-3.5 w-3.5" />
+                    )
+                  }
                   onClick={() => {
                     if (editingDescription && descriptionDraft !== (detail.description ?? '')) {
                       updateMutation.mutate({ description: descriptionDraft || null });
@@ -488,7 +530,11 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
                       <span className="font-mono text-2xs text-subtle">{child.identifier}</span>
                       <span className="min-w-0 flex-1 truncate text-fg">{child.title}</span>
                       {child.assignee && (
-                        <Avatar name={child.assignee.name} src={child.assignee.avatarUrl} size="sm" />
+                        <Avatar
+                          name={child.assignee.name}
+                          src={child.assignee.avatarUrl}
+                          size="sm"
+                        />
                       )}
                     </Link>
                   </li>
@@ -529,7 +575,9 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
                       to={`/issues/${relation.issue.identifier}`}
                       className="flex min-w-0 flex-1 items-center gap-2 text-sm hover:text-accent"
                     >
-                      <span className="font-mono text-2xs text-subtle">{relation.issue.identifier}</span>
+                      <span className="font-mono text-2xs text-subtle">
+                        {relation.issue.identifier}
+                      </span>
                       <span className="truncate">{relation.issue.title}</span>
                     </Link>
                     {canEditIssues && (
@@ -659,7 +707,11 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
                   aria-label="New comment"
                   data-testid="comment-input"
                   onKeyDown={(event) => {
-                    if ((event.metaKey || event.ctrlKey) && event.key === 'Enter' && commentDraft.trim()) {
+                    if (
+                      (event.metaKey || event.ctrlKey) &&
+                      event.key === 'Enter' &&
+                      commentDraft.trim()
+                    ) {
                       commentMutation.mutate(commentDraft.trim());
                     }
                   }}
@@ -710,7 +762,10 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
                         __html: renderMarkdown(entry.description).replace(/<\/?p>/g, ''),
                       }}
                     />
-                    <p className="mt-0.5 text-2xs text-subtle" title={formatDateTime(entry.createdAt)}>
+                    <p
+                      className="mt-0.5 text-2xs text-subtle"
+                      title={formatDateTime(entry.createdAt)}
+                    >
                       {relativeTime(entry.createdAt)}
                     </p>
                   </div>
@@ -767,7 +822,9 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
                 trigger={
                   <>
                     <PriorityIcon priority={detail.priority} className="h-3.5 w-3.5" />
-                    <span>{ISSUE_PRIORITY_LABELS[detail.priority as never] ?? detail.priority}</span>
+                    <span>
+                      {ISSUE_PRIORITY_LABELS[detail.priority as never] ?? detail.priority}
+                    </span>
                   </>
                 }
               />
@@ -793,7 +850,11 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
                 trigger={
                   <>
                     {detail.assignee ? (
-                      <Avatar name={detail.assignee.name} src={detail.assignee.avatarUrl} size="xs" />
+                      <Avatar
+                        name={detail.assignee.name}
+                        src={detail.assignee.avatarUrl}
+                        size="xs"
+                      />
                     ) : (
                       <span className="h-3.5 w-3.5 rounded-full border border-dashed border-line-strong" />
                     )}
@@ -855,7 +916,9 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
                   label: `${value} points`,
                 }))}
                 value={detail.estimate === null ? '' : String(detail.estimate)}
-                onChange={(value) => updateMutation.mutate({ estimate: value === '' ? null : Number(value) })}
+                onChange={(value) =>
+                  updateMutation.mutate({ estimate: value === '' ? null : Number(value) })
+                }
                 width={180}
                 align="end"
                 ariaLabel="Estimate"
@@ -1023,7 +1086,9 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
                 onClick={() =>
                   updateMutation.mutate({
                     labelIds: active
-                      ? detail.labels.filter((entry) => entry.id !== label.id).map((entry) => entry.id)
+                      ? detail.labels
+                          .filter((entry) => entry.id !== label.id)
+                          .map((entry) => entry.id)
                       : [...detail.labels.map((entry) => entry.id), label.id],
                   })
                 }
@@ -1131,7 +1196,10 @@ function CommentItem({
   const [confirming, setConfirming] = useState(false);
 
   return (
-    <article className="rounded-lg border border-line bg-surface p-3" data-testid={`comment-${comment.id}`}>
+    <article
+      className="rounded-lg border border-line bg-surface p-3"
+      data-testid={`comment-${comment.id}`}
+    >
       <header className="mb-2 flex items-center gap-2">
         <Avatar name={comment.author.name} src={comment.author.avatarUrl} size="md" />
         <div className="min-w-0 flex-1">
@@ -1176,7 +1244,11 @@ function CommentItem({
 
       {editing ? (
         <div className="space-y-2">
-          <Textarea value={draft} onChange={(event) => onDraftChange(event.target.value)} rows={4} />
+          <Textarea
+            value={draft}
+            onChange={(event) => onDraftChange(event.target.value)}
+            rows={4}
+          />
           <div className="flex items-center gap-2">
             <Button variant="primary" size="sm" loading={saving} onClick={onSaveEdit}>
               Save

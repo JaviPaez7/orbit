@@ -31,13 +31,29 @@ test.describe('issue list and bulk operations', () => {
   });
 
   test('text search narrows the list', async ({ page }) => {
-    await page.getByTestId('issue-search').fill('retry');
-    await expect(page.getByTestId('issue-count')).toContainText(/issue/, { timeout: 15_000 });
-    await page.waitForTimeout(600);
+    const before = Number(
+      (await page.getByTestId('issue-count').textContent())?.replace(/\D/g, '') ?? '0',
+    );
+
+    await page.getByTestId('issue-search').fill('dunning');
+
+    // The server-side search filters the list down.
+    await expect
+      .poll(
+        async () =>
+          Number((await page.getByTestId('issue-count').textContent())?.replace(/\D/g, '') ?? '0'),
+        { timeout: 20_000 },
+      )
+      .toBeLessThan(before);
+
     const rows = page.locator('[data-testid^="issue-row-"]');
-    if ((await rows.count()) > 0) {
-      await expect(rows.first()).toContainText(/retry/i);
-    }
+    await expect(rows.first()).toBeVisible();
+
+    // The matching issue is present; the search also covers description,
+    // comments and labels, so not every row repeats the term in its title.
+    const texts = await rows.allTextContents();
+    expect(texts.length).toBeGreaterThan(0);
+    expect(texts.some((text) => /dunning/i.test(text))).toBe(true);
   });
 
   test('multi-select bulk status change persists', async ({ page }) => {
@@ -48,7 +64,13 @@ test.describe('issue list and bulk operations', () => {
     await expect(page.getByTestId('bulk-actions')).toContainText('2 selected');
 
     await page.getByTestId('bulk-actions').getByRole('button', { name: 'Status' }).click();
-    await page.getByRole('menuitem', { name: 'Done', exact: true }).click();
+    // Scope to the open menu (the list itself also contains "Done" text) and
+    // match on the label text, which is stable across icon markup changes.
+    await page
+      .getByTestId('menu-panel')
+      .getByRole('menuitem')
+      .filter({ hasText: /^Done$/ })
+      .click();
 
     await expect(page.getByText('Updated 2 issues')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('bulk-actions')).toBeHidden();
@@ -74,7 +96,9 @@ test.describe('issue list and bulk operations', () => {
     await page.getByTestId('confirm-bulk-delete').click();
 
     await expect(page.getByText(/Deleted 1 issue/)).toBeVisible({ timeout: 15_000 });
-    await expect(page.locator('[data-testid^="issue-row-"]').filter({ hasText: title })).toHaveCount(0);
+    await expect(
+      page.locator('[data-testid^="issue-row-"]').filter({ hasText: title }),
+    ).toHaveCount(0);
   });
 
   test('keyboard navigation moves focus and opens the focused issue', async ({ page }) => {

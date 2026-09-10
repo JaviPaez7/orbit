@@ -109,7 +109,9 @@ export function Sidebar({
               {!collapsed && (
                 <>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium text-fg">{workspace.name}</span>
+                    <span className="block truncate text-sm font-medium text-fg">
+                      {workspace.name}
+                    </span>
                     <span className="block truncate text-2xs text-subtle">
                       {workspace.role} · {workspace.key}
                     </span>
@@ -178,7 +180,14 @@ export function Sidebar({
       <nav className="flex-1 overflow-y-auto px-2 pb-2" aria-label="Main">
         <ul className="space-y-0.5">
           <li>
-            <NavLink to="/search" className={navItemClass} onClick={(event) => { event.preventDefault(); onOpenSearch(); }}>
+            <NavLink
+              to="/search"
+              className={navItemClass}
+              onClick={(event) => {
+                event.preventDefault();
+                onOpenSearch();
+              }}
+            >
               <SearchIcon />
               {!collapsed && <span className="flex-1">Search</span>}
               {!collapsed && <span className="kbd">/</span>}
@@ -231,7 +240,9 @@ export function Sidebar({
         {!collapsed && (
           <>
             <div className="mt-4 flex items-center justify-between px-2">
-              <span className="text-2xs font-semibold uppercase tracking-wider text-subtle">Cycles</span>
+              <span className="text-2xs font-semibold uppercase tracking-wider text-subtle">
+                Cycles
+              </span>
               {canManageCycles && (
                 <Tooltip label="New cycle">
                   <a
@@ -263,7 +274,9 @@ export function Sidebar({
             </ul>
 
             <div className="mt-4 flex items-center justify-between px-2">
-              <span className="text-2xs font-semibold uppercase tracking-wider text-subtle">Projects</span>
+              <span className="text-2xs font-semibold uppercase tracking-wider text-subtle">
+                Projects
+              </span>
               {canManageProjects && (
                 <Tooltip label="New project">
                   <button
@@ -302,7 +315,10 @@ export function Sidebar({
                 <li className="px-2 py-1.5 text-xs text-subtle">No projects yet</li>
               )}
               <li>
-                <NavLink to="/projects" className={cn(navItemClass({ isActive: false }), 'text-subtle')}>
+                <NavLink
+                  to="/projects"
+                  className={cn(navItemClass({ isActive: false }), 'text-subtle')}
+                >
                   <span className="w-4" />
                   <span className="flex-1">View all</span>
                 </NavLink>
@@ -324,7 +340,11 @@ export function Sidebar({
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-xs font-medium text-fg">{user?.name}</span>
                 <span className="block truncate text-2xs text-subtle">
-                  {socketStatus === 'open' ? 'Live' : socketStatus === 'reconnecting' ? 'Reconnecting…' : 'Offline'}
+                  {socketStatus === 'open'
+                    ? 'Live'
+                    : socketStatus === 'reconnecting'
+                      ? 'Reconnecting…'
+                      : 'Offline'}
                 </span>
               </span>
             )}
@@ -344,13 +364,28 @@ export function Sidebar({
                 </button>
               )}
             >
-              <MenuItem icon={<UserCircle2 className="h-3.5 w-3.5" />} onClick={() => { navigate('/settings/profile'); }}>
+              <MenuItem
+                icon={<UserCircle2 className="h-3.5 w-3.5" />}
+                onClick={() => {
+                  navigate('/settings/profile');
+                }}
+              >
                 Profile
               </MenuItem>
-              <MenuItem icon={<Settings className="h-3.5 w-3.5" />} onClick={() => { navigate('/settings/workspace'); }}>
+              <MenuItem
+                icon={<Settings className="h-3.5 w-3.5" />}
+                onClick={() => {
+                  navigate('/settings/workspace');
+                }}
+              >
                 Workspace settings
               </MenuItem>
-              <MenuItem icon={<Bell className="h-3.5 w-3.5" />} onClick={() => { navigate('/settings/notifications'); }}>
+              <MenuItem
+                icon={<Bell className="h-3.5 w-3.5" />}
+                onClick={() => {
+                  navigate('/settings/notifications');
+                }}
+              >
                 Notifications
               </MenuItem>
               <MenuItem onClick={onOpenShortcuts} shortcut="?">
@@ -369,7 +404,11 @@ export function Sidebar({
               aria-label="Toggle sidebar"
               onClick={onToggleCollapse}
             >
-              {collapsed ? <RefreshCw className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5 rotate-90" />}
+              {collapsed ? (
+                <RefreshCw className="h-3.5 w-3.5" />
+              ) : (
+                <ChevronDown className="h-3.5 w-3.5 rotate-90" />
+              )}
             </Button>
           </Tooltip>
         </div>
@@ -380,7 +419,13 @@ export function Sidebar({
 
 function SearchIcon() {
   return (
-    <svg viewBox="0 0 16 16" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <svg
+      viewBox="0 0 16 16"
+      className="h-4 w-4 shrink-0"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    >
       <circle cx="7" cy="7" r="4.25" />
       <path d="M10.5 10.5 14 14" strokeLinecap="round" />
     </svg>

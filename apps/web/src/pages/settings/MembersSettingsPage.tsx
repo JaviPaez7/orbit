@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Check, Mail, ShieldCheck, Trash2, UserPlus, Users } from 'lucide-react';
+import { Check, Mail, ShieldAlert, ShieldCheck, Trash2, UserPlus, Users } from 'lucide-react';
 import { WORKSPACE_ROLES, WORKSPACE_ROLE_LABELS, type WorkspaceRole } from '@orbit/shared';
 import { useAuth, usePermissions } from '../../context/AuthContext';
 import { ApiError, api } from '../../lib/api';
@@ -64,10 +64,14 @@ export default function MembersSettingsPage() {
     onError: (error) => {
       if (error instanceof ApiError && error.fields) {
         const flat: Record<string, string> = {};
-        for (const [key, messages] of Object.entries(error.fields)) if (messages[0]) flat[key] = messages[0];
+        for (const [key, messages] of Object.entries(error.fields))
+          if (messages[0]) flat[key] = messages[0];
         setErrors(flat);
       }
-      toast.error('Could not add the member', error instanceof ApiError ? error.message : undefined);
+      toast.error(
+        'Could not add the member',
+        error instanceof ApiError ? error.message : undefined,
+      );
     },
   });
 
@@ -80,7 +84,10 @@ export default function MembersSettingsPage() {
       void refresh();
     },
     onError: (error) =>
-      toast.error('Could not change the role', error instanceof ApiError ? error.message : undefined),
+      toast.error(
+        'Could not change the role',
+        error instanceof ApiError ? error.message : undefined,
+      ),
   });
 
   const removeMutation = useMutation({
@@ -91,11 +98,37 @@ export default function MembersSettingsPage() {
       void refresh();
     },
     onError: (error) =>
-      toast.error('Could not remove the member', error instanceof ApiError ? error.message : undefined),
+      toast.error(
+        'Could not remove the member',
+        error instanceof ApiError ? error.message : undefined,
+      ),
   });
 
   const members = membersQuery.data?.members ?? [];
   const pendingInvites = membersQuery.data?.pendingInvites ?? [];
+
+  // Members management requires an admin or owner. The API rejects the request
+  // anyway; this renders an honest explanation instead of an empty table.
+  if (!canManageMembers) {
+    return (
+      <div className="space-y-5">
+        <section className="card p-4" data-testid="members-forbidden">
+          <h2 className="flex items-center gap-1.5 text-sm font-medium text-fg">
+            <ShieldAlert className="h-4 w-4 text-warning" /> Members are restricted
+          </h2>
+          <p className="mt-1 text-xs text-muted">
+            Your role in this workspace is <span className="font-medium text-fg">{role}</span>.
+            Managing members requires the <span className="font-medium text-fg">admin</span> or{' '}
+            <span className="font-medium text-fg">owner</span> role, so the request was not allowed
+            (HTTP 403).
+          </p>
+          <p className="mt-2 text-2xs text-subtle">
+            Ask a workspace admin if you need your role changed.
+          </p>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">
@@ -133,7 +166,11 @@ export default function MembersSettingsPage() {
             />
           )}
           {!membersQuery.isLoading && members.length === 0 && (
-            <EmptyState compact title="No members" description="Invite your teammates to collaborate." />
+            <EmptyState
+              compact
+              title="No members"
+              description="Invite your teammates to collaborate."
+            />
           )}
           <ul className="divide-y divide-line">
             {members.map((member) => {
@@ -180,8 +217,12 @@ export default function MembersSettingsPage() {
                           key={entry}
                           selected={entry === member.role}
                           disabled={entry === 'owner'}
-                          onClick={() => roleMutation.mutate({ memberId: member.id, nextRole: entry })}
-                          icon={entry === member.role ? <Check className="h-3.5 w-3.5" /> : undefined}
+                          onClick={() =>
+                            roleMutation.mutate({ memberId: member.id, nextRole: entry })
+                          }
+                          icon={
+                            entry === member.role ? <Check className="h-3.5 w-3.5" /> : undefined
+                          }
                         >
                           {WORKSPACE_ROLE_LABELS[entry]}
                         </MenuItem>
@@ -235,20 +276,20 @@ export default function MembersSettingsPage() {
           </h3>
           <ul className="mt-2 space-y-1 text-xs text-muted">
             <li>
-              <span className="font-medium text-fg">Viewer</span> — read issues, export CSV, comment. Cannot
-              edit.
+              <span className="font-medium text-fg">Viewer</span> — read issues, export CSV,
+              comment. Cannot edit.
             </li>
             <li>
-              <span className="font-medium text-fg">Member</span> — create, edit, move, assign and delete
-              issues.
+              <span className="font-medium text-fg">Member</span> — create, edit, move, assign and
+              delete issues.
             </li>
             <li>
-              <span className="font-medium text-fg">Admin</span> — everything a member can do, plus manage
-              projects, cycles, labels and members.
+              <span className="font-medium text-fg">Admin</span> — everything a member can do, plus
+              manage projects, cycles, labels and members.
             </li>
             <li>
-              <span className="font-medium text-fg">Owner</span> — full control, including deleting the
-              workspace.
+              <span className="font-medium text-fg">Owner</span> — full control, including deleting
+              the workspace.
             </li>
           </ul>
           <p className="mt-2 text-2xs text-subtle">

@@ -282,7 +282,8 @@ export function CommandPalette({
           id: `result-${result.type}-${result.id}`,
           label: result.title,
           hint: result.subtitle ?? result.type,
-          group: result.type === 'issue' ? 'Issues' : result.type === 'project' ? 'Projects' : 'Results',
+          group:
+            result.type === 'issue' ? 'Issues' : result.type === 'project' ? 'Projects' : 'Results',
           icon:
             result.type === 'issue' ? (
               <StatusIcon status={String(result.meta?.status ?? 'todo')} />
@@ -421,8 +422,7 @@ export function CommandPalette({
         <div ref={listRef} className="flex-1 overflow-y-auto p-1.5">
           {debounced.length > 0 && results.length === 0 && commands.length === 0 && (
             <p className="px-3 py-6 text-center text-xs text-subtle">
-              No results for “{debounced}”
-              {searchQuery.isFetching ? ' — searching…' : ''}
+              No results for “{debounced}”{searchQuery.isFetching ? ' — searching…' : ''}
             </p>
           )}
           {grouped.map(([group, groupItems]) => (
@@ -455,7 +455,9 @@ export function CommandPalette({
                     </span>
                     <span className="min-w-0 flex-1 truncate">{item.label}</span>
                     {item.hint && (
-                      <span className="max-w-[10rem] shrink-0 truncate text-2xs text-subtle">{item.hint}</span>
+                      <span className="max-w-[10rem] shrink-0 truncate text-2xs text-subtle">
+                        {item.hint}
+                      </span>
                     )}
                     {item.shortcut && <span className="kbd shrink-0">{item.shortcut}</span>}
                     {active && <CornerDownLeft className="h-3 w-3 shrink-0 text-subtle" />}

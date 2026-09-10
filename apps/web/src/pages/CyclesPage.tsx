@@ -71,10 +71,14 @@ export default function CyclesPage() {
     onError: (error) => {
       if (error instanceof ApiError && error.fields) {
         const flat: Record<string, string> = {};
-        for (const [key, messages] of Object.entries(error.fields)) if (messages[0]) flat[key] = messages[0];
+        for (const [key, messages] of Object.entries(error.fields))
+          if (messages[0]) flat[key] = messages[0];
         setErrors(flat);
       }
-      toast.error('Could not create the cycle', error instanceof ApiError ? error.message : undefined);
+      toast.error(
+        'Could not create the cycle',
+        error instanceof ApiError ? error.message : undefined,
+      );
     },
   });
 
@@ -86,7 +90,10 @@ export default function CyclesPage() {
       toast.success('Cycle updated');
     },
     onError: (error) =>
-      toast.error('Could not update the cycle', error instanceof ApiError ? error.message : undefined),
+      toast.error(
+        'Could not update the cycle',
+        error instanceof ApiError ? error.message : undefined,
+      ),
   });
 
   const deleteMutation = useMutation({
@@ -96,7 +103,10 @@ export default function CyclesPage() {
       void queryClient.invalidateQueries({ queryKey: ['cycles'] });
     },
     onError: (error) =>
-      toast.error('Could not delete the cycle', error instanceof ApiError ? error.message : undefined),
+      toast.error(
+        'Could not delete the cycle',
+        error instanceof ApiError ? error.message : undefined,
+      ),
   });
 
   const cycles = useMemo(() => cyclesQuery.data?.cycles ?? [], [cyclesQuery.data]);
@@ -106,7 +116,10 @@ export default function CyclesPage() {
     const filtered = cycles.filter((cycle) => filter === 'all' || cycle.status === filter);
     return {
       active: filtered.filter((cycle) => cycle.status === 'active'),
-      upcoming: filtered.filter((cycle) => cycle.status === 'upcoming').slice().reverse(),
+      upcoming: filtered
+        .filter((cycle) => cycle.status === 'upcoming')
+        .slice()
+        .reverse(),
       completed: filtered.filter((cycle) => cycle.status === 'completed'),
     };
   }, [cycles, filter]);
@@ -128,7 +141,9 @@ export default function CyclesPage() {
                 onClick={() => setFilter(entry)}
                 className={cn(
                   'rounded-md border px-2 py-0.5 text-xs capitalize transition-colors',
-                  filter === entry ? 'border-accent text-fg' : 'border-line text-muted hover:text-fg',
+                  filter === entry
+                    ? 'border-accent text-fg'
+                    : 'border-line text-muted hover:text-fg',
                 )}
               >
                 {entry}
@@ -196,7 +211,11 @@ export default function CyclesPage() {
               </h2>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {list.map((cycle) => (
-                  <article key={cycle.id} className="card p-4" data-testid={`cycle-card-${cycle.id}`}>
+                  <article
+                    key={cycle.id}
+                    className="card p-4"
+                    data-testid={`cycle-card-${cycle.id}`}
+                  >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <Link
@@ -253,7 +272,9 @@ export default function CyclesPage() {
                           value={cycle.timeProgress}
                           height="h-1"
                           color={
-                            cycle.timeProgress > cycle.progress ? 'rgb(var(--warning))' : 'rgb(var(--success))'
+                            cycle.timeProgress > cycle.progress
+                              ? 'rgb(var(--warning))'
+                              : 'rgb(var(--success))'
                           }
                         />
                       </div>
@@ -280,7 +301,9 @@ export default function CyclesPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => statusMutation.mutate({ cycleId: cycle.id, status: 'active' })}
+                              onClick={() =>
+                                statusMutation.mutate({ cycleId: cycle.id, status: 'active' })
+                              }
                             >
                               Reopen
                             </Button>
@@ -344,7 +367,9 @@ export default function CyclesPage() {
               <Input
                 id={id}
                 value={form.name}
-                onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
+                onChange={(event) =>
+                  setForm((current) => ({ ...current, name: event.target.value }))
+                }
                 placeholder="Cycle 15"
                 data-autofocus
               />
@@ -357,7 +382,9 @@ export default function CyclesPage() {
                   id={id}
                   type="date"
                   value={form.startDate}
-                  onChange={(event) => setForm((current) => ({ ...current, startDate: event.target.value }))}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, startDate: event.target.value }))
+                  }
                 />
               )}
             </Field>
@@ -367,7 +394,9 @@ export default function CyclesPage() {
                   id={id}
                   type="date"
                   value={form.endDate}
-                  onChange={(event) => setForm((current) => ({ ...current, endDate: event.target.value }))}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, endDate: event.target.value }))
+                  }
                 />
               )}
             </Field>

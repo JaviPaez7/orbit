@@ -65,7 +65,10 @@ export default function ForgotPasswordPage() {
               <p className="mt-1 text-xs text-muted">
                 No mail transport is configured, so the reset link is returned directly:
               </p>
-              <Link to={resetUrl.replace(/^https?:\/\/[^/]+/, '')} className="link mt-2 block break-all text-xs">
+              <Link
+                to={resetUrl.replace(/^https?:\/\/[^/]+/, '')}
+                className="link mt-2 block break-all text-xs"
+              >
                 {resetUrl}
               </Link>
             </div>

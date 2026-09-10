@@ -2,14 +2,7 @@ import { useRef, useState } from 'react';
 import { useIssueComposer } from '../context/IssueComposerContext';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  AlertTriangle,
-  CheckCircle2,
-  Download,
-  FileSpreadsheet,
-  Upload,
-  X,
-} from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Download, FileSpreadsheet, Upload, X } from 'lucide-react';
 import { CSV_COLUMNS } from '@orbit/shared';
 import { useAuth, usePermissions } from '../context/AuthContext';
 import { ApiError, api, downloadText } from '../lib/api';
@@ -45,9 +38,15 @@ export default function ImportPage() {
     onSuccess: (data) => {
       setResult(data);
       if (data.dryRun) {
-        toast.info('Validation complete', `${data.imported} row(s) would be imported, ${data.failed} invalid`);
+        toast.info(
+          'Validation complete',
+          `${data.imported} row(s) would be imported, ${data.failed} invalid`,
+        );
       } else {
-        toast.success(`Imported ${data.imported} issue${data.imported === 1 ? '' : 's'}`, `${data.failed} row(s) skipped`);
+        toast.success(
+          `Imported ${data.imported} issue${data.imported === 1 ? '' : 's'}`,
+          `${data.failed} row(s) skipped`,
+        );
         void queryClient.invalidateQueries({ queryKey: ['issues'] });
         void queryClient.invalidateQueries({ queryKey: ['projects'] });
       }
@@ -83,7 +82,10 @@ export default function ImportPage() {
               size="sm"
               leftIcon={<Download className="h-3.5 w-3.5" />}
               onClick={() =>
-                void downloadText(`/workspaces/${workspaceId}/import/template.csv`, 'orbit-import-template.csv')
+                void downloadText(
+                  `/workspaces/${workspaceId}/import/template.csv`,
+                  'orbit-import-template.csv',
+                )
               }
             >
               Download template
@@ -126,8 +128,9 @@ export default function ImportPage() {
                     {index < all.length - 1 ? ', ' : '.'}
                   </span>
                 ))}{' '}
-                Status and priority accept either the key (<span className="font-mono">in_progress</span>) or the
-                label (<span className="font-mono">In Progress</span>). Assignees match on email, name or
+                Status and priority accept either the key (
+                <span className="font-mono">in_progress</span>) or the label (
+                <span className="font-mono">In Progress</span>). Assignees match on email, name or
                 @handle. Labels are separated with <span className="font-mono">|</span>.
               </p>
 
@@ -251,7 +254,8 @@ export default function ImportPage() {
                       {result.errors.map((error) => (
                         <li key={`${error.row}-${error.message}`} className="px-3 py-2">
                           <p className="text-xs text-fg">
-                            <span className="font-mono text-subtle">Line {error.row}</span> · {error.message}
+                            <span className="font-mono text-subtle">Line {error.row}</span> ·{' '}
+                            {error.message}
                           </p>
                           {error.fields && (
                             <ul className="mt-1 space-y-0.5">
@@ -275,8 +279,12 @@ export default function ImportPage() {
                     </h3>
                     <ul className="divide-y divide-line">
                       {result.warnings.map((warning) => (
-                        <li key={`${warning.row}-${warning.message}`} className="px-3 py-2 text-xs text-muted">
-                          <span className="font-mono text-subtle">Line {warning.row}</span> · {warning.message}
+                        <li
+                          key={`${warning.row}-${warning.message}`}
+                          className="px-3 py-2 text-xs text-muted"
+                        >
+                          <span className="font-mono text-subtle">Line {warning.row}</span> ·{' '}
+                          {warning.message}
                         </li>
                       ))}
                     </ul>

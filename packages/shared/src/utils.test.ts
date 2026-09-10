@@ -50,7 +50,10 @@ describe('formatIssueIdentifier', () => {
 
 describe('extractMentions', () => {
   it('finds unique handles', () => {
-    expect(extractMentions('hey @Javi and @maria.lopez, also @javi')).toEqual(['javi', 'maria.lopez']);
+    expect(extractMentions('hey @Javi and @maria.lopez, also @javi')).toEqual([
+      'javi',
+      'maria.lopez',
+    ]);
   });
   it('ignores bare @ and email-ish text', () => {
     expect(extractMentions('mail me at a@b.com')).toEqual([]);

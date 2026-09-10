@@ -12,11 +12,13 @@ import { prisma } from '../db/client.js';
 import { NotFoundError } from '../lib/errors.js';
 import { requireIssueAccess, requireWorkspace } from '../lib/guards.js';
 import { normalizeQuery, parseOrThrow } from '../lib/http.js';
-import { issueDetailInclude, issueListInclude, serializeActivity, serializeIssue } from '../lib/serialize.js';
 import {
-  activityInclude,
-  describeActivity,
-} from '../services/activity.service.js';
+  issueDetailInclude,
+  issueListInclude,
+  serializeActivity,
+  serializeIssue,
+} from '../lib/serialize.js';
+import { activityInclude, describeActivity } from '../services/activity.service.js';
 import {
   addIssueRelation,
   bulkDeleteIssues,
@@ -36,7 +38,10 @@ export async function issueRoutes(app: FastifyInstance): Promise<void> {
   app.get('/workspaces/:workspaceId/issues', async (request, reply) => {
     const { workspaceId } = request.params as { workspaceId: string };
     const ctx = await requireWorkspace(request, workspaceId);
-    const query = parseOrThrow(issueQuerySchema, normalizeQuery(request.query as Record<string, unknown>));
+    const query = parseOrThrow(
+      issueQuerySchema,
+      normalizeQuery(request.query as Record<string, unknown>),
+    );
     const result = await listIssues(workspaceId, query);
     return reply.send({ ...result, role: ctx.role });
   });
@@ -136,10 +141,16 @@ export async function issueRoutes(app: FastifyInstance): Promise<void> {
     const { workspaceId } = request.params as { workspaceId: string };
     const ctx = await requireWorkspace(request, workspaceId, 'issue:delete');
     const body = request.body as { ids?: unknown };
-    const ids = Array.isArray(body?.ids) ? body.ids.filter((id): id is string => typeof id === 'string') : [];
+    const ids = Array.isArray(body?.ids)
+      ? body.ids.filter((id): id is string => typeof id === 'string')
+      : [];
     if (ids.length === 0) {
       return reply.status(422).send({
-        error: { code: 'validation_error', message: 'Select at least one issue', fields: { ids: ['Required'] } },
+        error: {
+          code: 'validation_error',
+          message: 'Select at least one issue',
+          fields: { ids: ['Required'] },
+        },
       });
     }
     const result = await bulkDeleteIssues(workspaceId, ctx.user.id, ids.slice(0, 500));
@@ -156,7 +167,11 @@ export async function issueRoutes(app: FastifyInstance): Promise<void> {
   app.post('/workspaces/:workspaceId/issues/:issueId/move', async (request, reply) => {
     const { workspaceId, issueId } = request.params as { workspaceId: string; issueId: string };
     const ctx = await requireWorkspace(request, workspaceId, 'issue:update');
-    const body = (request.body ?? {}) as { status?: unknown; position?: unknown; boardOrder?: unknown };
+    const body = (request.body ?? {}) as {
+      status?: unknown;
+      position?: unknown;
+      boardOrder?: unknown;
+    };
 
     const status = typeof body.status === 'string' ? body.status : undefined;
     const position = typeof body.position === 'number' ? body.position : undefined;
@@ -231,7 +246,10 @@ export async function issueRoutes(app: FastifyInstance): Promise<void> {
   });
 
   app.delete('/workspaces/:workspaceId/relations/:relationId', async (request, reply) => {
-    const { workspaceId, relationId } = request.params as { workspaceId: string; relationId: string };
+    const { workspaceId, relationId } = request.params as {
+      workspaceId: string;
+      relationId: string;
+    };
     const ctx = await requireWorkspace(request, workspaceId, 'issue:update');
     await removeIssueRelation(workspaceId, ctx.user.id, relationId);
     return reply.send({ ok: true });
@@ -262,7 +280,11 @@ export async function issueRoutes(app: FastifyInstance): Promise<void> {
       const text = typeof body?.body === 'string' ? body.body.trim() : '';
       if (!text) {
         return reply.status(422).send({
-          error: { code: 'validation_error', message: 'Comment cannot be empty', fields: { body: ['Required'] } },
+          error: {
+            code: 'validation_error',
+            message: 'Comment cannot be empty',
+            fields: { body: ['Required'] },
+          },
         });
       }
       if (text.length > 10000) {
@@ -277,7 +299,14 @@ export async function issueRoutes(app: FastifyInstance): Promise<void> {
 
       const issue = await prisma.issue.findFirst({
         where: { id: issueId, workspaceId },
-        select: { id: true, identifier: true, title: true, assigneeId: true, creatorId: true, projectId: true },
+        select: {
+          id: true,
+          identifier: true,
+          title: true,
+          assigneeId: true,
+          creatorId: true,
+          projectId: true,
+        },
       });
       if (!issue) throw new NotFoundError('Issue');
 
@@ -357,7 +386,11 @@ export async function issueRoutes(app: FastifyInstance): Promise<void> {
     const text = typeof body?.body === 'string' ? body.body.trim() : '';
     if (!text) {
       return reply.status(422).send({
-        error: { code: 'validation_error', message: 'Comment cannot be empty', fields: { body: ['Required'] } },
+        error: {
+          code: 'validation_error',
+          message: 'Comment cannot be empty',
+          fields: { body: ['Required'] },
+        },
       });
     }
 
@@ -455,7 +488,10 @@ export async function issueRoutes(app: FastifyInstance): Promise<void> {
       take: 100,
       include: activityInclude,
     });
-    const issue = await prisma.issue.findUnique({ where: { id: issueId }, select: { identifier: true } });
+    const issue = await prisma.issue.findUnique({
+      where: { id: issueId },
+      select: { identifier: true },
+    });
     return reply.send({
       activity: rows.map((row) => {
         const serialized = serializeActivity(row as never);
@@ -523,7 +559,10 @@ export async function issueRoutes(app: FastifyInstance): Promise<void> {
     await requireWorkspace(request, workspaceId);
     const members = await prisma.workspaceMember.findMany({
       where: { workspaceId, status: 'active', NOT: { role: 'viewer' } },
-      select: { role: true, user: { select: { id: true, name: true, handle: true, avatarUrl: true } } },
+      select: {
+        role: true,
+        user: { select: { id: true, name: true, handle: true, avatarUrl: true } },
+      },
       orderBy: { joinedAt: 'asc' },
     });
     return reply.send({
@@ -550,7 +589,12 @@ export async function issueRoutes(app: FastifyInstance): Promise<void> {
     const { issue } = await requireIssueAccess(request, issueId, 'issue:update');
     if (issue.workspaceId !== workspaceId) throw new NotFoundError('Issue');
 
-    const body = (request.body ?? {}) as { filename?: unknown; url?: unknown; mimeType?: unknown; size?: unknown };
+    const body = (request.body ?? {}) as {
+      filename?: unknown;
+      url?: unknown;
+      mimeType?: unknown;
+      size?: unknown;
+    };
     if (typeof body.url !== 'string' || typeof body.filename !== 'string') {
       return reply.status(422).send({
         error: {
@@ -595,7 +639,10 @@ export async function issueRoutes(app: FastifyInstance): Promise<void> {
   });
 
   app.delete('/workspaces/:workspaceId/attachments/:attachmentId', async (request, reply) => {
-    const { workspaceId, attachmentId } = request.params as { workspaceId: string; attachmentId: string };
+    const { workspaceId, attachmentId } = request.params as {
+      workspaceId: string;
+      attachmentId: string;
+    };
     const ctx = await requireWorkspace(request, workspaceId, 'issue:update');
     const attachment = await prisma.attachment.findFirst({
       where: { id: attachmentId, issue: { workspaceId } },

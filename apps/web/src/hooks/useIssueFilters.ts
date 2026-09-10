@@ -31,7 +31,10 @@ const DEFAULTS: IssueFilterState = {
 /** Comma-joined list params keep the URL short and shareable. */
 function parseList(value: string | null): string[] {
   if (!value) return [];
-  return value.split(',').map((entry) => entry.trim()).filter(Boolean);
+  return value
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean);
 }
 
 /**
@@ -78,7 +81,10 @@ export function useIssueFilters(fixed?: Partial<IssueFilterState>) {
     );
   };
 
-  const toggleInList = (key: 'status' | 'priority' | 'assigneeId' | 'projectId' | 'cycleId' | 'labelId', value: string) => {
+  const toggleInList = (
+    key: 'status' | 'priority' | 'assigneeId' | 'projectId' | 'cycleId' | 'labelId',
+    value: string,
+  ) => {
     const current = state[key];
     const next = current.includes(value)
       ? current.filter((entry) => entry !== value)

@@ -1,7 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
 import { useIssueComposer } from '../context/IssueComposerContext';
 import { Link, useParams } from 'react-router-dom';
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip as ChartTooltip, XAxis, YAxis } from 'recharts';
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip as ChartTooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import { CalendarRange, Repeat } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api, buildQuery } from '../lib/api';
@@ -115,8 +123,14 @@ export default function CycleDetailPage() {
               {cycle.status}
             </span>
             {cycle.project && (
-              <Link to={`/projects/${cycle.project.id}`} className="flex items-center gap-1 hover:text-fg">
-                <span className="h-2 w-2 rounded-sm" style={{ backgroundColor: cycle.project.color }} />
+              <Link
+                to={`/projects/${cycle.project.id}`}
+                className="flex items-center gap-1 hover:text-fg"
+              >
+                <span
+                  className="h-2 w-2 rounded-sm"
+                  style={{ backgroundColor: cycle.project.color }}
+                />
                 {cycle.project.name}
               </Link>
             )}
@@ -136,9 +150,21 @@ export default function CycleDetailPage() {
 
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <Stat label="Issues" value={`${cycle.completedIssues}/${cycle.totalIssues}`} hint="completed / total" />
-          <Stat label="Points" value={`${cycle.points}/${cycle.totalPoints}`} hint="completed / scope" />
-          <Stat label="Progress" value={`${cycle.progress}%`} hint={`${cycle.cancelledIssues} cancelled`} />
+          <Stat
+            label="Issues"
+            value={`${cycle.completedIssues}/${cycle.totalIssues}`}
+            hint="completed / total"
+          />
+          <Stat
+            label="Points"
+            value={`${cycle.points}/${cycle.totalPoints}`}
+            hint="completed / scope"
+          />
+          <Stat
+            label="Progress"
+            value={`${cycle.progress}%`}
+            hint={`${cycle.cancelledIssues} cancelled`}
+          />
           <Stat
             label="Timeline"
             value={`${cycle.elapsed}/${cycle.days}`}
@@ -148,7 +174,9 @@ export default function CycleDetailPage() {
 
         <section className="card p-4">
           <div className="mb-2 flex items-center justify-between text-xs">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-subtle">Completion</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-subtle">
+              Completion
+            </h2>
             <span className="text-muted">{cycle.progress}%</span>
           </div>
           <ProgressBar value={cycle.progress} height="h-2" />
@@ -165,12 +193,24 @@ export default function CycleDetailPage() {
             Burndown (remaining story points)
           </h2>
           {issues.length === 0 ? (
-            <EmptyState compact title="No issues in this cycle" description="Assign issues to see a burndown." />
+            <EmptyState
+              compact
+              title="No issues in this cycle"
+              description="Assign issues to see a burndown."
+            />
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <LineChart data={burndown} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                <CartesianGrid stroke="rgb(var(--border-default))" strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }} interval="preserveStartEnd" />
+                <CartesianGrid
+                  stroke="rgb(var(--border-default))"
+                  strokeDasharray="3 3"
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="label"
+                  tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }}
+                  interval="preserveStartEnd"
+                />
                 <YAxis tick={{ fontSize: 10, fill: 'rgb(var(--fg-subtle))' }} />
                 <ChartTooltip
                   contentStyle={{

@@ -187,7 +187,8 @@ export async function createProject(
     user,
     payload: { name: `Project ${Date.now().toString(36)}`, ...overrides },
   });
-  if (response.status !== 201) throw new Error(`project creation failed: ${JSON.stringify(response.body)}`);
+  if (response.status !== 201)
+    throw new Error(`project creation failed: ${JSON.stringify(response.body)}`);
   return response.body.project as { id: string; name: string };
 }
 
@@ -200,7 +201,8 @@ export async function createIssue(
     user,
     payload: { title: `Issue ${Date.now().toString(36)}`, ...overrides },
   });
-  if (response.status !== 201) throw new Error(`issue creation failed: ${JSON.stringify(response.body)}`);
+  if (response.status !== 201)
+    throw new Error(`issue creation failed: ${JSON.stringify(response.body)}`);
   return response.body.issue as {
     id: string;
     identifier: string;

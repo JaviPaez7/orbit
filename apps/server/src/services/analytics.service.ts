@@ -25,7 +25,14 @@ export interface AnalyticsSummary {
   byStatus: { key: IssueStatus; label: string; count: number }[];
   byPriority: { key: IssuePriority; count: number }[];
   trend: TrendPoint[];
-  workload: { userId: string; name: string; avatarUrl: string | null; open: number; completed: number; estimate: number }[];
+  workload: {
+    userId: string;
+    name: string;
+    avatarUrl: string | null;
+    open: number;
+    completed: number;
+    estimate: number;
+  }[];
   projects: {
     id: string;
     name: string;
@@ -85,7 +92,10 @@ function dailySeries(days: number, end = new Date()): string[] {
  * no hard-coded chart values. The scan is bounded to the trailing window and a
  * `take` cap so large workspaces stay responsive.
  */
-export async function getWorkspaceAnalytics(workspaceId: string, days = 90): Promise<AnalyticsSummary> {
+export async function getWorkspaceAnalytics(
+  workspaceId: string,
+  days = 90,
+): Promise<AnalyticsSummary> {
   const since = new Date();
   since.setUTCDate(since.getUTCDate() - days);
   since.setUTCHours(0, 0, 0, 0);
@@ -235,7 +245,10 @@ export async function getWorkspaceAnalytics(workspaceId: string, days = 90): Pro
         activeCycle.endDate.getUTCDate(),
       ),
     );
-    const totalDays = Math.max(1, Math.round((cycleEnd.getTime() - cycleStart.getTime()) / 86400000));
+    const totalDays = Math.max(
+      1,
+      Math.round((cycleEnd.getTime() - cycleStart.getTime()) / 86400000),
+    );
     for (let i = 0; i <= totalDays; i += 1) {
       const day = new Date(cycleStart);
       day.setUTCDate(cycleStart.getUTCDate() + i);
@@ -284,7 +297,8 @@ export async function getWorkspaceAnalytics(workspaceId: string, days = 90): Pro
     cycleBurndown,
     throughput: keys.map((date) => ({
       date,
-      completed: issues.filter((issue) => issue.completedAt && dayKey(issue.completedAt) === date).length,
+      completed: issues.filter((issue) => issue.completedAt && dayKey(issue.completedAt) === date)
+        .length,
     })),
     labels: labels
       .map((label) => ({
@@ -361,6 +375,8 @@ export async function getProjectAnalytics(projectId: string, workspaceId: string
       count: issues.filter((issue) => issue.priority === priority).length,
     })),
     trend: [...trendMap.values()],
-    byAssignee: [...byAssignee.values()].sort((a, b) => b.open + b.completed - (a.open + a.completed)),
+    byAssignee: [...byAssignee.values()].sort(
+      (a, b) => b.open + b.completed - (a.open + a.completed),
+    ),
   };
 }

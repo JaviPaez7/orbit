@@ -84,10 +84,10 @@ export function BulkActionsBar({ selectedIds, onClear, onUpdated }: BulkActionsB
 
   const bulkMutation = useMutation({
     mutationFn: (payload: Record<string, unknown>) =>
-      api.post<{ updated: number; issues: Issue[] }>(
-        `/workspaces/${workspaceId}/issues/bulk`,
-        { ids: selectedIds, ...payload },
-      ),
+      api.post<{ updated: number; issues: Issue[] }>(`/workspaces/${workspaceId}/issues/bulk`, {
+        ids: selectedIds,
+        ...payload,
+      }),
     onError: (error) => {
       // Roll back the optimistic patch by refetching the authoritative state.
       void queryClient.invalidateQueries({ queryKey: ['issues'] });
@@ -174,7 +174,12 @@ export function BulkActionsBar({ selectedIds, onClear, onUpdated }: BulkActionsB
           side="top"
           width={200}
           trigger={(triggerProps) => (
-            <Button variant="ghost" size="sm" leftIcon={<Flag className="h-3.5 w-3.5" />} {...triggerProps}>
+            <Button
+              variant="ghost"
+              size="sm"
+              leftIcon={<Flag className="h-3.5 w-3.5" />}
+              {...triggerProps}
+            >
               Priority
             </Button>
           )}
@@ -198,15 +203,28 @@ export function BulkActionsBar({ selectedIds, onClear, onUpdated }: BulkActionsB
           side="top"
           width={230}
           trigger={(triggerProps) => (
-            <Button variant="ghost" size="sm" leftIcon={<UserCircle2 className="h-3.5 w-3.5" />} {...triggerProps}>
+            <Button
+              variant="ghost"
+              size="sm"
+              leftIcon={<UserCircle2 className="h-3.5 w-3.5" />}
+              {...triggerProps}
+            >
               Assign
             </Button>
           )}
         >
           <MenuLabel>Assign to</MenuLabel>
           <MenuItem
-            icon={<span className="h-3.5 w-3.5 rounded-full border border-dashed border-line-strong" />}
-            onClick={() => apply({ assigneeId: null }, (issue) => ({ ...issue, assignee: null, assigneeId: null }))}
+            icon={
+              <span className="h-3.5 w-3.5 rounded-full border border-dashed border-line-strong" />
+            }
+            onClick={() =>
+              apply({ assigneeId: null }, (issue) => ({
+                ...issue,
+                assignee: null,
+                assigneeId: null,
+              }))
+            }
           >
             Unassigned
           </MenuItem>
@@ -218,7 +236,12 @@ export function BulkActionsBar({ selectedIds, onClear, onUpdated }: BulkActionsB
                 apply({ assigneeId: member.id }, (issue) => ({
                   ...issue,
                   assigneeId: member.id,
-                  assignee: { id: member.id, name: member.name, handle: '', avatarUrl: member.avatarUrl },
+                  assignee: {
+                    id: member.id,
+                    name: member.name,
+                    handle: '',
+                    avatarUrl: member.avatarUrl,
+                  },
                 }))
               }
             >
@@ -232,7 +255,12 @@ export function BulkActionsBar({ selectedIds, onClear, onUpdated }: BulkActionsB
           side="top"
           width={240}
           trigger={(triggerProps) => (
-            <Button variant="ghost" size="sm" leftIcon={<Tag className="h-3.5 w-3.5" />} {...triggerProps}>
+            <Button
+              variant="ghost"
+              size="sm"
+              leftIcon={<Tag className="h-3.5 w-3.5" />}
+              {...triggerProps}
+            >
               Labels
             </Button>
           )}
@@ -241,7 +269,12 @@ export function BulkActionsBar({ selectedIds, onClear, onUpdated }: BulkActionsB
           {(labels.data ?? []).map((label) => (
             <MenuItem
               key={label.id}
-              icon={<span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: label.color }} />}
+              icon={
+                <span
+                  className="h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: label.color }}
+                />
+              }
               onClick={() =>
                 apply({ addLabelIds: [label.id] }, (issue) =>
                   issue.labels.some((entry) => entry.id === label.id)
@@ -258,7 +291,12 @@ export function BulkActionsBar({ selectedIds, onClear, onUpdated }: BulkActionsB
           {(labels.data ?? []).map((label) => (
             <MenuItem
               key={`remove-${label.id}`}
-              icon={<span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: label.color }} />}
+              icon={
+                <span
+                  className="h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: label.color }}
+                />
+              }
               onClick={() =>
                 apply({ removeLabelIds: [label.id] }, (issue) => ({
                   ...issue,
@@ -292,12 +330,22 @@ export function BulkActionsBar({ selectedIds, onClear, onUpdated }: BulkActionsB
           {(projects.data ?? []).map((project) => (
             <MenuItem
               key={project.id}
-              icon={<span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: project.color }} />}
+              icon={
+                <span
+                  className="h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: project.color }}
+                />
+              }
               onClick={() =>
                 apply({ projectId: project.id }, (issue) => ({
                   ...issue,
                   projectId: project.id,
-                  project: { id: project.id, name: project.name, icon: project.icon, color: project.color },
+                  project: {
+                    id: project.id,
+                    name: project.name,
+                    icon: project.icon,
+                    color: project.color,
+                  },
                 }))
               }
             >
@@ -307,7 +355,9 @@ export function BulkActionsBar({ selectedIds, onClear, onUpdated }: BulkActionsB
           <MenuSeparator />
           <MenuLabel>Move to cycle</MenuLabel>
           <MenuItem
-            onClick={() => apply({ cycleId: null }, (issue) => ({ ...issue, cycleId: null, cycle: null }))}
+            onClick={() =>
+              apply({ cycleId: null }, (issue) => ({ ...issue, cycleId: null, cycle: null }))
+            }
           >
             No cycle
           </MenuItem>
@@ -318,7 +368,12 @@ export function BulkActionsBar({ selectedIds, onClear, onUpdated }: BulkActionsB
                 apply({ cycleId: cycle.id }, (issue) => ({
                   ...issue,
                   cycleId: cycle.id,
-                  cycle: { id: cycle.id, name: cycle.name, number: cycle.number, status: cycle.status },
+                  cycle: {
+                    id: cycle.id,
+                    name: cycle.name,
+                    number: cycle.number,
+                    status: cycle.status,
+                  },
                 }))
               }
             >
@@ -374,8 +429,8 @@ export function BulkActionsBar({ selectedIds, onClear, onUpdated }: BulkActionsB
         }
       >
         <p className="text-sm text-muted">
-          Type-safe confirmation: the API re-checks that every issue belongs to your workspace before
-          deleting anything.
+          Type-safe confirmation: the API re-checks that every issue belongs to your workspace
+          before deleting anything.
         </p>
       </Modal>
     </>

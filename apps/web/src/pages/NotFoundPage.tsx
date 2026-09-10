@@ -11,7 +11,8 @@ export default function NotFoundPage() {
       <div className="space-y-1">
         <h1 className="text-xl font-semibold text-fg">This page drifted out of orbit</h1>
         <p className="max-w-md text-sm text-muted">
-          The route you requested does not exist. It may have been renamed, or the issue was deleted.
+          The route you requested does not exist. It may have been renamed, or the issue was
+          deleted.
         </p>
       </div>
       <div className="flex gap-2">

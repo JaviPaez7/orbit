@@ -17,7 +17,16 @@ const sizeMap = {
 };
 
 /** Deterministic fallback colour so the same person always looks the same. */
-const PALETTE = ['#6366f1', '#ec4899', '#14b8a6', '#f59e0b', '#8b5cf6', '#22c55e', '#0ea5e9', '#ef4444'];
+const PALETTE = [
+  '#6366f1',
+  '#ec4899',
+  '#14b8a6',
+  '#f59e0b',
+  '#8b5cf6',
+  '#22c55e',
+  '#0ea5e9',
+  '#ef4444',
+];
 
 function colorFor(name: string): string {
   let hash = 0;
@@ -41,7 +50,11 @@ export function Avatar({ name, src, size = 'md', className, title }: AvatarProps
         alt={name}
         title={label}
         loading="lazy"
-        className={cn('shrink-0 rounded-full object-cover ring-1 ring-line', sizeMap[size], className)}
+        className={cn(
+          'shrink-0 rounded-full object-cover ring-1 ring-line',
+          sizeMap[size],
+          className,
+        )}
       />
     );
   }

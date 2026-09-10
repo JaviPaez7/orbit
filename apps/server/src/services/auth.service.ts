@@ -53,7 +53,10 @@ export async function issueSession(
       ip: meta.ip?.slice(0, 60) ?? null,
     },
   });
-  const user = await prisma.user.findUniqueOrThrow({ where: { id: userId }, select: userPublicSelect });
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id: userId },
+    select: userPublicSelect,
+  });
   return { token, expiresAt, user };
 }
 
@@ -122,7 +125,11 @@ export async function registerUser(input: {
     });
 
     await tx.workspaceMember.create({
-      data: { workspaceId: workspace.id, userId: created.id, role: 'owner' satisfies WorkspaceRole },
+      data: {
+        workspaceId: workspace.id,
+        userId: created.id,
+        role: 'owner' satisfies WorkspaceRole,
+      },
     });
 
     return { user: created as SessionUser, workspaceId: workspace.id };
@@ -147,7 +154,10 @@ export async function authenticate(input: {
   const invalid = new UnauthorizedError('Incorrect email or password');
   if (!user || user.deactivatedAt) {
     // Still burn time so response timing does not leak account existence.
-    await verifyPassword(input.password, '$2a$11$0000000000000000000000000000000000000000000000000000');
+    await verifyPassword(
+      input.password,
+      '$2a$11$0000000000000000000000000000000000000000000000000000',
+    );
     throw invalid;
   }
   const ok = await verifyPassword(input.password, user.passwordHash);

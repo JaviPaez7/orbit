@@ -44,7 +44,10 @@ export default function LabelsSettingsPage() {
       void queryClient.invalidateQueries({ queryKey: ['labels'] });
     },
     onError: (error) =>
-      toast.error('Could not create the label', error instanceof ApiError ? error.message : undefined),
+      toast.error(
+        'Could not create the label',
+        error instanceof ApiError ? error.message : undefined,
+      ),
   });
 
   const updateMutation = useMutation({
@@ -57,7 +60,10 @@ export default function LabelsSettingsPage() {
       void queryClient.invalidateQueries({ queryKey: ['issues'] });
     },
     onError: (error) =>
-      toast.error('Could not update the label', error instanceof ApiError ? error.message : undefined),
+      toast.error(
+        'Could not update the label',
+        error instanceof ApiError ? error.message : undefined,
+      ),
   });
 
   const deleteMutation = useMutation({
@@ -68,7 +74,10 @@ export default function LabelsSettingsPage() {
       void queryClient.invalidateQueries({ queryKey: ['issues'] });
     },
     onError: (error) =>
-      toast.error('Could not delete the label', error instanceof ApiError ? error.message : undefined),
+      toast.error(
+        'Could not delete the label',
+        error instanceof ApiError ? error.message : undefined,
+      ),
   });
 
   const labels = labelsQuery.data ?? [];
@@ -139,7 +148,11 @@ export default function LabelsSettingsPage() {
             />
           )}
           {!labelsQuery.isLoading && labels.length === 0 && (
-            <EmptyState compact title="No labels yet" description="Labels help filter issues across projects." />
+            <EmptyState
+              compact
+              title="No labels yet"
+              description="Labels help filter issues across projects."
+            />
           )}
           <ul className="divide-y divide-line">
             {labels.map((label) => (
@@ -177,7 +190,11 @@ export default function LabelsSettingsPage() {
                         size="icon-sm"
                         aria-label="Save label"
                         onClick={() =>
-                          updateMutation.mutate({ labelId: label.id, name: editName.trim(), color: editColor })
+                          updateMutation.mutate({
+                            labelId: label.id,
+                            name: editName.trim(),
+                            color: editColor,
+                          })
                         }
                       >
                         <Check className="h-3.5 w-3.5" />
@@ -238,7 +255,9 @@ export default function LabelsSettingsPage() {
         </div>
 
         {!canManageLabels && (
-          <p className="mt-3 text-2xs text-subtle">You need a member role or higher to manage labels.</p>
+          <p className="mt-3 text-2xs text-subtle">
+            You need a member role or higher to manage labels.
+          </p>
         )}
       </section>
     </div>

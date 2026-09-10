@@ -29,7 +29,9 @@ describe('workspace roles and permissions', () => {
     workspace = await createWorkspace(['owner', 'admin', 'member', 'viewer'], {
       name: 'Permissions Workspace',
     });
-    const project = await createProject(workspace.id, workspace.owner, { name: 'Permissions Project' });
+    const project = await createProject(workspace.id, workspace.owner, {
+      name: 'Permissions Project',
+    });
     projectId = project.id;
   });
 
@@ -111,7 +113,9 @@ describe('workspace roles and permissions', () => {
     expect(bulk.status).toBe(403);
 
     // The issue is untouched by all of the above.
-    const check = await api('GET', `/workspaces/${workspace.id}/issues/${issue.id}`, { user: owner() });
+    const check = await api('GET', `/workspaces/${workspace.id}/issues/${issue.id}`, {
+      user: owner(),
+    });
     const body = check.body as { issue: { title: string; status: string } };
     expect(body.issue.title).toBe('Viewer target');
     expect(body.issue.status).not.toBe('done');
@@ -157,7 +161,8 @@ describe('workspace roles and permissions', () => {
     expect(asAdminProject.status).toBe(201);
 
     const members = await api('GET', `/workspaces/${workspace.id}/members`, { user: admin() });
-    const memberRows = (members.body as { members: { id: string; userId: string; role: string }[] }).members;
+    const memberRows = (members.body as { members: { id: string; userId: string; role: string }[] })
+      .members;
     const memberRow = memberRows.find((row) => row.role === 'member')!;
 
     const promote = await api('PATCH', `/workspaces/${workspace.id}/members/${memberRow.id}`, {
@@ -194,8 +199,9 @@ describe('workspace roles and permissions', () => {
 
   it('prevents an admin from removing another admin but allows removing a member', async () => {
     const members = await api('GET', `/workspaces/${workspace.id}/members`, { user: owner() });
-    const rows = (members.body as { members: { id: string; role: string; user: { email: string } }[] })
-      .members;
+    const rows = (
+      members.body as { members: { id: string; role: string; user: { email: string } }[] }
+    ).members;
     const adminRow = rows.find((row) => row.role === 'admin')!;
     const memberRow = rows.find((row) => row.role === 'member')!;
 
@@ -247,7 +253,9 @@ describe('workspace roles and permissions', () => {
     expect(peekIssues.status).toBe(404);
 
     const listing = await api('GET', '/workspaces', { user: stranger.owner });
-    const ids = (listing.body as { workspaces: { id: string }[] }).workspaces.map((entry) => entry.id);
+    const ids = (listing.body as { workspaces: { id: string }[] }).workspaces.map(
+      (entry) => entry.id,
+    );
     expect(ids).toContain(stranger.id);
     expect(ids).not.toContain(workspace.id);
   });
@@ -260,7 +268,8 @@ describe('workspace roles and permissions', () => {
     });
     expect(response.status).toBe(422);
     expect(
-      (response.body as { error: { fields: Record<string, string[]> } }).error.fields.assigneeId?.[0],
+      (response.body as { error: { fields: Record<string, string[]> } }).error.fields
+        .assigneeId?.[0],
     ).toMatch(/member of this workspace/i);
   });
 
@@ -271,7 +280,8 @@ describe('workspace roles and permissions', () => {
     });
     expect(response.status).toBe(422);
     expect(
-      (response.body as { error: { fields: Record<string, string[]> } }).error.fields.assigneeId?.[0],
+      (response.body as { error: { fields: Record<string, string[]> } }).error.fields
+        .assigneeId?.[0],
     ).toMatch(/viewers cannot be assigned/i);
   });
 

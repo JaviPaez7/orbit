@@ -54,7 +54,9 @@ describe('Select', () => {
   it('is disabled when the caller cannot edit', async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
-    render(<Select options={OPTIONS} value="todo" onChange={onChange} ariaLabel="Status" disabled />);
+    render(
+      <Select options={OPTIONS} value="todo" onChange={onChange} ariaLabel="Status" disabled />,
+    );
 
     const trigger = screen.getByLabelText('Status');
     expect(trigger).toBeDisabled();
@@ -68,7 +70,13 @@ describe('Menu', () => {
     const user = userEvent.setup();
     const onSelect = vi.fn();
     render(
-      <Menu trigger={(props) => <button type="button" {...props}>Open</button>}>
+      <Menu
+        trigger={(props) => (
+          <button type="button" {...props}>
+            Open
+          </button>
+        )}
+      >
         <MenuLabel>Actions</MenuLabel>
         <MenuItem onClick={onSelect}>Duplicate</MenuItem>
       </Menu>,

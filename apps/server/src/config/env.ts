@@ -13,9 +13,7 @@ for (const candidate of [resolve(serverRoot, '.env'), resolve(serverRoot, '..', 
   if (existsSync(candidate)) loadDotenv({ path: candidate });
 }
 
-const booleanish = z
-  .enum(['true', 'false', '1', '0'])
-  .transform((v) => v === 'true' || v === '1');
+const booleanish = z.enum(['true', 'false', '1', '0']).transform((v) => v === 'true' || v === '1');
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -62,7 +60,9 @@ function build(): Env {
   const raw = parsed.data;
 
   if (raw.NODE_ENV === 'production' && raw.AUTH_SECRET.includes('dev-only-insecure')) {
-    console.error('✖ Refusing to start in production with the default AUTH_SECRET. Set a real secret.');
+    console.error(
+      '✖ Refusing to start in production with the default AUTH_SECRET. Set a real secret.',
+    );
     process.exit(1);
   }
 

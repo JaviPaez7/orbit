@@ -133,7 +133,9 @@ export default function SearchPage() {
                 type="button"
                 onClick={() =>
                   setTypes((current) =>
-                    current.includes(type) ? current.filter((entry) => entry !== type) : [...current, type],
+                    current.includes(type)
+                      ? current.filter((entry) => entry !== type)
+                      : [...current, type],
                   )
                 }
                 className={cn(
@@ -146,13 +148,19 @@ export default function SearchPage() {
             );
           })}
           {types.length > 0 && (
-            <button type="button" onClick={() => setTypes([])} className="text-2xs text-accent hover:underline">
+            <button
+              type="button"
+              onClick={() => setTypes([])}
+              className="text-2xs text-accent hover:underline"
+            >
               Reset
             </button>
           )}
           {debounced.length > 0 && (
             <span className="ml-auto text-2xs text-subtle">
-              {resultsQuery.isFetching ? 'Searching…' : `${totalResults} result${totalResults === 1 ? '' : 's'}`}
+              {resultsQuery.isFetching
+                ? 'Searching…'
+                : `${totalResults} result${totalResults === 1 ? '' : 's'}`}
             </span>
           )}
         </div>
@@ -176,15 +184,17 @@ export default function SearchPage() {
                     <span className="font-mono text-2xs text-subtle">{issue.identifier}</span>
                     <span className="min-w-0 flex-1 truncate text-fg">{issue.title}</span>
                     {issue.project && (
-                      <span className="hidden text-2xs text-subtle sm:inline">{issue.project.name}</span>
+                      <span className="hidden text-2xs text-subtle sm:inline">
+                        {issue.project.name}
+                      </span>
                     )}
                   </Link>
                 </li>
               ))}
             </ul>
             <p className="mt-4 text-2xs text-subtle">
-              Tip: search accepts identifiers like <span className="kbd">ORB-12</span>, project names, and
-              @handles.
+              Tip: search accepts identifiers like <span className="kbd">ORB-12</span>, project
+              names, and @handles.
             </p>
           </div>
         )}
@@ -240,7 +250,10 @@ export default function SearchPage() {
                           size="xs"
                         />
                       ) : result.type === 'issue' ? (
-                        <StatusIcon status={String(result.meta?.status ?? 'todo')} className="h-3.5 w-3.5" />
+                        <StatusIcon
+                          status={String(result.meta?.status ?? 'todo')}
+                          className="h-3.5 w-3.5"
+                        />
                       ) : (
                         TYPE_ICONS[result.type]
                       )}

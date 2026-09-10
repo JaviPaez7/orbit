@@ -6,7 +6,11 @@ interface FieldProps {
   hint?: string;
   error?: string;
   required?: boolean;
-  children: (props: { id: string; 'aria-invalid': boolean; 'aria-describedby': string | undefined }) => React.ReactNode;
+  children: (props: {
+    id: string;
+    'aria-invalid': boolean;
+    'aria-describedby': string | undefined;
+  }) => React.ReactNode;
   className?: string;
 }
 
@@ -61,20 +65,27 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       </div>
     );
   }
-  return <input ref={ref} className={cn('input', invalid && 'border-danger', className)} {...props} />;
+  return (
+    <input ref={ref} className={cn('input', invalid && 'border-danger', className)} {...props} />
+  );
 });
 
-export const Textarea = forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement> & { invalid?: boolean }>(
-  function Textarea({ className, invalid, ...props }, ref) {
-    return (
-      <textarea
-        ref={ref}
-        className={cn('input min-h-[80px] resize-y leading-relaxed', invalid && 'border-danger', className)}
-        {...props}
-      />
-    );
-  },
-);
+export const Textarea = forwardRef<
+  HTMLTextAreaElement,
+  React.TextareaHTMLAttributes<HTMLTextAreaElement> & { invalid?: boolean }
+>(function Textarea({ className, invalid, ...props }, ref) {
+  return (
+    <textarea
+      ref={ref}
+      className={cn(
+        'input min-h-[80px] resize-y leading-relaxed',
+        invalid && 'border-danger',
+        className,
+      )}
+      {...props}
+    />
+  );
+});
 
 export function Switch({
   checked,

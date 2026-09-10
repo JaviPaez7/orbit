@@ -60,14 +60,70 @@ interface SeedUser {
 }
 
 const USERS: SeedUser[] = [
-  { email: 'javi@orbit.dev', name: 'Javi Rodriguez', handle: 'javi', title: 'Engineering Lead', timezone: 'Europe/Madrid', avatarColor: '#6366f1' },
-  { email: 'maria@orbit.dev', name: 'Maria Lopez', handle: 'maria', title: 'Staff Engineer', timezone: 'Europe/Madrid', avatarColor: '#ec4899' },
-  { email: 'carlos@orbit.dev', name: 'Carlos Mendez', handle: 'carlos', title: 'Backend Engineer', timezone: 'Europe/Lisbon', avatarColor: '#14b8a6' },
-  { email: 'ana@orbit.dev', name: 'Ana Beltran', handle: 'ana', title: 'Product Designer', timezone: 'Europe/Paris', avatarColor: '#f59e0b' },
-  { email: 'diego@orbit.dev', name: 'Diego Fernandez', handle: 'diego', title: 'Platform Engineer', timezone: 'America/New_York', avatarColor: '#8b5cf6' },
-  { email: 'lucia@orbit.dev', name: 'Lucia Navarro', handle: 'lucia', title: 'QA Engineer', timezone: 'Europe/Madrid', avatarColor: '#22c55e' },
-  { email: 'sam@orbit.dev', name: 'Sam Whitaker', handle: 'sam', title: 'Engineering Manager', timezone: 'Europe/London', avatarColor: '#0ea5e9' },
-  { email: 'nina@orbit.dev', name: 'Nina Petrova', handle: 'nina', title: 'Security Engineer', timezone: 'Europe/Berlin', avatarColor: '#ef4444' },
+  {
+    email: 'javi@orbit.dev',
+    name: 'Javi Rodriguez',
+    handle: 'javi',
+    title: 'Engineering Lead',
+    timezone: 'Europe/Madrid',
+    avatarColor: '#6366f1',
+  },
+  {
+    email: 'maria@orbit.dev',
+    name: 'Maria Lopez',
+    handle: 'maria',
+    title: 'Staff Engineer',
+    timezone: 'Europe/Madrid',
+    avatarColor: '#ec4899',
+  },
+  {
+    email: 'carlos@orbit.dev',
+    name: 'Carlos Mendez',
+    handle: 'carlos',
+    title: 'Backend Engineer',
+    timezone: 'Europe/Lisbon',
+    avatarColor: '#14b8a6',
+  },
+  {
+    email: 'ana@orbit.dev',
+    name: 'Ana Beltran',
+    handle: 'ana',
+    title: 'Product Designer',
+    timezone: 'Europe/Paris',
+    avatarColor: '#f59e0b',
+  },
+  {
+    email: 'diego@orbit.dev',
+    name: 'Diego Fernandez',
+    handle: 'diego',
+    title: 'Platform Engineer',
+    timezone: 'America/New_York',
+    avatarColor: '#8b5cf6',
+  },
+  {
+    email: 'lucia@orbit.dev',
+    name: 'Lucia Navarro',
+    handle: 'lucia',
+    title: 'QA Engineer',
+    timezone: 'Europe/Madrid',
+    avatarColor: '#22c55e',
+  },
+  {
+    email: 'sam@orbit.dev',
+    name: 'Sam Whitaker',
+    handle: 'sam',
+    title: 'Engineering Manager',
+    timezone: 'Europe/London',
+    avatarColor: '#0ea5e9',
+  },
+  {
+    email: 'nina@orbit.dev',
+    name: 'Nina Petrova',
+    handle: 'nina',
+    title: 'Security Engineer',
+    timezone: 'Europe/Berlin',
+    avatarColor: '#ef4444',
+  },
 ];
 
 const DEMO_PASSWORD = 'Orbit1234';
@@ -273,90 +329,297 @@ const WORKSPACES: WorkspaceBlueprint[] = [
 
 const ISSUE_TITLES: Record<string, { title: string; body: string }[]> = {
   'Payments Platform': [
-    { title: 'Retry failed invoice charges with exponential backoff', body: 'Charges that fail with a `card_declined` soft decline should be retried 3 times over 72 hours.\n\nAcceptance criteria:\n- Retry schedule is configurable per plan\n- Failures surface in the billing timeline\n- No duplicate charges when the retry succeeds' },
-    { title: 'Proration is wrong when upgrading mid-cycle', body: 'Upgrading from Pro to Scale on day 12 of a 30 day cycle charges the full amount instead of the prorated difference.\n\nSteps to reproduce:\n1. Subscribe to Pro\n2. Wait until mid-cycle\n3. Upgrade to Scale\n\nExpected: a credit for unused Pro time is applied.' },
-    { title: 'Add Stripe tax calculation to checkout', body: 'Stripe Tax should be enabled for EU and US customers. The tax line must be visible before the customer confirms.' },
-    { title: 'Invoice PDF shows the wrong currency symbol', body: 'GBP invoices render with `$` in the line-item table. The `currency` field is present in the payload, so this is a formatting bug.' },
-    { title: 'Ledger reconciliation job drifts by a few cents', body: 'The nightly reconciliation reports a mismatch for annual subscriptions with mid-term seat changes. Investigate rounding in the \u00d7 100 conversion.' },
-    { title: 'Support SEPA direct debit', body: 'Add SEPA as a payment method for EU customers, including the mandate flow and failed-payment handling.' },
-    { title: 'Backfill subscription events into the warehouse', body: 'One-off backfill of `subscription.*` events from the last 18 months so the finance dashboard has full history.' },
-    { title: 'Expose usage-based billing meters', body: 'Customers on usage plans need a meter per product area with a hard cap and an alert at 80%.' },
-    { title: 'Checkout abandons are not tracked', body: 'We lose the funnel at the payment step. Emit `checkout.abandoned` with the last completed step.' },
-    { title: 'Add idempotency keys to the payment intent endpoint', body: 'Double submits from the mobile client create two payment intents. Require an `Idempotency-Key` header and store it for 24h.' },
-    { title: 'Dunning emails fire twice for the same failure', body: 'Both the webhook handler and the scheduled job send the dunning email. Deduplicate by `invoice.id`.' },
-    { title: 'Subscription cancellation survey is unskippable', body: 'The survey blocks cancellation when the request fails. It should be best-effort and never block the user.' },
+    {
+      title: 'Retry failed invoice charges with exponential backoff',
+      body: 'Charges that fail with a `card_declined` soft decline should be retried 3 times over 72 hours.\n\nAcceptance criteria:\n- Retry schedule is configurable per plan\n- Failures surface in the billing timeline\n- No duplicate charges when the retry succeeds',
+    },
+    {
+      title: 'Proration is wrong when upgrading mid-cycle',
+      body: 'Upgrading from Pro to Scale on day 12 of a 30 day cycle charges the full amount instead of the prorated difference.\n\nSteps to reproduce:\n1. Subscribe to Pro\n2. Wait until mid-cycle\n3. Upgrade to Scale\n\nExpected: a credit for unused Pro time is applied.',
+    },
+    {
+      title: 'Add Stripe tax calculation to checkout',
+      body: 'Stripe Tax should be enabled for EU and US customers. The tax line must be visible before the customer confirms.',
+    },
+    {
+      title: 'Invoice PDF shows the wrong currency symbol',
+      body: 'GBP invoices render with `$` in the line-item table. The `currency` field is present in the payload, so this is a formatting bug.',
+    },
+    {
+      title: 'Ledger reconciliation job drifts by a few cents',
+      body: 'The nightly reconciliation reports a mismatch for annual subscriptions with mid-term seat changes. Investigate rounding in the \u00d7 100 conversion.',
+    },
+    {
+      title: 'Support SEPA direct debit',
+      body: 'Add SEPA as a payment method for EU customers, including the mandate flow and failed-payment handling.',
+    },
+    {
+      title: 'Backfill subscription events into the warehouse',
+      body: 'One-off backfill of `subscription.*` events from the last 18 months so the finance dashboard has full history.',
+    },
+    {
+      title: 'Expose usage-based billing meters',
+      body: 'Customers on usage plans need a meter per product area with a hard cap and an alert at 80%.',
+    },
+    {
+      title: 'Checkout abandons are not tracked',
+      body: 'We lose the funnel at the payment step. Emit `checkout.abandoned` with the last completed step.',
+    },
+    {
+      title: 'Add idempotency keys to the payment intent endpoint',
+      body: 'Double submits from the mobile client create two payment intents. Require an `Idempotency-Key` header and store it for 24h.',
+    },
+    {
+      title: 'Dunning emails fire twice for the same failure',
+      body: 'Both the webhook handler and the scheduled job send the dunning email. Deduplicate by `invoice.id`.',
+    },
+    {
+      title: 'Subscription cancellation survey is unskippable',
+      body: 'The survey blocks cancellation when the request fails. It should be best-effort and never block the user.',
+    },
   ],
   'Mobile App v2': [
-    { title: 'Offline queue drops writes when the app is killed', body: 'Pending mutations live in memory only. Persist them to SQLite so a force-quit does not lose work.' },
-    { title: 'Push notifications arrive twice on Android 14', body: 'Both FCM and our in-app poller deliver the same notification. Add a dedupe key on `notification.id`.' },
-    { title: 'Cold start regression: 3.4s to first paint', body: 'Sentry shows p75 cold start increased after the navigation rewrite. Profile the release build and find the blocking work.' },
-    { title: 'Biometric unlock should be opt-in per device', body: 'Currently enabling Face ID applies to the account. Scope it to the device keychain entry.' },
-    { title: 'Pull-to-refresh flickers on the issue list', body: 'The spinner jumps when the list has fewer than 10 items.' },
-    { title: 'Deep links to issues open the wrong workspace', body: 'If the user has multiple workspaces, `/issues/ORB-12` resolves against the last active one instead of the issue owner.' },
-    { title: 'Add a share sheet for issue links', body: 'Sharing should copy a canonical URL and offer Slack/email targets.' },
-    { title: 'Dark mode contrast fails on the priority badges', body: 'Urgent priority is 2.9:1 against the card background. Needs to be at least 4.5:1.' },
-    { title: 'Crash on rotate while the comment composer is open', body: 'Reported 41 times in the last release. Stack trace points at the mention autocomplete popover.' },
-    { title: 'Reduce the app bundle below 30MB', body: 'The release APK is 38MB. Audit unused font weights and the bundled emoji set.' },
-    { title: 'Sync conflicts overwrite newer server data', body: 'Last-write-wins is applied by client clock. Use the server `updatedAt` and surface a conflict state.' },
+    {
+      title: 'Offline queue drops writes when the app is killed',
+      body: 'Pending mutations live in memory only. Persist them to SQLite so a force-quit does not lose work.',
+    },
+    {
+      title: 'Push notifications arrive twice on Android 14',
+      body: 'Both FCM and our in-app poller deliver the same notification. Add a dedupe key on `notification.id`.',
+    },
+    {
+      title: 'Cold start regression: 3.4s to first paint',
+      body: 'Sentry shows p75 cold start increased after the navigation rewrite. Profile the release build and find the blocking work.',
+    },
+    {
+      title: 'Biometric unlock should be opt-in per device',
+      body: 'Currently enabling Face ID applies to the account. Scope it to the device keychain entry.',
+    },
+    {
+      title: 'Pull-to-refresh flickers on the issue list',
+      body: 'The spinner jumps when the list has fewer than 10 items.',
+    },
+    {
+      title: 'Deep links to issues open the wrong workspace',
+      body: 'If the user has multiple workspaces, `/issues/ORB-12` resolves against the last active one instead of the issue owner.',
+    },
+    {
+      title: 'Add a share sheet for issue links',
+      body: 'Sharing should copy a canonical URL and offer Slack/email targets.',
+    },
+    {
+      title: 'Dark mode contrast fails on the priority badges',
+      body: 'Urgent priority is 2.9:1 against the card background. Needs to be at least 4.5:1.',
+    },
+    {
+      title: 'Crash on rotate while the comment composer is open',
+      body: 'Reported 41 times in the last release. Stack trace points at the mention autocomplete popover.',
+    },
+    {
+      title: 'Reduce the app bundle below 30MB',
+      body: 'The release APK is 38MB. Audit unused font weights and the bundled emoji set.',
+    },
+    {
+      title: 'Sync conflicts overwrite newer server data',
+      body: 'Last-write-wins is applied by client clock. Use the server `updatedAt` and surface a conflict state.',
+    },
   ],
   'Analytics Engine': [
-    { title: 'Event ingestion drops batches over 500KB', body: 'The collector rejects large batches with a silent 413. Chunk client-side and log a warning.' },
-    { title: 'Add a 30-day cohort retention view', body: 'Group users by first-seen week and plot returning users per week for the first 30 days.' },
-    { title: 'Warehouse sync takes 40 minutes for large workspaces', body: 'Switch from row-by-row upserts to a staging table plus a merge.' },
-    { title: 'Metric definitions drift between API and dashboard', body: 'One place computes `active users` from events, the other from sessions. Extract a shared definition.' },
-    { title: 'Timezone bugs in the daily rollup', body: 'Days are bucketed in UTC but shown in workspace time. Customers in UTC+13 see the previous day.' },
-    { title: 'Add percentile aggregations to the query API', body: 'Support p50/p90/p99 for duration metrics with a bounded cardinality guard.' },
-    { title: 'Reporting queries can exceed the statement timeout', body: 'Add a query budget, cancellation on timeout and a clear error the UI can show.' },
-    { title: 'Improve funnel step attribution', body: 'Steps completed out of order are attributed to the first occurrence. Use the first *valid* sequence instead.' },
-    { title: 'Backfill missing `project.viewed` events', body: 'The tracker missed events for 6 hours during the deploy on the 14th.' },
-    { title: 'Expose a CSV download for any saved report', body: 'Streaming download so large reports do not buffer in memory.' },
+    {
+      title: 'Event ingestion drops batches over 500KB',
+      body: 'The collector rejects large batches with a silent 413. Chunk client-side and log a warning.',
+    },
+    {
+      title: 'Add a 30-day cohort retention view',
+      body: 'Group users by first-seen week and plot returning users per week for the first 30 days.',
+    },
+    {
+      title: 'Warehouse sync takes 40 minutes for large workspaces',
+      body: 'Switch from row-by-row upserts to a staging table plus a merge.',
+    },
+    {
+      title: 'Metric definitions drift between API and dashboard',
+      body: 'One place computes `active users` from events, the other from sessions. Extract a shared definition.',
+    },
+    {
+      title: 'Timezone bugs in the daily rollup',
+      body: 'Days are bucketed in UTC but shown in workspace time. Customers in UTC+13 see the previous day.',
+    },
+    {
+      title: 'Add percentile aggregations to the query API',
+      body: 'Support p50/p90/p99 for duration metrics with a bounded cardinality guard.',
+    },
+    {
+      title: 'Reporting queries can exceed the statement timeout',
+      body: 'Add a query budget, cancellation on timeout and a clear error the UI can show.',
+    },
+    {
+      title: 'Improve funnel step attribution',
+      body: 'Steps completed out of order are attributed to the first occurrence. Use the first *valid* sequence instead.',
+    },
+    {
+      title: 'Backfill missing `project.viewed` events',
+      body: 'The tracker missed events for 6 hours during the deploy on the 14th.',
+    },
+    {
+      title: 'Expose a CSV download for any saved report',
+      body: 'Streaming download so large reports do not buffer in memory.',
+    },
   ],
   'Security Hardening': [
-    { title: 'Enforce 2FA for workspace owners', body: 'Owners must have a second factor. Add a grace period with an in-app warning banner.' },
-    { title: 'Rotate webhook signing secrets automatically', body: 'Every 90 days with a 7-day overlap where both secrets verify.' },
-    { title: 'Audit log export for compliance', body: 'Signed, tamper-evident export of the activity log for a date range.' },
-    { title: 'Session tokens are not bound to a user agent', body: 'Bind the session to a coarse fingerprint and invalidate on mismatch.' },
-    { title: 'Pen test: SSRF in the webhook tester', body: 'The tester follows redirects to internal addresses. Block private ranges and disable redirects.' },
-    { title: 'Add rate limiting to password reset', body: 'Currently unlimited. Cap per email and per IP.' },
+    {
+      title: 'Enforce 2FA for workspace owners',
+      body: 'Owners must have a second factor. Add a grace period with an in-app warning banner.',
+    },
+    {
+      title: 'Rotate webhook signing secrets automatically',
+      body: 'Every 90 days with a 7-day overlap where both secrets verify.',
+    },
+    {
+      title: 'Audit log export for compliance',
+      body: 'Signed, tamper-evident export of the activity log for a date range.',
+    },
+    {
+      title: 'Session tokens are not bound to a user agent',
+      body: 'Bind the session to a coarse fingerprint and invalidate on mismatch.',
+    },
+    {
+      title: 'Pen test: SSRF in the webhook tester',
+      body: 'The tester follows redirects to internal addresses. Block private ranges and disable redirects.',
+    },
+    {
+      title: 'Add rate limiting to password reset',
+      body: 'Currently unlimited. Cap per email and per IP.',
+    },
     { title: 'Secrets in CI logs', body: 'Mask environment variables in the deploy job output.' },
-    { title: 'Document the incident response runbook', body: 'Include severity levels, paging rotation and the post-mortem template.' },
+    {
+      title: 'Document the incident response runbook',
+      body: 'Include severity levels, paging rotation and the post-mortem template.',
+    },
   ],
   'Public API': [
-    { title: 'Publish OpenAPI schema for v1', body: 'Generate the schema from the route definitions and publish it at `/api/v1/openapi.json`.' },
-    { title: 'Webhook retries should use a jittered schedule', body: 'Thundering herd when a customer endpoint recovers.' },
-    { title: 'Add pagination cursors to the issues endpoint', body: 'Offset pagination drifts while new issues are created. Move to opaque cursors.' },
-    { title: 'Deprecate the `status_id` field', body: 'Announce the deprecation, add a sunset header and keep it working for 90 days.' },
-    { title: 'Document rate limit headers', body: 'Expose `X-RateLimit-Remaining` and `Retry-After` in the docs and the SDK.' },
-    { title: 'SDK: typed errors', body: 'Wrap HTTP errors in typed classes so callers can branch on `code`.' },
+    {
+      title: 'Publish OpenAPI schema for v1',
+      body: 'Generate the schema from the route definitions and publish it at `/api/v1/openapi.json`.',
+    },
+    {
+      title: 'Webhook retries should use a jittered schedule',
+      body: 'Thundering herd when a customer endpoint recovers.',
+    },
+    {
+      title: 'Add pagination cursors to the issues endpoint',
+      body: 'Offset pagination drifts while new issues are created. Move to opaque cursors.',
+    },
+    {
+      title: 'Deprecate the `status_id` field',
+      body: 'Announce the deprecation, add a sunset header and keep it working for 90 days.',
+    },
+    {
+      title: 'Document rate limit headers',
+      body: 'Expose `X-RateLimit-Remaining` and `Retry-After` in the docs and the SDK.',
+    },
+    {
+      title: 'SDK: typed errors',
+      body: 'Wrap HTTP errors in typed classes so callers can branch on `code`.',
+    },
   ],
   'Aurora Marketing Site': [
-    { title: 'Case study pages need a table of contents', body: 'Long case studies benefit from a sticky ToC generated from the headings.' },
-    { title: 'Hero image is 4MB on mobile', body: 'Serve responsive AVIF/WebP variants and set explicit dimensions to avoid layout shift.' },
-    { title: 'Cookie banner blocks the primary CTA', body: 'On short viewports the banner overlaps the signup button.' },
-    { title: 'Lighthouse accessibility score is 82', body: 'Fix colour contrast on the secondary buttons and the missing form labels.' },
-    { title: 'Add structured data for articles', body: 'JSON-LD `Article` + `Organization` so search results show rich snippets.' },
-    { title: 'Content editors cannot preview unpublished pages', body: 'Draft preview links should bypass the CDN cache with a signed token.' },
-    { title: 'Newsletter form drops submissions on slow networks', body: 'The form submits before hydration completes. Handle the pre-hydration submit.' },
-    { title: 'Footer links point to staging', body: 'Two legal links still reference the staging domain.' },
-    { title: 'Translate the pricing page to German', body: 'Copy is ready in the CMS; needs a layout pass for longer strings.' },
+    {
+      title: 'Case study pages need a table of contents',
+      body: 'Long case studies benefit from a sticky ToC generated from the headings.',
+    },
+    {
+      title: 'Hero image is 4MB on mobile',
+      body: 'Serve responsive AVIF/WebP variants and set explicit dimensions to avoid layout shift.',
+    },
+    {
+      title: 'Cookie banner blocks the primary CTA',
+      body: 'On short viewports the banner overlaps the signup button.',
+    },
+    {
+      title: 'Lighthouse accessibility score is 82',
+      body: 'Fix colour contrast on the secondary buttons and the missing form labels.',
+    },
+    {
+      title: 'Add structured data for articles',
+      body: 'JSON-LD `Article` + `Organization` so search results show rich snippets.',
+    },
+    {
+      title: 'Content editors cannot preview unpublished pages',
+      body: 'Draft preview links should bypass the CDN cache with a signed token.',
+    },
+    {
+      title: 'Newsletter form drops submissions on slow networks',
+      body: 'The form submits before hydration completes. Handle the pre-hydration submit.',
+    },
+    {
+      title: 'Footer links point to staging',
+      body: 'Two legal links still reference the staging domain.',
+    },
+    {
+      title: 'Translate the pricing page to German',
+      body: 'Copy is ready in the CMS; needs a layout pass for longer strings.',
+    },
   ],
   'Design System 2.0': [
-    { title: 'Tokens: split semantic from primitive colours', body: 'Consumers should reference `surface.default`, never `gray.900`.' },
-    { title: 'Add a focus-visible ring primitive', body: 'One implementation used by every interactive component.' },
-    { title: 'Document the motion guidelines', body: 'Durations, easing curves and when not to animate.' },
-    { title: 'Table component: sticky header + column resizing', body: 'Needed by three client builds.' },
-    { title: 'Storybook a11y addon reports contrast failures', body: 'Fix the badge and tooltip stories.' },
-    { title: 'Ship a Figma-to-code token sync script', body: 'One command to regenerate tokens from the Figma variables export.' },
-    { title: 'Remove deprecated `Button.legacy`', body: 'No remaining usages in client repos after the last migration.' },
-    { title: 'Add visual regression tests', body: 'Playwright screenshots per component story on CI.' },
+    {
+      title: 'Tokens: split semantic from primitive colours',
+      body: 'Consumers should reference `surface.default`, never `gray.900`.',
+    },
+    {
+      title: 'Add a focus-visible ring primitive',
+      body: 'One implementation used by every interactive component.',
+    },
+    {
+      title: 'Document the motion guidelines',
+      body: 'Durations, easing curves and when not to animate.',
+    },
+    {
+      title: 'Table component: sticky header + column resizing',
+      body: 'Needed by three client builds.',
+    },
+    {
+      title: 'Storybook a11y addon reports contrast failures',
+      body: 'Fix the badge and tooltip stories.',
+    },
+    {
+      title: 'Ship a Figma-to-code token sync script',
+      body: 'One command to regenerate tokens from the Figma variables export.',
+    },
+    {
+      title: 'Remove deprecated `Button.legacy`',
+      body: 'No remaining usages in client repos after the last migration.',
+    },
+    {
+      title: 'Add visual regression tests',
+      body: 'Playwright screenshots per component story on CI.',
+    },
   ],
   'Legacy Migration': [
-    { title: 'Map old CMS page types to the new schema', body: '22 page types, 6 of which have no direct equivalent.' },
-    { title: 'Redirect map for 480 legacy URLs', body: 'Generate from the sitemap and verify no chains longer than one hop.' },
-    { title: 'Assets still referenced from the old CDN', body: 'Copy remaining assets and rewrite the references before shutdown.' },
-    { title: 'Migrate inline HTML blocks to rich text', body: 'Preserve headings, lists and links; drop presentational markup.' },
-    { title: 'Verify SEO metadata parity', body: 'Compare titles, descriptions and canonical URLs for the top 100 pages.' },
-    { title: 'Decommission the old hosting plan', body: 'Confirm zero traffic for 14 days before cancelling.' },
+    {
+      title: 'Map old CMS page types to the new schema',
+      body: '22 page types, 6 of which have no direct equivalent.',
+    },
+    {
+      title: 'Redirect map for 480 legacy URLs',
+      body: 'Generate from the sitemap and verify no chains longer than one hop.',
+    },
+    {
+      title: 'Assets still referenced from the old CDN',
+      body: 'Copy remaining assets and rewrite the references before shutdown.',
+    },
+    {
+      title: 'Migrate inline HTML blocks to rich text',
+      body: 'Preserve headings, lists and links; drop presentational markup.',
+    },
+    {
+      title: 'Verify SEO metadata parity',
+      body: 'Compare titles, descriptions and canonical URLs for the top 100 pages.',
+    },
+    {
+      title: 'Decommission the old hosting plan',
+      body: 'Confirm zero traffic for 14 days before cancelling.',
+    },
   ],
 };
 

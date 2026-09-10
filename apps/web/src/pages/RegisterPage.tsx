@@ -24,7 +24,8 @@ export default function RegisterPage() {
   // Client-side pre-validation mirrors the API's Zod rules for instant feedback.
   const passwordIssue = password.length > 0 ? passwordSchema.safeParse(password) : null;
   const passwordError =
-    fields.password ?? (passwordIssue && !passwordIssue.success ? passwordIssue.error.issues[0]?.message : undefined);
+    fields.password ??
+    (passwordIssue && !passwordIssue.success ? passwordIssue.error.issues[0]?.message : undefined);
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -44,7 +45,8 @@ export default function RegisterPage() {
         setError(caught.message);
         if (caught.fields) {
           const flat: Record<string, string> = {};
-          for (const [key, messages] of Object.entries(caught.fields)) if (messages[0]) flat[key] = messages[0];
+          for (const [key, messages] of Object.entries(caught.fields))
+            if (messages[0]) flat[key] = messages[0];
           setFields(flat);
         }
       } else {

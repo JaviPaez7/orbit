@@ -137,7 +137,9 @@ export default function IssuesPage({
         setSelected((current) => [...new Set([...current, ...range])]);
       } else {
         setSelected((current) =>
-          current.includes(issueId) ? current.filter((id) => id !== issueId) : [...current, issueId],
+          current.includes(issueId)
+            ? current.filter((id) => id !== issueId)
+            : [...current, issueId],
         );
         lastClickedIndex.current = index;
       }
@@ -272,7 +274,9 @@ export default function IssuesPage({
         renderTrigger={(selectedOptions) => (
           <>
             <Filter className="h-3.5 w-3.5" />
-            {selectedOptions.length === 0 ? 'Status' : selectedOptions.map((o) => o.label).join(', ')}
+            {selectedOptions.length === 0
+              ? 'Status'
+              : selectedOptions.map((o) => o.label).join(', ')}
           </>
         )}
       />
@@ -365,7 +369,12 @@ export default function IssuesPage({
       </Button>
 
       {activeCount > 0 && (
-        <Button variant="ghost" size="sm" leftIcon={<X className="h-3.5 w-3.5" />} onClick={clearAll}>
+        <Button
+          variant="ghost"
+          size="sm"
+          leftIcon={<X className="h-3.5 w-3.5" />}
+          onClick={clearAll}
+        >
           Clear {activeCount}
         </Button>
       )}
@@ -427,7 +436,10 @@ export default function IssuesPage({
           </MenuItem>
         ))}
         <MenuSeparator />
-        <MenuItem selected={state.direction === 'desc'} onClick={() => update({ direction: 'desc' })}>
+        <MenuItem
+          selected={state.direction === 'desc'}
+          onClick={() => update({ direction: 'desc' })}
+        >
           Descending
         </MenuItem>
         <MenuItem selected={state.direction === 'asc'} onClick={() => update({ direction: 'asc' })}>
@@ -435,7 +447,12 @@ export default function IssuesPage({
         </MenuItem>
       </Menu>
 
-      <Button variant="ghost" size="sm" leftIcon={<Download className="h-3.5 w-3.5" />} onClick={exportCsv}>
+      <Button
+        variant="ghost"
+        size="sm"
+        leftIcon={<Download className="h-3.5 w-3.5" />}
+        onClick={exportCsv}
+      >
         Export
       </Button>
     </>
@@ -561,7 +578,10 @@ export default function IssuesPage({
       <div className="flex items-center gap-3 border-b border-line px-3 py-1.5 text-2xs text-subtle">
         <span data-testid="issue-count">
           {issuesQuery.isPending ? (
-            <span className="inline-block h-3 w-16 animate-pulse rounded bg-hover" aria-label="Loading issues" />
+            <span
+              className="inline-block h-3 w-16 animate-pulse rounded bg-hover"
+              aria-label="Loading issues"
+            />
           ) : (
             `${issuesQuery.data?.total ?? 0} issue${(issuesQuery.data?.total ?? 0) === 1 ? '' : 's'}`
           )}

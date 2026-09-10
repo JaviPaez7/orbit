@@ -1,0 +1,105 @@
+# ---------------------------------------------------------------------------
+# CI: install → typecheck → lint → tests → production build.
+#
+# The E2E job additionally installs Chromium and runs the Playwright suite,
+# which boots its own API and client on isolated ports and seeds its own DB.
+# ---------------------------------------------------------------------------
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  verify:
+    name: Typecheck, lint, unit + integration tests, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+        env:
+          DATABASE_URL: file:./ci.db
+          AUTH_SECRET: ci-secret-0123456789abcdef0123456789abcdef
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Unit + integration tests
+        run: pnpm test
+        env:
+          AUTH_SECRET: ci-secret-0123456789abcdef0123456789abcdef
+
+      - name: Production build
+        run: pnpm build
+        env:
+          DATABASE_URL: file:./ci.db
+          AUTH_SECRET: ci-secret-0123456789abcdef0123456789abcdef
+
+  e2e:
+    name: Playwright end-to-end
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+        env:
+          DATABASE_URL: file:./e2e.db
+          AUTH_SECRET: ci-secret-0123456789abcdef0123456789abcdef
+
+      - name: Install Playwright browsers
+        run: pnpm --filter @orbit/e2e exec playwright install --with-deps chromium
+
+      - name: Run end-to-end tests
+        run: pnpm test:e2e
+        env:
+          CI: 'true'
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/e2e/playwright-report
+          retention-days: 7

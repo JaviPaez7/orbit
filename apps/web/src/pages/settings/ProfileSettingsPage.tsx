@@ -40,7 +40,8 @@ export default function ProfileSettingsPage() {
       if (error instanceof ApiError) {
         if (error.fields) {
           const flat: Record<string, string> = {};
-          for (const [key, messages] of Object.entries(error.fields)) if (messages[0]) flat[key] = messages[0];
+          for (const [key, messages] of Object.entries(error.fields))
+            if (messages[0]) flat[key] = messages[0];
           setErrors(flat);
         }
         toast.error('Could not save your profile', error.message);
@@ -67,8 +68,7 @@ export default function ProfileSettingsPage() {
   });
 
   const passwordMutation = useMutation({
-    mutationFn: () =>
-      api.post('/users/me/password', { currentPassword, newPassword }),
+    mutationFn: () => api.post('/users/me/password', { currentPassword, newPassword }),
     onSuccess: () => {
       setCurrentPassword('');
       setNewPassword('');
@@ -131,7 +131,12 @@ export default function ProfileSettingsPage() {
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field label="Full name" required error={errors.name}>
             {({ id, ...rest }) => (
-              <Input id={id} {...rest} value={name} onChange={(event) => setName(event.target.value)} />
+              <Input
+                id={id}
+                {...rest}
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+              />
             )}
           </Field>
           <Field label="Email" required error={errors.email}>
@@ -147,7 +152,12 @@ export default function ProfileSettingsPage() {
           </Field>
           <Field label="Job title" error={errors.title}>
             {({ id }) => (
-              <Input id={id} value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Engineer" />
+              <Input
+                id={id}
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                placeholder="Engineer"
+              />
             )}
           </Field>
           <Field label="Timezone" error={errors.timezone} hint="Used for date formatting hints.">

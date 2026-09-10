@@ -107,9 +107,11 @@ export async function resolveMentions(workspaceId: string, body: string): Promis
 }
 
 /** Currently online user ids per workspace, maintained by the realtime layer. */
-export function summarizeNotifications(
-  rows: { createdAt: Date; readAt: Date | null }[],
-): { total: number; unread: number; lastAt: Date | null } {
+export function summarizeNotifications(rows: { createdAt: Date; readAt: Date | null }[]): {
+  total: number;
+  unread: number;
+  lastAt: Date | null;
+} {
   const unread = rows.filter((row) => row.readAt === null).length;
   const lastAt = rows.length > 0 ? rows[0]!.createdAt : null;
   return { total: rows.length, unread, lastAt };

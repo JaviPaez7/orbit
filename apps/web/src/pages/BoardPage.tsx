@@ -58,7 +58,9 @@ export default function BoardPage() {
   const queryClient = useQueryClient();
   const workspaceId = workspace?.id ?? '';
 
-  const { state, update, toggleInList, clearAll, activeCount, query } = useIssueFilters({ group: 'none' });
+  const { state, update, toggleInList, clearAll, activeCount, query } = useIssueFilters({
+    group: 'none',
+  });
   const [selected, setSelected] = useState<string[]>([]);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [overStatus, setOverStatus] = useState<string | null>(null);
@@ -251,12 +253,16 @@ export default function BoardPage() {
             <Button
               variant="ghost"
               size="sm"
-              leftIcon={<RefreshCw className={cn('h-3.5 w-3.5', boardQuery.isFetching && 'animate-spin')} />}
+              leftIcon={
+                <RefreshCw className={cn('h-3.5 w-3.5', boardQuery.isFetching && 'animate-spin')} />
+              }
               onClick={() => void boardQuery.refetch()}
             >
               Refresh
             </Button>
-            {moveMutation.isPending && <Spinner className="h-3.5 w-3.5" data-testid="board-saving" />}
+            {moveMutation.isPending && (
+              <Spinner className="h-3.5 w-3.5" data-testid="board-saving" />
+            )}
           </>
         }
       />
@@ -400,7 +406,10 @@ export default function BoardPage() {
                           dragging={draggingId === issue.id}
                         />
                         {selected.includes(issue.id) && (
-                          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-accent" aria-hidden />
+                          <span
+                            className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-accent"
+                            aria-hidden
+                          />
                         )}
                       </div>
                     ))}

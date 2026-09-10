@@ -105,7 +105,10 @@ export function buildIssueWhere(
   return where;
 }
 
-function orderByFor(sort: string, direction: 'asc' | 'desc'): Prisma.IssueOrderByWithRelationInput[] {
+function orderByFor(
+  sort: string,
+  direction: 'asc' | 'desc',
+): Prisma.IssueOrderByWithRelationInput[] {
   const dir = direction;
   switch (sort) {
     case 'createdAt':
@@ -156,7 +159,9 @@ export async function listIssues(
   if (filters.sort === 'priority') {
     const weight = (p: string) => ISSUE_PRIORITY_WEIGHT[p as IssuePriority] ?? 0;
     items = [...rows].sort((a, b) =>
-      filters.direction === 'desc' ? weight(b.priority) - weight(a.priority) : weight(a.priority) - weight(b.priority),
+      filters.direction === 'desc'
+        ? weight(b.priority) - weight(a.priority)
+        : weight(a.priority) - weight(b.priority),
     );
   }
 
@@ -234,11 +239,7 @@ export interface CreateIssueData {
   dueDate?: Date | null;
 }
 
-export async function createIssue(
-  workspaceId: string,
-  actorId: string,
-  data: CreateIssueData,
-) {
+export async function createIssue(workspaceId: string, actorId: string, data: CreateIssueData) {
   const workspace = await prisma.workspace.findUniqueOrThrow({
     where: { id: workspaceId },
     select: { key: true, name: true },
@@ -367,10 +368,12 @@ async function validateRelations(
         select: { id: true, parentId: true },
       });
       if (!parent) errors.parentId = ['Parent issue not found in this workspace'];
-      else if (parent.parentId) errors.parentId = ['Sub-issues cannot be nested more than one level'];
+      else if (parent.parentId)
+        errors.parentId = ['Sub-issues cannot be nested more than one level'];
       else if (excludeIssueId) {
         const childCount = await prisma.issue.count({ where: { parentId: excludeIssueId } });
-        if (childCount > 0) errors.parentId = ['An issue with sub-issues cannot become a sub-issue'];
+        if (childCount > 0)
+          errors.parentId = ['An issue with sub-issues cannot become a sub-issue'];
       }
     }
   }
@@ -436,13 +439,17 @@ export async function updateIssue(
   }
   if (data.priority !== undefined) updateData.priority = data.priority;
   if (data.projectId !== undefined) {
-    updateData.project = data.projectId ? { connect: { id: data.projectId } } : { disconnect: true };
+    updateData.project = data.projectId
+      ? { connect: { id: data.projectId } }
+      : { disconnect: true };
   }
   if (data.cycleId !== undefined) {
     updateData.cycle = data.cycleId ? { connect: { id: data.cycleId } } : { disconnect: true };
   }
   if (data.assigneeId !== undefined) {
-    updateData.assignee = data.assigneeId ? { connect: { id: data.assigneeId } } : { disconnect: true };
+    updateData.assignee = data.assigneeId
+      ? { connect: { id: data.assigneeId } }
+      : { disconnect: true };
   }
   if (data.parentId !== undefined) {
     updateData.parent = data.parentId ? { connect: { id: data.parentId } } : { disconnect: true };
@@ -467,7 +474,8 @@ export async function updateIssue(
   });
 
   if (!options.silent) {
-    const actions: { action: string; payload: Record<string, { from: unknown; to: unknown }> }[] = [];
+    const actions: { action: string; payload: Record<string, { from: unknown; to: unknown }> }[] =
+      [];
     const simple: [keyof UpdateIssueData, string][] = [
       ['status', 'status_changed'],
       ['priority', 'priority_changed'],
@@ -481,20 +489,38 @@ export async function updateIssue(
       ['parentId', 'parent_changed'],
     ];
     for (const [field, action] of simple) {
-      const key = field === 'assigneeId' ? 'assignee' : field === 'projectId' ? 'project' : field === 'cycleId' ? 'cycle' : field === 'parentId' ? 'parent' : String(field);
+      const key =
+        field === 'assigneeId'
+          ? 'assignee'
+          : field === 'projectId'
+            ? 'project'
+            : field === 'cycleId'
+              ? 'cycle'
+              : field === 'parentId'
+                ? 'parent'
+                : String(field);
       if (changes[key]) actions.push({ action, payload: { [key]: changes[key]! } });
     }
     if (labelChange) {
       for (const id of labelChange.added) {
         const label = await prisma.label.findUnique({ where: { id }, select: { name: true } });
-        actions.push({ action: 'label_added', payload: { label: { from: null, to: label?.name ?? id } } });
+        actions.push({
+          action: 'label_added',
+          payload: { label: { from: null, to: label?.name ?? id } },
+        });
       }
       for (const id of labelChange.removed) {
         const label = await prisma.label.findUnique({ where: { id }, select: { name: true } });
-        actions.push({ action: 'label_removed', payload: { label: { from: label?.name ?? id, to: null } } });
+        actions.push({
+          action: 'label_removed',
+          payload: { label: { from: label?.name ?? id, to: null } },
+        });
       }
     }
-    if (Object.keys(changes).length > 0 || (labelChange && (labelChange.added.length || labelChange.removed.length))) {
+    if (
+      Object.keys(changes).length > 0 ||
+      (labelChange && (labelChange.added.length || labelChange.removed.length))
+    ) {
       for (const entry of actions.length ? actions : [{ action: 'updated', payload: {} }]) {
         await recordActivity({
           workspaceId,
@@ -525,7 +551,10 @@ export async function updateIssue(
 }
 
 async function diffLabels(issueId: string, nextLabelIds: string[]) {
-  const current = await prisma.issueLabel.findMany({ where: { issueId }, select: { labelId: true } });
+  const current = await prisma.issueLabel.findMany({
+    where: { issueId },
+    select: { labelId: true },
+  });
   const currentIds = new Set(current.map((row) => row.labelId));
   const nextIds = new Set(nextLabelIds);
   return {
@@ -537,7 +566,13 @@ async function diffLabels(issueId: string, nextLabelIds: string[]) {
 async function notifyIssueChanges(input: {
   workspaceId: string;
   actorId: string;
-  issue: { id: string; identifier: string; title: string; assigneeId: string | null; status: string };
+  issue: {
+    id: string;
+    identifier: string;
+    title: string;
+    assigneeId: string | null;
+    status: string;
+  };
   changes: Record<string, { from: unknown; to: unknown }>;
   before: { assigneeId: string | null; status: string };
 }) {
@@ -674,7 +709,9 @@ export async function bulkUpdateIssues(
     }
     if (input.addLabelIds?.length) {
       await tx.issueLabel.createMany({
-        data: input.ids.flatMap((issueId) => input.addLabelIds!.map((labelId) => ({ issueId, labelId }))),
+        data: input.ids.flatMap((issueId) =>
+          input.addLabelIds!.map((labelId) => ({ issueId, labelId })),
+        ),
       });
     }
     if (input.removeLabelIds?.length) {
@@ -797,7 +834,9 @@ export async function addIssueRelation(
   });
   if (both.length !== 2) throw new NotFoundError('Issue');
 
-  const existing = await prisma.issueRelation.findFirst({ where: { issueId, relatedIssueId, type } });
+  const existing = await prisma.issueRelation.findFirst({
+    where: { issueId, relatedIssueId, type },
+  });
   if (existing) throw new ConflictError('Those issues are already linked');
 
   const relation = await prisma.issueRelation.create({
@@ -820,7 +859,11 @@ export async function addIssueRelation(
   return relation;
 }
 
-export async function removeIssueRelation(workspaceId: string, actorId: string, relationId: string) {
+export async function removeIssueRelation(
+  workspaceId: string,
+  actorId: string,
+  relationId: string,
+) {
   const relation = await prisma.issueRelation.findFirst({
     where: { id: relationId, issue: { workspaceId } },
     include: { relatedIssue: { select: { identifier: true } } },

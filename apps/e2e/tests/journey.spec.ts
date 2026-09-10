@@ -55,10 +55,15 @@ test.describe('core product journey', () => {
 
     // Grab the generated identifier so later steps can deep-link to it.
     const issueLink = page.getByRole('link', { name: new RegExp(issueTitle) }).first();
-    const issueRow = page.locator('[data-testid^="issue-row-"]').filter({ hasText: issueTitle }).first();
+    const issueRow = page
+      .locator('[data-testid^="issue-row-"]')
+      .filter({ hasText: issueTitle })
+      .first();
     const identifier =
       (await issueRow.getAttribute('data-testid'))?.replace('issue-row-', '') ?? '';
-    expect(identifier, 'created issue should expose an ORB-style identifier').toMatch(/^[A-Z]{2,5}-\d+$/);
+    expect(identifier, 'created issue should expose an ORB-style identifier').toMatch(
+      /^[A-Z]{2,5}-\d+$/,
+    );
     void issueLink;
 
     // ----------------------------------------------------------- 4. edit issue
@@ -69,24 +74,38 @@ test.describe('core product journey', () => {
       const editedTitle = `${issueTitle} (edited)`;
       const titleInput = page.getByTestId('issue-detail-title');
       await titleInput.fill(editedTitle);
-      await titleInput.blur();
 
-      // Autosave: reload and confirm the new title came from the database.
-      await expect(page.getByText('Issue updated')).toBeVisible({ timeout: 10_000 }).catch(() => undefined);
+      // Autosave fires on blur; wait for the PATCH to be acknowledged before
+      // reloading, otherwise the assertion can race the request.
+      const saved = page.waitForResponse(
+        (response) => response.request().method() === 'PATCH' && response.status() === 200,
+        { timeout: 20_000 },
+      );
+      await titleInput.blur();
+      await saved;
+
+      // Reload to prove the title came from the database, not local state.
       await page.reload();
       await expect(page.getByTestId('issue-detail-title')).toHaveValue(editedTitle);
 
-      // Change the status through the metadata sidebar (persisted, not local).
+      // Change the status through the metadata sidebar (also persisted).
+      const statusSaved = page.waitForResponse(
+        (response) => response.request().method() === 'PATCH' && response.status() === 200,
+        { timeout: 20_000 },
+      );
       await page.getByLabel('Status', { exact: true }).click();
-      await page.getByRole('menuitem', { name: 'In Progress' }).click();
-      await expect(page.getByText('Issue updated')).toBeVisible({ timeout: 10_000 }).catch(() => undefined);
+      await page.getByTestId('menu-panel').getByRole('menuitem', { name: 'In Progress' }).click();
+      await statusSaved;
+
       await page.reload();
       await expect(page.getByLabel('Status', { exact: true })).toContainText('In Progress');
     });
 
     // -------------------------------------------------------------- 5. comment
     await test.step('5. add a comment', async () => {
-      await page.getByTestId('comment-input').fill('End-to-end comment: this must survive a reload.');
+      await page
+        .getByTestId('comment-input')
+        .fill('End-to-end comment: this must survive a reload.');
       await page.getByTestId('comment-submit').click();
       await expect(page.getByText('End-to-end comment: this must survive a reload.')).toBeVisible({
         timeout: 15_000,
@@ -103,7 +122,7 @@ test.describe('core product journey', () => {
       // cannot start on an element that is off screen.
       await page.goto(`/issues/${identifier}`);
       await page.getByLabel('Status', { exact: true }).click();
-      await page.getByRole('menuitem', { name: 'In Progress' }).click();
+      await page.getByTestId('menu-panel').getByRole('menuitem', { name: 'In Progress' }).click();
       await expect(page.getByLabel('Status', { exact: true })).toContainText('In Progress', {
         timeout: 15_000,
       });
@@ -120,12 +139,16 @@ test.describe('core product journey', () => {
       await dragAndDrop(page, card, target);
 
       // The card must land in the Done column and the move must persist.
-      await expect(page.getByTestId('board-column-done').getByTestId(`board-card-${identifier}`)).toBeVisible({
+      await expect(
+        page.getByTestId('board-column-done').getByTestId(`board-card-${identifier}`),
+      ).toBeVisible({
         timeout: 20_000,
       });
 
       await page.reload();
-      await expect(page.getByTestId('board-column-done').getByTestId(`board-card-${identifier}`)).toBeVisible({
+      await expect(
+        page.getByTestId('board-column-done').getByTestId(`board-card-${identifier}`),
+      ).toBeVisible({
         timeout: 20_000,
       });
 
@@ -193,9 +216,12 @@ test.describe('core product journey', () => {
       // Backend enforcement: the raw API must reject the change with 403.
       const workspaceId = await currentWorkspaceId(page);
       const issueId = await currentIssueId(page, identifier);
-      const response = await page.request.patch(`${API_URL}/api/workspaces/${workspaceId}/issues/${issueId}`, {
-        data: { title: 'hacked by a viewer' },
-      });
+      const response = await page.request.patch(
+        `${API_URL}/api/workspaces/${workspaceId}/issues/${issueId}`,
+        {
+          data: { title: 'hacked by a viewer' },
+        },
+      );
       expect(response.status()).toBe(403);
       const body = (await response.json()) as { error: { code: string } };
       expect(body.error.code).toBe('forbidden');
@@ -237,7 +263,8 @@ const API_URL = process.env.E2E_API_URL ?? 'http://127.0.0.1:4100';
 async function currentWorkspaceId(page: Page): Promise<string> {
   const response = await page.request.get(`${API_URL}/api/workspaces`);
   const payload = (await response.json()) as { workspaces: { id: string; slug: string }[] };
-  const workspace = payload.workspaces.find((entry) => entry.slug === 'orbit-labs') ?? payload.workspaces[0];
+  const workspace =
+    payload.workspaces.find((entry) => entry.slug === 'orbit-labs') ?? payload.workspaces[0];
   if (!workspace) throw new Error('no workspace available for the E2E user');
   return workspace.id;
 }
@@ -245,16 +272,15 @@ async function currentWorkspaceId(page: Page): Promise<string> {
 /** Reads an issue's persisted status straight from the API. */
 async function apiStatus(page: Page, issueId: string): Promise<string> {
   const workspaceId = await currentWorkspaceId(page);
-  const response = await page.request.get(`${API_URL}/api/workspaces/${workspaceId}/issues/${issueId}`);
+  const response = await page.request.get(
+    `${API_URL}/api/workspaces/${workspaceId}/issues/${issueId}`,
+  );
   const payload = (await response.json()) as { issue: { status: string } };
   return payload.issue.status;
 }
 
 /** Resolves an issue's internal id from its identifier. */
-async function currentIssueId(
-  page: Page,
-  identifier: string,
-): Promise<string> {
+async function currentIssueId(page: Page, identifier: string): Promise<string> {
   const workspaceId = await currentWorkspaceId(page);
   const response = await page.request.get(
     `${API_URL}/api/workspaces/${workspaceId}/issues/by-identifier/${identifier}`,

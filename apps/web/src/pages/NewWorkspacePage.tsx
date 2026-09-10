@@ -40,7 +40,8 @@ export default function NewWorkspacePage() {
       if (error instanceof ApiError) {
         if (error.fields) {
           const flat: Record<string, string> = {};
-          for (const [key, messages] of Object.entries(error.fields)) if (messages[0]) flat[key] = messages[0];
+          for (const [key, messages] of Object.entries(error.fields))
+            if (messages[0]) flat[key] = messages[0];
           setErrors(flat);
         }
         toast.error('Could not create the workspace', error.message);
@@ -126,7 +127,12 @@ export default function NewWorkspacePage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button type="submit" variant="primary" loading={submitting} data-testid="create-workspace-submit">
+            <Button
+              type="submit"
+              variant="primary"
+              loading={submitting}
+              data-testid="create-workspace-submit"
+            >
               Create workspace
             </Button>
             <Button variant="ghost" onClick={() => navigate(-1)}>
