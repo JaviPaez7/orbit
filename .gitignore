@@ -23,6 +23,9 @@ packages/server/prisma/dev.db*
 coverage/
 playwright-report/
 test-results/
+# Playwright artifacts are ignored, but the README walkthrough screenshots are
+# documentation and are committed on purpose.
+!apps/e2e/screenshots/
 blob-report/
 .playwright/
 
