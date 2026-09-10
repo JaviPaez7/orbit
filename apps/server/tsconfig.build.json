@@ -6,7 +6,13 @@
     "rootDir": "src",
     "declaration": false,
     "sourceMap": true,
-    "paths": {}
+    "paths": {},
+    // The server ships as ESM and Node requires explicit file extensions at
+    // runtime. `NodeNext` makes the compiler enforce that, so an extensionless
+    // import can never reach production again (it did once: dist/lib/db-values.js
+    // imported './errors' and crashed on boot).
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.test.ts", "tests/**/*.ts"]
