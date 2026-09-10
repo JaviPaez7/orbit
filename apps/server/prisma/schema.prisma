@@ -1,0 +1,411 @@
+// ---------------------------------------------------------------------------
+// Orbit — Prisma schema (SQLite provider, the zero-setup default)
+//
+// The model layer is intentionally database-portable:
+//   * Workflow values (issue status, priority, project status, role, ...) are
+//     stored as short strings validated by Zod + `@orbit/shared` constants so
+//     that identical application code runs on SQLite and PostgreSQL.
+//   * `prisma/schema.postgres.prisma` is the PostgreSQL variant (native enums,
+//     native String[] columns). Run `pnpm db:use-postgres` to switch.
+//   * `packages/server/tests/schema-parity.test.ts` fails the build if the two
+//     schemas drift apart.
+// ---------------------------------------------------------------------------
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Identity
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String  @id @default(cuid())
+  email        String  @unique
+  /// Public @handle used for @mentions (lowercase, derived from the name).
+  handle       String  @unique
+  name         String
+  passwordHash String
+  avatarUrl    String?
+  title        String?
+  timezone     String?
+  /// Set when the account is deactivated; the row is kept for history.
+  deactivatedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships     WorkspaceMember[]
+  ownedWorkspaces Workspace[]        @relation("WorkspaceOwner")
+  createdIssues   Issue[]            @relation("IssueCreator")
+  assignedIssues  Issue[]            @relation("IssueAssignee")
+  comments        Comment[]
+  activities      Activity[]
+  notifications   Notification[]
+  sessions        Session[]
+  resetTokens     PasswordResetToken[]
+  projectLead     Project[]          @relation("ProjectLead")
+  projectMembers  ProjectMember[]
+  uploadedFiles   Attachment[]
+
+  @@index([email])
+  @@index([handle])
+}
+
+/// Opaque server-side session. The raw token only ever lives in the cookie.
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userAgent String?
+  ip        String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  lastUsedAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// Workspaces & permissions
+// ---------------------------------------------------------------------------
+
+model Workspace {
+  id          String  @id @default(cuid())
+  name        String
+  /// URL friendly identifier, unique per workspace.
+  slug        String  @unique
+  /// Uppercase key used to build issue identifiers, e.g. ORB -> ORB-142.
+  key         String
+  description String?
+  logoColor   String?
+  ownerId     String
+  owner       User    @relation("WorkspaceOwner", fields: [ownerId], references: [id])
+
+  /// Monotonic counter backing issue identifiers (ORB-1, ORB-2, ...).
+  issueCounter Int @default(0)
+  /// JSON array of `{ email, role, invitedById, createdAt, token }`.
+  pendingInvites String @default("[]")
+  archived     Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members       WorkspaceMember[]
+  projects      Project[]
+  issues        Issue[]
+  labels        Label[]
+  cycles        Cycle[]
+  activities    Activity[]
+  notifications Notification[]
+
+  @@index([slug])
+  @@index([ownerId])
+}
+
+model WorkspaceMember {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// owner | admin | member | viewer
+  role        String   @default("member")
+  /// JSON array of permission overrides, currently unused but reserved.
+  status      String   @default("active")
+  joinedAt    DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([workspaceId, userId])
+  @@index([userId])
+  @@index([workspaceId, role])
+}
+
+// ---------------------------------------------------------------------------
+// Projects
+// ---------------------------------------------------------------------------
+
+model Project {
+  id          String  @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  /// Icon key from PROJECT_ICONS in @orbit/shared.
+  icon        String  @default("box")
+  color       String  @default("#6366f1")
+  /// planned | in_progress | paused | completed | cancelled
+  status      String  @default("planned")
+  leadId      String?
+  lead        User?   @relation("ProjectLead", fields: [leadId], references: [id], onDelete: SetNull)
+  startDate   DateTime?
+  targetDate  DateTime?
+  archived    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members   ProjectMember[]
+  issues    Issue[]
+  cycles    Cycle[]
+  activities Activity[]
+
+  @@index([workspaceId, status])
+  @@index([leadId])
+}
+
+model ProjectMember {
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([projectId, userId])
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// Issues
+// ---------------------------------------------------------------------------
+
+model Issue {
+  id          String  @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  /// Denormalized identifier string, e.g. "ORB-142".
+  identifier  String
+  number      Int
+  title       String
+  /// Markdown body.
+  description String?
+  /// backlog | todo | in_progress | in_review | done | cancelled
+  status      String  @default("backlog")
+  /// none | low | medium | high | urgent
+  priority    String  @default("none")
+  /// Fractional sort key inside a kanban column (drag & drop inserts between).
+  boardOrder  Float   @default(1000)
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  cycleId   String?
+  cycle     Cycle?   @relation(fields: [cycleId], references: [id], onDelete: SetNull)
+
+  assigneeId String?
+  assignee   User?   @relation("IssueAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  creatorId  String
+  creator    User    @relation("IssueCreator", fields: [creatorId], references: [id])
+
+  parentId String?
+  parent   Issue?  @relation("SubIssues", fields: [parentId], references: [id], onDelete: SetNull)
+  children Issue[] @relation("SubIssues")
+
+  estimate Int?
+  dueDate  DateTime?
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  labels       IssueLabel[]
+  comments     Comment[]
+  activities   Activity[]
+  attachments  Attachment[]
+  notifications Notification[]
+  relationsFrom IssueRelation[] @relation("RelationSource")
+  relationsTo   IssueRelation[] @relation("RelationTarget")
+
+  @@unique([workspaceId, number])
+  @@index([workspaceId, status])
+  @@index([workspaceId, priority])
+  @@index([workspaceId, updatedAt])
+  @@index([workspaceId, createdAt])
+  @@index([projectId, status])
+  @@index([cycleId])
+  @@index([assigneeId])
+  @@index([creatorId])
+  @@index([parentId])
+  @@index([identifier])
+  @@index([dueDate])
+}
+
+model IssueRelation {
+  id            String @id @default(cuid())
+  issueId       String
+  issue         Issue  @relation("RelationSource", fields: [issueId], references: [id], onDelete: Cascade)
+  relatedIssueId String
+  relatedIssue  Issue  @relation("RelationTarget", fields: [relatedIssueId], references: [id], onDelete: Cascade)
+  /// related | blocks | blocked_by | duplicate
+  type          String @default("related")
+  createdAt     DateTime @default(now())
+
+  @@unique([issueId, relatedIssueId, type])
+  @@index([relatedIssueId])
+}
+
+model Label {
+  id          String @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  color       String @default("#6366f1")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  issues IssueLabel[]
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId])
+}
+
+model IssueLabel {
+  issueId   String
+  issue     Issue  @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  labelId   String
+  label     Label  @relation(fields: [labelId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([issueId, labelId])
+  @@index([labelId])
+}
+
+model Comment {
+  id        String  @id @default(cuid())
+  issueId   String
+  issue     Issue   @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  body      String
+  parentId  String?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+  editedAt  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([issueId, createdAt])
+  @@index([authorId])
+}
+
+model Attachment {
+  id        String  @id @default(cuid())
+  issueId   String
+  issue     Issue   @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  /// Null when uploaded by an external integration.
+  uploaderId String?
+  uploader  User?   @relation(fields: [uploaderId], references: [id], onDelete: SetNull)
+  filename  String
+  url       String
+  mimeType  String?
+  size      Int?
+  createdAt DateTime @default(now())
+
+  @@index([issueId])
+}
+
+// ---------------------------------------------------------------------------
+// Cycles (sprints)
+// ---------------------------------------------------------------------------
+
+model Cycle {
+  id          String  @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  projectId   String?
+  project     Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name        String
+  number      Int
+  startDate   DateTime
+  endDate     DateTime
+  /// upcoming | active | completed
+  status      String   @default("upcoming")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  issues     Issue[]
+  activities Activity[]
+
+  @@unique([workspaceId, number])
+  @@index([workspaceId, status])
+  @@index([startDate])
+}
+
+// ---------------------------------------------------------------------------
+// Activity, notifications
+// ---------------------------------------------------------------------------
+
+/// Append-only audit trail. Rows are never updated or deleted by the API.
+model Activity {
+  id          String  @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  actorId     String?
+  actor       User?   @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  /// issue | project | cycle | workspace | comment | member | label
+  entityType  String
+  entityId    String
+  /// created | updated | status_changed | commented | ...
+  action      String
+  /// Denormalized subject label so history renders even if the entity is gone.
+  entityLabel String?
+  issueId     String?
+  issue       Issue?  @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  cycleId     String?
+  cycle       Cycle?  @relation(fields: [cycleId], references: [id], onDelete: Cascade)
+  /// JSON object of { field: { from, to } } style changes.
+  changes     String  @default("{}")
+  createdAt   DateTime @default(now())
+
+  @@index([workspaceId, createdAt])
+  @@index([issueId, createdAt])
+  @@index([projectId, createdAt])
+  @@index([actorId])
+}
+
+model Notification {
+  id          String  @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// issue_assigned | issue_status_changed | comment_mention | ...
+  type        String
+  title       String
+  body        String?
+  issueId     String?
+  issue       Issue?  @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  actorId     String?
+  actorName   String?
+  actorAvatar String?
+  /// JSON payload with deep-link info.
+  data        String  @default("{}")
+  readAt      DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([userId, readAt])
+  @@index([userId, createdAt])
+  @@index([workspaceId])
+}

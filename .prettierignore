@@ -1,0 +1,8 @@
+dist
+node_modules
+coverage
+playwright-report
+test-results
+*.db
+*.md
+pnpm-lock.yaml

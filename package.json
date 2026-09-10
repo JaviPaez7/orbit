@@ -1,0 +1,48 @@
+{
+  "name": "orbit",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Orbit — a project management platform for software teams",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "dev": "concurrently -n server,web -c cyan,magenta \"pnpm --filter @orbit/server dev\" \"pnpm --filter @orbit/web dev\"",
+    "dev:server": "pnpm --filter @orbit/server dev",
+    "dev:web": "pnpm --filter @orbit/web dev",
+    "build": "pnpm --filter @orbit/shared build && pnpm --filter @orbit/server build && pnpm --filter @orbit/web build",
+    "start": "pnpm --filter @orbit/server start",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,css,md,json,prisma}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,css,md,json,prisma}\"",
+    "db:push": "pnpm --filter @orbit/server db:push",
+    "db:migrate": "pnpm --filter @orbit/server db:migrate",
+    "db:seed": "pnpm --filter @orbit/server db:seed",
+    "db:reset": "pnpm --filter @orbit/server db:reset",
+    "db:generate": "pnpm --filter @orbit/server db:generate",
+    "db:use-postgres": "node scripts/use-postgres.mjs",
+    "setup": "pnpm install && pnpm db:generate && pnpm db:migrate && pnpm db:seed",
+    "test": "pnpm --filter @orbit/shared test && pnpm --filter @orbit/server test && pnpm --filter @orbit/web test",
+    "test:unit": "pnpm --filter @orbit/shared test && pnpm --filter @orbit/web test",
+    "test:integration": "pnpm --filter @orbit/server test",
+    "test:e2e": "pnpm --filter @orbit/e2e test",
+    "test:e2e:ui": "pnpm --filter @orbit/e2e test:ui",
+    "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
+    "clean": "rimraf \"**/dist\" \"**/node_modules/.vite\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",    "@types/node": "^22.10.5",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "globals": "^15.14.0",
+    "prettier": "^3.4.2",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.19.1"
+  }
+}

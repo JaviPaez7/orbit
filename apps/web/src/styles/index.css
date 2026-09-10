@@ -1,0 +1,234 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------------------
+   Semantic theme tokens. Values are RGB triplets consumed by Tailwind via
+   `rgb(var(--token) / <alpha-value>)`.
+   --------------------------------------------------------------------------- */
+
+:root,
+.dark {
+  --bg-app: 11 12 14;
+  --bg-surface: 19 21 24;
+  --bg-elevated: 26 29 33;
+  --bg-sunken: 8 9 11;
+  --bg-hover: 31 34 39;
+  --bg-selected: 39 43 51;
+
+  --border-default: 40 44 50;
+  --border-strong: 62 68 78;
+
+  --fg-default: 236 238 242;
+  --fg-muted: 158 164 176;
+  --fg-subtle: 113 119 132;
+
+  --accent: 108 125 246;
+  --accent-fg: 255 255 255;
+  --accent-soft: 44 48 74;
+
+  --danger: 236 94 94;
+  --success: 66 194 132;
+  --warning: 226 168 62;
+
+  color-scheme: dark;
+}
+
+.light {
+  --bg-app: 252 252 253;
+  --bg-surface: 255 255 255;
+  --bg-elevated: 255 255 255;
+  --bg-sunken: 246 246 248;
+  --bg-hover: 243 244 246;
+  --bg-selected: 235 237 241;
+
+  --border-default: 227 229 234;
+  --border-strong: 205 209 217;
+
+  --fg-default: 24 26 31;
+  --fg-muted: 96 102 114;
+  --fg-subtle: 138 144 156;
+
+  --accent: 88 101 242;
+  --accent-fg: 255 255 255;
+  --accent-soft: 233 236 254;
+
+  --danger: 214 63 63;
+  --success: 22 152 96;
+  --warning: 191 132 20;
+
+  color-scheme: light;
+}
+
+@layer base {
+  * {
+    border-color: rgb(var(--border-default));
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-app text-fg font-sans antialiased;
+    font-size: 14px;
+    text-rendering: optimizeLegibility;
+    overscroll-behavior: none;
+  }
+
+  ::selection {
+    background: rgb(var(--accent) / 0.3);
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent) / 0.75);
+    outline-offset: 1px;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Slim, unobtrusive scrollbars — matches the "serious tool" aesthetic. */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--border-strong) / 0.7);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--fg-subtle) / 0.8);
+    background-clip: content-box;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-lg
+      text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-sm {
+    @apply h-7 px-2.5 text-xs;
+  }
+  .btn-md {
+    @apply h-8 px-3;
+  }
+  .btn-lg {
+    @apply h-10 px-4 text-base;
+  }
+  .btn-primary {
+    @apply bg-accent text-accent-fg hover:brightness-110 active:brightness-95;
+  }
+  .btn-secondary {
+    @apply border border-line bg-surface text-fg hover:bg-hover;
+  }
+  .btn-ghost {
+    @apply text-muted hover:bg-hover hover:text-fg;
+  }
+  .btn-danger {
+    @apply bg-danger text-white hover:brightness-110;
+  }
+
+  .input {
+    @apply w-full rounded-lg border border-line bg-surface px-2.5 py-1.5 text-base text-fg
+      placeholder:text-subtle focus:border-accent focus:outline-none focus:ring-1
+      focus:ring-accent/40 disabled:opacity-60;
+  }
+
+  .card {
+    @apply rounded-xl border border-line bg-surface;
+  }
+
+  .menu {
+    @apply z-50 min-w-[11rem] overflow-hidden rounded-xl border border-line bg-elevated p-1 shadow-popover;
+  }
+  .menu-item {
+    @apply flex w-full cursor-pointer select-none items-center gap-2 rounded-lg px-2 py-1.5 text-left
+      text-sm text-fg outline-none transition-colors data-[highlighted]:bg-hover data-[disabled]:opacity-50;
+  }
+  .menu-label {
+    @apply px-2 py-1 text-2xs font-semibold uppercase tracking-wider text-subtle;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-md border border-line bg-sunken px-1.5 py-0.5 text-xs text-muted;
+  }
+
+  .kbd {
+    @apply inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded border border-line
+      bg-sunken px-1 font-mono text-2xs text-muted;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden rounded-md bg-hover;
+  }
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full animate-shimmer;
+    background: linear-gradient(90deg, transparent, rgb(var(--border-strong) / 0.35), transparent);
+  }
+
+  .link {
+    @apply text-accent hover:underline;
+  }
+
+  .table-row {
+    @apply border-b border-line/70 transition-colors hover:bg-hover/60;
+  }
+
+  .prose-orbit {
+    @apply text-base leading-relaxed text-fg;
+  }
+  .prose-orbit p {
+    @apply my-2;
+  }
+  .prose-orbit a {
+    @apply text-accent hover:underline;
+  }
+  .prose-orbit ul {
+    @apply my-2 list-disc pl-5;
+  }
+  .prose-orbit ol {
+    @apply my-2 list-decimal pl-5;
+  }
+  .prose-orbit code {
+    @apply rounded bg-sunken px-1 py-0.5 font-mono text-xs;
+  }
+  .prose-orbit pre {
+    @apply my-3 overflow-x-auto rounded-lg border border-line bg-sunken p-3 font-mono text-xs;
+  }
+  .prose-orbit h1,
+  .prose-orbit h2,
+  .prose-orbit h3 {
+    @apply mb-1 mt-4 font-semibold;
+  }
+  .prose-orbit blockquote {
+    @apply my-2 border-l-2 border-line-strong pl-3 text-muted;
+  }
+}
+
+@layer utilities {
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .no-drag {
+    -webkit-user-drag: none;
+  }
+  .grid-lines {
+    background-image: radial-gradient(rgb(var(--border-default)) 1px, transparent 0);
+    background-size: 16px 16px;
+  }
+}

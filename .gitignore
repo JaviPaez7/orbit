@@ -1,0 +1,40 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# builds
+dist/
+build/
+*.tsbuildinfo
+
+# database (local sqlite artifacts)
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+packages/server/prisma/dev.db*
+
+# env & secrets
+.env
+.env.*
+!.env.example
+
+# test output
+coverage/
+playwright-report/
+test-results/
+blob-report/
+.playwright/
+
+# uploads
+packages/server/uploads/*
+!packages/server/uploads/.gitkeep
+
+# editors / os
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.log
+npm-debug.log*

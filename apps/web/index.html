@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Orbit — issue tracking and project planning for software teams." />
+    <meta name="theme-color" content="#0b0c0e" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Orbit</title>
+    <script>
+      // Applied before paint so the persisted theme never flashes.
+      (function () {
+        try {
+          var stored = localStorage.getItem('orbit.theme');
+          var theme =
+            stored === 'light' || stored === 'dark'
+              ? stored
+              : window.matchMedia('(prefers-color-scheme: light)').matches
+                ? 'light'
+                : 'dark';
+          document.documentElement.classList.remove('light', 'dark');
+          document.documentElement.classList.add(theme);
+          document.documentElement.style.colorScheme = theme;
+        } catch (_) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
