@@ -9,9 +9,24 @@ import {
 } from 'react';
 import type { RealtimeEvent } from '../lib/types';
 
-const WS_URL =
-  (import.meta.env.VITE_WS_URL as string | undefined) ??
-  `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.hostname}:4000/api/realtime`;
+/**
+ * Absolute URL of the realtime endpoint.
+ *
+ * Built from the API base (or `VITE_WS_URL` when provided) rather than from the
+ * page origin, because the API and the client run on different ports in
+ * development. The path must stay `/api/realtime` — the API registers it under
+ * the `/api` prefix.
+ */
+function resolveSocketUrl(): string {
+  const explicit = import.meta.env['VITE_WS_URL'] as string | undefined;
+  if (explicit) return explicit;
+
+  const apiBase =
+    (import.meta.env['VITE_API_URL'] as string | undefined) ?? 'http://localhost:4000';
+  return `${apiBase.replace(/^http/, 'ws').replace(/\/$/, '')}/api/realtime`;
+}
+
+const WS_URL = resolveSocketUrl();
 
 export type ConnectionStatus = 'connecting' | 'open' | 'closed' | 'reconnecting';
 
@@ -85,9 +100,15 @@ export function RealtimeProvider({
 
     const connect = () => {
       try {
-        const url = new URL(WS_URL);
-        if (workspaceRef.current) url.searchParams.set('workspaceId', workspaceRef.current);
-        const socket = new WebSocket(url.toString());
+        // NOTE: do not round-trip this through `new URL()`. WHATWG URL parsing
+        // only understands special schemes (http/https/ws/wss) when they carry
+        // `//`, so a `ws://host/api/realtime` literal would survive but any
+        // re-serialization risks dropping the host. Building the query string
+        // manually keeps the full path intact.
+        const socketUrl = workspaceRef.current
+          ? `${WS_URL}${WS_URL.includes('?') ? '&' : '?'}workspaceId=${encodeURIComponent(workspaceRef.current)}`
+          : WS_URL;
+        const socket = new WebSocket(socketUrl);
         socketRef.current = socket;
         setStatus(attemptsRef.current === 0 ? 'connecting' : 'reconnecting');
 

@@ -13,6 +13,9 @@ export default defineConfig({
     },
   },
   server: {
+    // Bind IPv4 explicitly: the default (`localhost`) resolves to ::1 on some
+    // Windows/Node combinations, which breaks tooling that targets 127.0.0.1.
+    host: '127.0.0.1',
     port: 5173,
     strictPort: true,
   },

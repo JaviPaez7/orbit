@@ -5,6 +5,9 @@ const API_PORT = Number(process.env.E2E_API_PORT ?? 4100);
 
 export default defineConfig({
   testDir: './tests',
+  // The screenshot walkthrough targets an already-running `pnpm dev` and has
+  // its own config (playwright.walkthrough.config.ts), so it is excluded here.
+  testIgnore: /walkthrough\.spec\.ts/,
   globalSetup: './tests/global-setup.ts',
   timeout: 60_000,
   expect: { timeout: 10_000 },

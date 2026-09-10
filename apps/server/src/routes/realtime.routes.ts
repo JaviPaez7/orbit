@@ -48,6 +48,10 @@ export async function realtimeRoutes(app: FastifyInstance): Promise<void> {
       select: { workspaceId: true },
     });
     const workspaceIds = memberships.map((membership) => membership.workspaceId);
+    request.log.info(
+      { userId: user.id, workspaces: workspaceIds.length },
+      'realtime socket connected',
+    );
 
     const query = request.query as { workspaceId?: string };
     const activeWorkspaceId =
