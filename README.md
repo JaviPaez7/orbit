@@ -353,6 +353,7 @@ It never touches your development database.
   responses for unknown accounts (no enumeration), session persistence and logout, the full reset
   flow (including replay and session revocation), profile updates, password change, session listing
   and revocation, and cross-workspace read/write/delete isolation.
+- `apps/server/tests/schema-parity.test.ts` — asserts `schema.prisma` and `schema.postgres.prisma` declare identical models, fields, indexes and ids, so a PostgreSQL deployment cannot silently drift from the SQLite default.
 - `apps/server/tests/permissions.test.ts` — the complete role matrix enforced through the API:
   viewer cannot create/edit/move/delete/bulk-update but can comment; member cannot manage members,
   projects or the workspace; admin can manage members and projects but not delete the workspace;
@@ -395,6 +396,16 @@ with `VITE_API_URL`/`VITE_WS_URL` (remember to allow the client origin in `CORS_
 ---
 
 ## Deployment
+
+> **Prerequisites you must supply.** Deployment is automated from this repo, but it needs
+> credentials this environment does not have: a Vercel token (`npx vercel login`) or a
+> Render/Railway API key, plus a PostgreSQL database. The
+> API needs a persistent process (WebSockets) and a real database — SQLite does not survive
+> serverless or ephemeral containers.
+>
+> **CI note.** `.github/workflows/ci.yml` is present locally but not tracked, because the
+> GitHub OAuth token used to push lacks the `workflow` scope. Restore it with:
+> `gh auth refresh -h github.com -s workflow && git add -f .github/workflows/ci.yml && git commit -m "ci: add workflow" && git push`
 
 The repository is deployment-ready; the only external requirement is a host that can run Node.
 
