@@ -1,0 +1,50 @@
+# ---------------------------------------------------------------------------
+# Orbit — systemd unit for the API.
+#
+# Install on the VPS as /etc/systemd/system/orbit-api.service, then:
+#   systemctl daemon-reload
+#   systemctl enable --now orbit-api
+#
+# The app reads its configuration from /opt/orbit/apps/server/.env
+# (see .env.production.example). Secrets stay in that file, mode 0600, owned by
+# the `orbit` service user — never in the unit file or in git.
+# ---------------------------------------------------------------------------
+[Unit]
+Description=Orbit API (Fastify + Prisma)
+Documentation=https://github.com/JaviPaez7/orbit
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=orbit
+Group=orbit
+WorkingDirectory=/opt/orbit/apps/server
+
+# NODE_ENV and friends come from the env file; PORT/HOST are set there too.
+EnvironmentFile=/opt/orbit/apps/server/.env
+ExecStart=/usr/bin/node /opt/orbit/apps/server/dist/index.js
+
+Restart=always
+RestartSec=3
+
+# Graceful shutdown: index.ts traps SIGTERM and closes the HTTP + WS server.
+KillSignal=SIGTERM
+TimeoutStopSec=20
+
+# --- hardening ------------------------------------------------------------
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+# Only the working directory (SQLite fallback, uploads) is writable.
+ReadWritePaths=/opt/orbit/apps/server
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryMax=1G
+
+[Install]
+WantedBy=multi-user.target

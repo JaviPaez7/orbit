@@ -12,18 +12,25 @@ import type { RealtimeEvent } from '../lib/types';
 /**
  * Absolute URL of the realtime endpoint.
  *
- * Built from the API base (or `VITE_WS_URL` when provided) rather than from the
- * page origin, because the API and the client run on different ports in
- * development. The path must stay `/api/realtime` — the API registers it under
- * the `/api` prefix.
+ * Resolution order:
+ *   1. `VITE_WS_URL` when set (explicit split deployment).
+ *   2. Derived from `VITE_API_URL` — required in development, where the API and
+ *      the client run on different ports. The path must stay `/api/realtime`,
+ *      because the API registers every route under the `/api` prefix.
+ *   3. Same-origin `/api/realtime` when `VITE_API_URL` is empty, which is what a
+ *      single-origin deployment behind nginx/reverse proxy wants.
  */
 function resolveSocketUrl(): string {
   const explicit = import.meta.env['VITE_WS_URL'] as string | undefined;
   if (explicit) return explicit;
 
-  const apiBase =
-    (import.meta.env['VITE_API_URL'] as string | undefined) ?? 'http://localhost:4000';
-  return `${apiBase.replace(/^http/, 'ws').replace(/\/$/, '')}/api/realtime`;
+  const apiBase = import.meta.env['VITE_API_URL'] as string | undefined;
+  if (apiBase) {
+    return `${apiBase.replace(/^http/, 'ws').replace(/\/$/, '')}/api/realtime`;
+  }
+
+  const scheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
+  return `${scheme}://${window.location.host}/api/realtime`;
 }
 
 const WS_URL = resolveSocketUrl();

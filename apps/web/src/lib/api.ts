@@ -1,4 +1,12 @@
-const API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:4000';
+/**
+ * API base URL.
+ *
+ * An explicit `VITE_API_URL` (development, or a split deployment) wins. When it
+ * is empty the client uses same-origin relative URLs, which is what a
+ * single-origin deployment behind nginx wants: requests go to `/api/*` on the
+ * same host, so the session cookie is first-party and CORS never applies.
+ */
+const API_URL = (import.meta.env['VITE_API_URL'] as string | undefined) ?? 'http://localhost:4000';
 
 export const API_BASE = API_URL.replace(/\/$/, '');
 
