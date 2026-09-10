@@ -1,7 +1,8 @@
 import type { IssuePriority, IssueStatus } from '@orbit/shared';
 import { ISSUE_PRIORITY_WEIGHT, ISSUE_STATUS_LABELS, isCompletedStatus } from '@orbit/shared';
 import type { Prisma } from '@prisma/client';
-import { prisma, toJsonColumn } from '../db/client.js';
+import { prisma, writeJsonColumn } from '../db/client.js';
+import { asIssueRelationType, toColumn } from '../lib/db-values.js';
 import { BadRequestError, ConflictError, NotFoundError, ValidationError } from '../lib/errors.js';
 import { issueListInclude, serializeIssue } from '../lib/serialize.js';
 import { recordActivity } from './activity.service.js';
@@ -811,7 +812,7 @@ export async function bulkDeleteIssues(workspaceId: string, actorId: string, ids
         entityId: issue.id,
         action: 'deleted',
         entityLabel: issue.identifier,
-        changes: toJsonColumn({}),
+        changes: writeJsonColumn({}),
       })),
     });
     await tx.issue.deleteMany({ where: { id: { in: found.map((issue) => issue.id) } } });
@@ -834,13 +835,17 @@ export async function addIssueRelation(
   });
   if (both.length !== 2) throw new NotFoundError('Issue');
 
+  // Validated and cast: the column is a native enum on PostgreSQL, a String on
+  // SQLite, and the stored literal is identical either way.
+  const relationType = toColumn<never>(asIssueRelationType(type));
+
   const existing = await prisma.issueRelation.findFirst({
-    where: { issueId, relatedIssueId, type },
+    where: { issueId, relatedIssueId, type: relationType },
   });
   if (existing) throw new ConflictError('Those issues are already linked');
 
   const relation = await prisma.issueRelation.create({
-    data: { issueId, relatedIssueId, type },
+    data: { issueId, relatedIssueId, type: relationType },
     include: {
       relatedIssue: { select: { id: true, identifier: true, title: true, status: true } },
     },

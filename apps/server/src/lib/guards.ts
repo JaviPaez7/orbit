@@ -1,7 +1,7 @@
 import type { WorkspaceRole } from '@orbit/shared';
 import { can, type Permission } from '@orbit/shared';
 import type { FastifyRequest } from 'fastify';
-import { prisma, fromJsonColumn } from '../db/client.js';
+import { prisma, readJsonColumn } from '../db/client.js';
 import { ForbiddenError, NotFoundError, UnauthorizedError } from '../lib/errors.js';
 import type { SessionUser } from '../types.js';
 
@@ -105,8 +105,12 @@ export async function requireCycleAccess(
   return { cycle, ctx };
 }
 
-export function parsePendingInvites(raw: string | null | undefined) {
-  return fromJsonColumn<{ email: string; role: WorkspaceRole; token: string }[]>(raw, []);
+/**
+ * Reads the workspace's pending invites. The column is `String` on SQLite and
+ * `Json` on PostgreSQL, so the value is accepted as `unknown` and normalised.
+ */
+export function parsePendingInvites(raw: unknown) {
+  return readJsonColumn<{ email: string; role: WorkspaceRole; token: string }[]>(raw, []);
 }
 
 /** Asserts the target user is an active member of the workspace. */

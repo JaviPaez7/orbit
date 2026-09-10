@@ -1,6 +1,6 @@
 import type { NotificationType } from '@orbit/shared';
 import { extractMentions, timeAgo } from '@orbit/shared';
-import { prisma, toJsonColumn } from '../db/client.js';
+import { prisma, writeJsonColumn } from '../db/client.js';
 import type { RealtimeEvent } from '../types.js';
 
 export interface NotifyInput {
@@ -46,7 +46,7 @@ export async function notify(input: NotifyInput) {
       actorId: input.actor?.id ?? null,
       actorName: input.actor?.name ?? null,
       actorAvatar: input.actor?.avatarUrl ?? null,
-      data: toJsonColumn(input.data ?? {}),
+      data: writeJsonColumn(input.data ?? {}),
       createdAt,
     })),
   });

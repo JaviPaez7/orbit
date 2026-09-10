@@ -16,7 +16,10 @@ const prismaDir = join(root, 'apps', 'server', 'prisma');
 const target = join(prismaDir, 'schema.prisma');
 
 const mode = (process.argv[2] ?? 'postgres').toLowerCase();
-const source = mode === 'sqlite' ? join(prismaDir, 'schema.sqlite.prisma') : join(prismaDir, 'schema.postgres.prisma');
+const source =
+  mode === 'sqlite'
+    ? join(prismaDir, 'schema.sqlite.prisma')
+    : join(prismaDir, 'schema.postgres.prisma');
 
 // The SQLite schema is the checked-in `schema.prisma`; keep a pristine copy the
 // first time we switch away so switching back is lossless.

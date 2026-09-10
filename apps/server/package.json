@@ -18,6 +18,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:deploy": "prisma migrate deploy",
     "db:deploy:status": "prisma migrate status",
+    "build:check-schemas": "node scripts/check-schemas.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },

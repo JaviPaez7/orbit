@@ -9,7 +9,7 @@ import {
   updateWorkspaceSchema,
 } from '@orbit/shared';
 import type { FastifyInstance } from 'fastify';
-import { prisma, toJsonColumn } from '../db/client.js';
+import { prisma, writeJsonColumn } from '../db/client.js';
 import { generateToken } from '../lib/crypto.js';
 import { BadRequestError, ConflictError, ForbiddenError, NotFoundError } from '../lib/errors.js';
 import {
@@ -244,7 +244,7 @@ export async function workspaceRoutes(app: FastifyInstance): Promise<void> {
       invites.push({ email: input.email, role: input.role as WorkspaceRole, token });
       await prisma.workspace.update({
         where: { id: workspaceId },
-        data: { pendingInvites: toJsonColumn(invites) },
+        data: { pendingInvites: writeJsonColumn(invites) },
       });
       return reply.status(202).send({
         pending: true,
@@ -430,7 +430,7 @@ export async function workspaceRoutes(app: FastifyInstance): Promise<void> {
         prisma.workspace.update({
           where: { id: workspace.id },
           data: {
-            pendingInvites: toJsonColumn(invites.filter((invite) => invite.token !== token)),
+            pendingInvites: writeJsonColumn(invites.filter((invite) => invite.token !== token)),
           },
         }),
       ]);

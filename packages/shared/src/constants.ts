@@ -180,4 +180,13 @@ export const ESTIMATE_OPTIONS = [0, 1, 2, 3, 5, 8, 13, 21] as const;
 /** Runtime-validated enums, handy for scripts and tests. */
 export const issueStatusSchema = z.enum(ISSUE_STATUSES);
 export const issuePrioritySchema = z.enum(ISSUE_PRIORITIES);
+export const projectStatusSchema = z.enum(PROJECT_STATUSES);
+export const cycleStatusSchema = z.enum(CYCLE_STATUSES);
 export const workspaceRoleSchema = z.enum(WORKSPACE_ROLES);
+export const issueRelationTypeSchema = z.enum(ISSUE_RELATION_TYPES);
+export const notificationTypeSchema = z.enum(NOTIFICATION_TYPES);
+export const activityActionSchema = z.enum(ACTIVITY_ACTIONS);
+export const activityEntityTypeSchema = z.enum(ACTIVITY_ENTITY_TYPES);
+
+export type IssueStatusInput = z.infer<typeof issueStatusSchema>;
+export type WorkspaceRoleInput = z.infer<typeof workspaceRoleSchema>;

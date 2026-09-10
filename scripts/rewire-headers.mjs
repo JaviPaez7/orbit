@@ -31,7 +31,9 @@ for (const file of walk(pagesDir)) {
 
   // Insert the hook call right after the component's first hook line.
   if (!source.includes('useIssueComposer')) {
-    const relative = file.includes(`${'settings'}`) ? '../../context/IssueComposerContext' : '../context/IssueComposerContext';
+    const relative = file.includes(`${'settings'}`)
+      ? '../../context/IssueComposerContext'
+      : '../context/IssueComposerContext';
     source = source.replace(
       /^(import .*\n)(?![\s\S]*useIssueComposer)/m,
       `$1import { useIssueComposer } from '${relative}';\n`,

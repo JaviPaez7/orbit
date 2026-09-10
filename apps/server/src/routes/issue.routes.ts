@@ -11,6 +11,7 @@ import type { FastifyInstance } from 'fastify';
 import { prisma } from '../db/client.js';
 import { NotFoundError } from '../lib/errors.js';
 import { requireIssueAccess, requireWorkspace } from '../lib/guards.js';
+import { asIssueStatus, toColumn } from '../lib/db-values.js';
 import { normalizeQuery, parseOrThrow } from '../lib/http.js';
 import {
   issueDetailInclude,
@@ -189,11 +190,19 @@ export async function issueRoutes(app: FastifyInstance): Promise<void> {
     });
     if (!current) throw new NotFoundError('Issue');
 
+    // `status` arrives as a raw string; validate it before it reaches Prisma,
+    // whose client type is a native enum on PostgreSQL and a String on SQLite.
+    const statusValue = status ? asIssueStatus(status) : null;
+
     let boardOrder = explicitOrder;
     if (boardOrder === undefined) {
       // Compute a midpoint between the neighbours at `position`.
       const neighbours = await prisma.issue.findMany({
-        where: { workspaceId, status: status ?? current.status, id: { not: issueId } },
+        where: {
+          workspaceId,
+          status: statusValue ? toColumn(statusValue) : current.status,
+          id: { not: issueId },
+        },
         orderBy: { boardOrder: 'asc' },
         select: { boardOrder: true },
       });

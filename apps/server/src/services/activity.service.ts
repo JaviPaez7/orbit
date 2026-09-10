@@ -1,7 +1,7 @@
 import type { ActivityAction, ActivityEntityType, IssuePriority, IssueStatus } from '@orbit/shared';
 import { ISSUE_PRIORITY_LABELS, ISSUE_STATUS_LABELS } from '@orbit/shared';
 import type { Prisma } from '@prisma/client';
-import { prisma, toJsonColumn } from '../db/client.js';
+import { prisma, writeJsonColumn } from '../db/client.js';
 
 export interface RecordActivityInput {
   workspaceId: string;
@@ -36,7 +36,7 @@ export async function recordActivity(
       issueId: input.issueId ?? null,
       projectId: input.projectId ?? null,
       cycleId: input.cycleId ?? null,
-      changes: toJsonColumn(input.changes ?? {}),
+      changes: writeJsonColumn(input.changes ?? {}),
     },
   });
 }
