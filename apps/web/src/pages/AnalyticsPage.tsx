@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useIssueComposer } from '../context/IssueComposerContext';
 import { useQuery } from '@tanstack/react-query';
 import {
   Area,
@@ -68,6 +69,7 @@ const CHART_TOOLTIP_STYLE = {
 };
 
 export default function AnalyticsPage() {
+  const { openComposer, openSearch } = useIssueComposer();
   const { workspace } = useAuth();
   const toast = useToast();
   const workspaceId = workspace?.id ?? '';
@@ -115,8 +117,8 @@ export default function AnalyticsPage() {
       <Header
         title="Analytics"
         crumbs={[{ label: 'Analytics' }]}
-        onCreateIssue={() => undefined}
-        onOpenSearch={() => undefined}
+        onCreateIssue={() => openComposer()}
+        onOpenSearch={openSearch}
         showPresence={false}
         filters={
           <>

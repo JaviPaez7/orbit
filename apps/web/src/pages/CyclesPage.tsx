@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useIssueComposer } from '../context/IssueComposerContext';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CalendarRange, Check, Plus, Repeat, Trash2 } from 'lucide-react';
@@ -23,6 +24,7 @@ function dateInput(offsetDays: number): string {
 }
 
 export default function CyclesPage() {
+  const { openComposer, openSearch } = useIssueComposer();
   const { workspace } = useAuth();
   const { canManageCycles } = usePermissions();
   const queryClient = useQueryClient();
@@ -114,8 +116,8 @@ export default function CyclesPage() {
       <Header
         title="Cycles"
         crumbs={[{ label: 'Cycles' }]}
-        onCreateIssue={() => undefined}
-        onOpenSearch={() => undefined}
+        onCreateIssue={() => openComposer()}
+        onOpenSearch={openSearch}
         showPresence={false}
         filters={
           <>

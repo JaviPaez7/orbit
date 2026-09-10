@@ -56,7 +56,7 @@ export default defineConfig({
       },
     },
     {
-      command: `pnpm --filter @orbit/web exec vite --port ${WEB_PORT} --strictPort`,
+      command: `pnpm --filter @orbit/web exec vite --port ${WEB_PORT} --strictPort --host 127.0.0.1`,
       cwd: '../..',
       url: `http://127.0.0.1:${WEB_PORT}`,
       reuseExistingServer: false,

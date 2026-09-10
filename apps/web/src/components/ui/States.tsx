@@ -1,6 +1,25 @@
 import { AlertTriangle, Loader2, RefreshCw, type LucideIcon } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { ApiError } from '../../lib/api';
 import { Button } from './Button';
+
+/**
+ * Renders a readable failure. API validation errors include the per-field
+ * messages so "Please fix the highlighted fields" is never shown bare.
+ */
+function describeError(error: unknown): string | undefined {
+  if (error instanceof ApiError) {
+    const fields = error.fields
+      ? Object.entries(error.fields)
+          .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+          .join(' · ')
+      : '';
+    return fields ? `${error.message} — ${fields}` : error.message;
+  }
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'string') return error;
+  return undefined;
+}
 
 export function EmptyState({
   icon: Icon,
@@ -59,9 +78,7 @@ export function ErrorState({
   className?: string;
   error?: unknown;
 }) {
-  const detail =
-    description ??
-    (error instanceof Error ? error.message : typeof error === 'string' ? error : undefined);
+  const detail = description ?? describeError(error);
 
   return (
     <div className={cn('flex flex-col items-center justify-center gap-3 py-14 text-center', className)}>

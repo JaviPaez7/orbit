@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useIssueComposer } from '../context/IssueComposerContext';
 import { Link, useParams } from 'react-router-dom';
 import {
   Bar,
@@ -57,6 +58,7 @@ interface ProjectAnalytics {
 }
 
 export default function ProjectAnalyticsPage() {
+  const { openComposer, openSearch } = useIssueComposer();
   const { projectId } = useParams<{ projectId: string }>();
   const { workspace } = useAuth();
 
@@ -91,8 +93,8 @@ export default function ProjectAnalyticsPage() {
               ]
             : [{ label: 'Analytics' }]
         }
-        onCreateIssue={() => undefined}
-        onOpenSearch={() => undefined}
+        onCreateIssue={() => openComposer()}
+        onOpenSearch={openSearch}
         showPresence={false}
         actions={
           <Button

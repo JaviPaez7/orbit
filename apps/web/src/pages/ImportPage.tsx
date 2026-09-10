@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useIssueComposer } from '../context/IssueComposerContext';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -26,6 +27,7 @@ Checkout retry policy,Retry soft declines three times,in_progress,high,maria@orb
 Flaky board drag test,Occasionally drops the card, todo,low,carlos@orbit.dev,,,bug,1,`;
 
 export default function ImportPage() {
+  const { openComposer, openSearch } = useIssueComposer();
   const { workspace } = useAuth();
   const { canImport } = usePermissions();
   const queryClient = useQueryClient();
@@ -71,8 +73,8 @@ export default function ImportPage() {
       <Header
         title="Import & export"
         crumbs={[{ label: 'Import & export' }]}
-        onCreateIssue={() => undefined}
-        onOpenSearch={() => undefined}
+        onCreateIssue={() => openComposer()}
+        onOpenSearch={openSearch}
         showPresence={false}
         actions={
           <>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useIssueComposer } from '../context/IssueComposerContext';
 import { useNavigate } from 'react-router-dom';
 import { Building2 } from 'lucide-react';
 import { slugify } from '@orbit/shared';
@@ -11,6 +12,7 @@ import { useToast } from '../components/ui/Toast';
 
 /** Creates an additional workspace and switches to it on success. */
 export default function NewWorkspacePage() {
+  const { openComposer, openSearch } = useIssueComposer();
   const { refresh, setWorkspaceId } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
@@ -55,8 +57,8 @@ export default function NewWorkspacePage() {
       <Header
         title="New workspace"
         crumbs={[{ label: 'Workspaces' }, { label: 'New' }]}
-        onCreateIssue={() => undefined}
-        onOpenSearch={() => undefined}
+        onCreateIssue={() => openComposer()}
+        onOpenSearch={openSearch}
         showPresence={false}
       />
 

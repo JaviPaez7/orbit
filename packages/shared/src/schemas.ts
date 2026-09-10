@@ -240,15 +240,35 @@ export const ISSUE_GROUP_FIELDS = [
   'none',
 ] as const;
 
+/**
+ * List-valued query parameter.
+ *
+ * Query strings reach the server in several shapes depending on the client:
+ * `?status=todo`, `?status=todo&status=done` or `?status=todo,done`. This
+ * normalizes all of them to an array so handlers never have to care.
+ */
+function csvArray<T extends z.ZodTypeAny>(item: T, max = 100) {
+  return z.preprocess((value) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    if (Array.isArray(value)) {
+      return value.flatMap((entry) =>
+        typeof entry === 'string' && entry.includes(',') ? entry.split(',').filter(Boolean) : [entry],
+      );
+    }
+    if (typeof value === 'string') return value.split(',').filter(Boolean);
+    return [value];
+  }, z.array(item).max(max).optional());
+}
+
 export const issueQuerySchema = z.object({
   q: z.string().trim().max(200).optional(),
-  status: z.array(z.enum(ISSUE_STATUSES)).optional(),
-  priority: z.array(z.enum(ISSUE_PRIORITIES)).optional(),
-  assigneeId: z.array(z.union([cuidSchema, z.literal('unassigned')])).optional(),
-  projectId: z.array(z.union([cuidSchema, z.literal('none')])).optional(),
-  cycleId: z.array(z.union([cuidSchema, z.literal('none')])).optional(),
-  labelId: z.array(cuidSchema).optional(),
-  creatorId: z.array(cuidSchema).optional(),
+  status: csvArray(z.enum(ISSUE_STATUSES)),
+  priority: csvArray(z.enum(ISSUE_PRIORITIES)),
+  assigneeId: csvArray(z.union([cuidSchema, z.literal('unassigned')])),
+  projectId: csvArray(z.union([cuidSchema, z.literal('none')])),
+  cycleId: csvArray(z.union([cuidSchema, z.literal('none')])),
+  labelId: csvArray(cuidSchema),
+  creatorId: csvArray(cuidSchema),
   parentId: z.union([cuidSchema, z.literal('none')]).optional(),
   includeSubIssues: z.boolean().optional(),
   dueBefore: z.string().optional(),

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useIssueComposer } from '../context/IssueComposerContext';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AtSign, Bell, Check, CheckCheck, Inbox, Trash2, UserPlus, Zap } from 'lucide-react';
@@ -29,6 +30,7 @@ const TYPE_ICONS: Record<string, React.ReactNode> = {
 type Tab = 'all' | 'unread' | 'mentions' | 'activity';
 
 export default function InboxPage() {
+  const { openComposer, openSearch } = useIssueComposer();
   const { workspace, setUnreadNotifications } = useAuth();
   const { subscribe } = useRealtime();
   const queryClient = useQueryClient();
@@ -89,8 +91,8 @@ export default function InboxPage() {
       <Header
         title="Inbox"
         crumbs={[{ label: 'Inbox' }]}
-        onCreateIssue={() => undefined}
-        onOpenSearch={() => undefined}
+        onCreateIssue={() => openComposer()}
+        onOpenSearch={openSearch}
         showPresence={false}
         filters={
           <>

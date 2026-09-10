@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useIssueComposer } from '../context/IssueComposerContext';
 import { useQuery } from '@tanstack/react-query';
 import { ListChecks, UserCircle2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -13,6 +14,7 @@ import { StatusIcon } from '../components/ui/Icons';
 
 /** Everything assigned to or created by the current user, grouped by status. */
 export default function MyIssuesPage() {
+  const { openComposer, openSearch } = useIssueComposer();
   const { workspace, user } = useAuth();
   const workspaceId = workspace?.id ?? '';
 
@@ -37,8 +39,8 @@ export default function MyIssuesPage() {
       <Header
         title="My issues"
         crumbs={[{ label: 'My issues' }]}
-        onCreateIssue={() => undefined}
-        onOpenSearch={() => undefined}
+        onCreateIssue={() => openComposer()}
+        onOpenSearch={openSearch}
         showPresence={false}
         filters={
           <span className="text-2xs text-subtle">

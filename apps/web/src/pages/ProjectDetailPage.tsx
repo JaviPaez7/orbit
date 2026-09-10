@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useIssueComposer } from '../context/IssueComposerContext';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -44,6 +45,7 @@ const STATUS_COLORS: Record<string, string> = {
 type Tab = 'overview' | 'issues' | 'cycles' | 'settings';
 
 export default function ProjectDetailPage({ settingsMode = false }: { settingsMode?: boolean }) {
+  const { openComposer, openSearch } = useIssueComposer();
   const { projectId } = useParams<{ projectId: string }>();
   const { workspace, user } = useAuth();
   const { canManageProjects } = usePermissions();
@@ -146,8 +148,8 @@ export default function ProjectDetailPage({ settingsMode = false }: { settingsMo
       <Header
         crumbs={crumb}
         title={project.name}
-        onCreateIssue={() => undefined}
-        onOpenSearch={() => undefined}
+        onCreateIssue={() => openComposer()}
+        onOpenSearch={openSearch}
         showPresence={false}
         filters={
           <>

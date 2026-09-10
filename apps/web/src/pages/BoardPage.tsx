@@ -70,7 +70,7 @@ export default function BoardPage() {
     queryKey: queryKeys.issues(workspaceId, { ...query, board: true }),
     queryFn: () =>
       api.get<IssueListResponse>(
-        `/workspaces/${workspaceId}/issues${buildQuery({ ...query, limit: 300, group: 'none' } as never)}`,
+        `/workspaces/${workspaceId}/issues${buildQuery({ ...query, limit: 200, group: 'none' } as never)}`,
       ),
     enabled: Boolean(workspaceId),
     placeholderData: (previous) => previous,

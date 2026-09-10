@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useIssueComposer } from '../context/IssueComposerContext';
 import { Link, useParams } from 'react-router-dom';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip as ChartTooltip, XAxis, YAxis } from 'recharts';
 import { CalendarRange, Repeat } from 'lucide-react';
@@ -17,6 +18,7 @@ import { EmptyState, ErrorState } from '../components/ui/States';
 import { StatusIcon } from '../components/ui/Icons';
 
 export default function CycleDetailPage() {
+  const { openComposer, openSearch } = useIssueComposer();
   const { cycleId } = useParams<{ cycleId: string }>();
   const { workspace } = useAuth();
   const workspaceId = workspace?.id ?? '';
@@ -94,8 +96,8 @@ export default function CycleDetailPage() {
       <Header
         crumbs={crumb}
         title={cycle.name}
-        onCreateIssue={() => undefined}
-        onOpenSearch={() => undefined}
+        onCreateIssue={() => openComposer()}
+        onOpenSearch={openSearch}
         showPresence={false}
         filters={
           <div className="flex items-center gap-3 text-2xs text-subtle">

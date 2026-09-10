@@ -559,7 +559,11 @@ export default function IssuesPage({
 
       <div className="flex items-center gap-3 border-b border-line px-3 py-1.5 text-2xs text-subtle">
         <span data-testid="issue-count">
-          {issuesQuery.data?.total ?? 0} issue{(issuesQuery.data?.total ?? 0) === 1 ? '' : 's'}
+          {issuesQuery.isPending ? (
+            <span className="inline-block h-3 w-16 animate-pulse rounded bg-hover" aria-label="Loading issues" />
+          ) : (
+            `${issuesQuery.data?.total ?? 0} issue${(issuesQuery.data?.total ?? 0) === 1 ? '' : 's'}`
+          )}
         </span>
         {selected.length > 0 && <span className="text-accent">{selected.length} selected</span>}
         {unassignedViewerHint && (

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useIssueComposer } from '../context/IssueComposerContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -50,6 +51,7 @@ import { useToast } from '../components/ui/Toast';
 import { useIssueCrumb } from '../components/layout/Header';
 
 export default function IssueDetailPage({ identifier }: { identifier: string }) {
+  const { openComposer, openSearch } = useIssueComposer();
   const { workspace, user } = useAuth();
   const { canEditIssues, canDeleteIssues, canComment } = usePermissions();
   const { subscribe } = useRealtime();
@@ -351,8 +353,8 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
       <Header
         crumbs={crumbs}
         title={detail.identifier}
-        onCreateIssue={() => undefined}
-        onOpenSearch={() => undefined}
+        onCreateIssue={() => openComposer()}
+        onOpenSearch={openSearch}
         showPresence={false}
       />
 

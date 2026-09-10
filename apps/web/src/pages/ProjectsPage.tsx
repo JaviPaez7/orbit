@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useIssueComposer } from '../context/IssueComposerContext';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Box, LayoutGrid, List, Plus, Search } from 'lucide-react';
@@ -39,6 +40,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function ProjectsPage() {
+  const { openComposer, openSearch } = useIssueComposer();
   const { workspace } = useAuth();
   const { canManageProjects } = usePermissions();
   const queryClient = useQueryClient();
@@ -138,8 +140,8 @@ export default function ProjectsPage() {
   const header = (
     <Header
       title="Projects"
-      onCreateIssue={() => undefined}
-      onOpenSearch={() => undefined}
+      onCreateIssue={() => openComposer()}
+      onOpenSearch={openSearch}
       crumbs={[{ label: 'Projects' }]}
       filters={
         <>

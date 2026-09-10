@@ -2,15 +2,16 @@ import { Suspense, lazy, useCallback, useMemo, useState } from 'react';
 import { Navigate, Outlet, Route, Routes, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { RealtimeProvider } from '../../context/RealtimeContext';
+import { IssueComposerProvider } from '../../context/IssueComposerContext';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { Spinner } from '../ui/States';
 import { Sidebar } from './Sidebar';
-import { Header } from './Header';
 import { ShortcutsModal } from './ShortcutsModal';
 import { CommandPalette } from '../command/CommandPalette';
 import { IssueComposer } from '../issues/IssueComposer';
 import { useGlobalShortcuts } from '../../hooks/useGlobalShortcuts';
 import { useTheme } from '../../context/ThemeContext';
+import type { IssueStatus } from '@orbit/shared';
 
 const IssuesPage = lazy(() => import('../../pages/IssuesPage'));
 const IssueDetailPage = lazy(() => import('../../pages/IssueDetailPage'));
@@ -68,9 +69,9 @@ function RequireAuth() {
 }
 
 /**
- * Application chrome: sidebar + header + lazy page body. Owns the global
- * overlays (command palette, issue composer, help modal) so any page can
- * trigger them through keyboard shortcuts.
+ * Application chrome: sidebar + the lazy page body. Owns the global overlays
+ * (command palette, issue composer, shortcuts help) and exposes the composer
+ * through context so any page's header can open it.
  */
 function AppShell() {
   const navigate = useNavigate();
@@ -79,6 +80,10 @@ function AppShell() {
   const [collapsed, setCollapsed] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [composerOpen, setComposerOpen] = useState(false);
+  const [composerDefaults, setComposerDefaults] = useState<{
+    status?: IssueStatus;
+    projectId?: string | null;
+  }>({});
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
   const openComposer = useCallback(() => setComposerOpen(true), []);
@@ -115,28 +120,45 @@ function AppShell() {
 
   useGlobalShortcuts(shortcuts);
 
+  const composerControls = useMemo(
+    () => ({
+      openComposer: (options?: { status?: string; projectId?: string | null }) => {
+        setComposerDefaults({
+          status: options?.status as IssueStatus | undefined,
+          projectId: options?.projectId ?? null,
+        });
+        setComposerOpen(true);
+      },
+      openSearch: () => setPaletteOpen(true),
+      openShortcuts: () => setShortcutsOpen(true),
+    }),
+    [],
+  );
+
   return (
     <RealtimeProvider workspaceId={workspace?.id ?? null} enabled={Boolean(workspace)}>
-      <div className="flex h-screen overflow-hidden bg-app">
-        <Sidebar
-          collapsed={collapsed}
-          onToggleCollapse={() => setCollapsed((value) => !value)}
-          onCreateIssue={openComposer}
-          onCreateProject={() => navigate('/projects?new=1')}
-          onOpenSearch={openPalette}
-          onOpenShortcuts={() => setShortcutsOpen(true)}
-        />
-        <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
-          <Header onCreateIssue={openComposer} onOpenSearch={openPalette} />
-          <div className="flex-1 overflow-y-auto" id="main-scroll">
-            <ErrorBoundary>
-              <Suspense fallback={<RouteFallback />}>
-                <Outlet />
-              </Suspense>
-            </ErrorBoundary>
-          </div>
-        </main>
-      </div>
+      <IssueComposerProvider value={composerControls}>
+        <div className="flex h-screen overflow-hidden bg-app">
+          <Sidebar
+            collapsed={collapsed}
+            onToggleCollapse={() => setCollapsed((value) => !value)}
+            onCreateIssue={openComposer}
+            onCreateProject={() => navigate('/projects?new=1')}
+            onOpenSearch={openPalette}
+            onOpenShortcuts={() => setShortcutsOpen(true)}
+          />
+          <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
+            {/* Each page renders its own <Header> with route-specific breadcrumbs. */}
+            <div className="flex-1 overflow-y-auto" id="main-scroll">
+              <ErrorBoundary>
+                <Suspense fallback={<RouteFallback />}>
+                  <Outlet />
+                </Suspense>
+              </ErrorBoundary>
+            </div>
+          </main>
+        </div>
+      </IssueComposerProvider>
 
       <CommandPalette
         open={paletteOpen}
@@ -145,7 +167,12 @@ function AppShell() {
         onOpenShortcuts={() => setShortcutsOpen(true)}
         onOpenImport={() => navigate('/import')}
       />
-      <IssueComposer open={composerOpen} onClose={() => setComposerOpen(false)} />
+      <IssueComposer
+        open={composerOpen}
+        onClose={() => setComposerOpen(false)}
+        defaultStatus={composerDefaults.status}
+        defaultProjectId={composerDefaults.projectId ?? undefined}
+      />
       <ShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
     </RealtimeProvider>
   );
