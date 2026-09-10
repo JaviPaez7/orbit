@@ -324,7 +324,7 @@ export function useCycleCrumb(cycleId: string | undefined, workspaceId: string |
   return cycle ? ([{ label: 'Cycles', to: '/cycles' }, { label: cycle.name }] as Crumb[]) : undefined;
 }
 
-export function useIssueCrumb(issue: Issue | undefined, workspaceId: string | undefined) {
+export function useIssueCrumb(issue: Issue | undefined) {
   return useMemo(() => {
     if (!issue) return undefined;
     const list: Crumb[] = [{ label: 'Issues', to: '/issues' }];

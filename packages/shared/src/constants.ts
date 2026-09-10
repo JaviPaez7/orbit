@@ -67,7 +67,6 @@ export const WORKSPACE_ROLE_LABELS: Record<WorkspaceRole, string> = {
   viewer: 'Viewer',
 };
 
-/** A user may belong to many workspaces; one is flagged active per session. */
 export const ISSUE_RELATION_TYPES = ['related', 'blocks', 'blocked_by', 'duplicate'] as const;
 export type IssueRelationType = (typeof ISSUE_RELATION_TYPES)[number];
 
@@ -171,3 +170,8 @@ export type ProjectIcon = (typeof PROJECT_ICONS)[number];
 
 /** Value used by the "no estimate" option in the UI. */
 export const ESTIMATE_OPTIONS = [0, 1, 2, 3, 5, 8, 13, 21] as const;
+
+/** Runtime-validated enums, handy for scripts and tests. */
+export const issueStatusSchema = z.enum(ISSUE_STATUSES);
+export const issuePrioritySchema = z.enum(ISSUE_PRIORITIES);
+export const workspaceRoleSchema = z.enum(WORKSPACE_ROLES);

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   ArrowRight,
@@ -63,7 +63,6 @@ export function CommandPalette({
   onOpenImport,
 }: CommandPaletteProps) {
   const navigate = useNavigate();
-  const params = useParams<{ identifier?: string }>();
   const { workspace, workspaces, setWorkspaceId, role } = useAuth();
   const { resolved, toggle } = useTheme();
   const [term, setTerm] = useState('');
@@ -272,7 +271,7 @@ export function CommandPalette({
     role,
   ]);
 
-  const results = searchQuery.data?.results ?? [];
+  const results = useMemo(() => searchQuery.data?.results ?? [], [searchQuery.data]);
 
   const items = useMemo<PaletteAction[]>(() => {
     const list: PaletteAction[] = [];

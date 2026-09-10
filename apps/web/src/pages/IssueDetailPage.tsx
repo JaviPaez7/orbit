@@ -33,7 +33,7 @@ import { useAuth, usePermissions } from '../context/AuthContext';
 import { useRealtime } from '../context/RealtimeContext';
 import { ApiError, api, apiUpload } from '../lib/api';
 import { queryKeys } from '../lib/query-client';
-import { cn, formatDateTime, formatBytes, relativeTime, renderMarkdown, toDateInput } from '../lib/utils';
+import { formatDateTime, formatBytes, relativeTime, renderMarkdown, toDateInput } from '../lib/utils';
 import type { Activity, Cycle, Issue, Label, Project } from '../lib/types';
 import type { Comment } from '../lib/types';
 import { Header } from '../components/layout/Header';
@@ -41,12 +41,11 @@ import { Avatar } from '../components/ui/Avatar';
 import { Button } from '../components/ui/Button';
 import { Field, Input, Textarea } from '../components/ui/Field';
 import { StatusIcon, PriorityIcon } from '../components/ui/Icons';
-import { Menu, MenuItem, MenuLabel, MenuSeparator } from '../components/ui/Menu';
+import { Menu, MenuItem, MenuSeparator } from '../components/ui/Menu';
 import { Modal } from '../components/ui/Modal';
-import { Select, MultiSelect } from '../components/ui/Select';
+import { Select } from '../components/ui/Select';
 import { Skeleton, SkeletonText } from '../components/ui/Skeleton';
 import { ErrorState } from '../components/ui/States';
-import { Tooltip } from '../components/ui/Tooltip';
 import { useToast } from '../components/ui/Toast';
 import { useIssueCrumb } from '../components/layout/Header';
 
@@ -161,6 +160,9 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
         }
       }
     });
+    // `detail` is intentionally excluded: its fields are read inside the
+    // listener, and re-subscribing on every field change would thrash the socket.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subscribe, workspaceId, detail?.id, identifier, queryClient]);
 
   const updateMutation = useMutation({
@@ -301,7 +303,7 @@ export default function IssueDetailPage({ identifier }: { identifier: string }) 
     return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  const crumbs = useIssueCrumb(detail, workspaceId);
+  const crumbs = useIssueCrumb(detail);
 
   const relations = useMemo(() => {
     if (!detail) return [];

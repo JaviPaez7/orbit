@@ -54,6 +54,11 @@ describe('extractMentions', () => {
   });
   it('ignores bare @ and email-ish text', () => {
     expect(extractMentions('mail me at a@b.com')).toEqual([]);
+    expect(extractMentions('ping ada@example.com or carlos@orbit.dev')).toEqual([]);
+    expect(extractMentions('a standalone @ symbol')).toEqual([]);
+  });
+  it('still matches a mention right after punctuation', () => {
+    expect(extractMentions('(@ana) and [@carlos]')).toEqual(['ana', 'carlos']);
   });
 });
 

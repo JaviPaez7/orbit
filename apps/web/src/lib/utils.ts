@@ -87,6 +87,13 @@ export function escapeHtml(input: string): string {
 }
 
 /**
+ * Placeholder wrapper for fenced code blocks. Unlikely to appear in user text,
+ * so it survives inline formatting untouched before final substitution.
+ */
+const PLACEHOLDER_START = '\uE000';
+const PLACEHOLDER_END = '\uE001';
+
+/**
  * Deliberately small markdown subset (no raw HTML, no external dependency):
  * headings, bold, italics, strikethrough, inline code, fenced code, links,
  * ordered/unordered lists and blockquotes.
@@ -97,14 +104,16 @@ export function renderMarkdown(input: string): string {
 
   const withCode = escaped.replace(/```([\s\S]*?)```/g, (_match, code: string) => {
     codeBlocks.push(`<pre><code>${code.replace(/^\n/, '')}</code></pre>`);
-    return `\u0000BLOCK${codeBlocks.length - 1}\u0000`;
+    return `${PLACEHOLDER_START}${codeBlocks.length - 1}${PLACEHOLDER_END}`;
   });
 
   const inline = (text: string) =>
     text
       .replace(/`([^`]+)`/g, '<code>$1</code>')
       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/__([^_]+)__/g, '<strong>$1</strong>')
       .replace(/(^|\W)\*([^*\n]+)\*/g, '$1<em>$2</em>')
+      .replace(/(^|\W)_([^_\n]+)_/g, '$1<em>$2</em>')
       .replace(/~~([^~]+)~~/g, '<del>$1</del>')
       .replace(
         /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
@@ -127,7 +136,7 @@ export function renderMarkdown(input: string): string {
 
   for (const rawLine of withCode.split('\n')) {
     const line = rawLine.trimEnd();
-    if (/^\u0000BLOCK\d+\u0000$/.test(line)) {
+    if (line.startsWith(PLACEHOLDER_START) && line.endsWith(PLACEHOLDER_END)) {
       closeList();
       html.push(line);
       continue;
@@ -138,9 +147,11 @@ export function renderMarkdown(input: string): string {
       html.push(`<h${level}>${inline(line.replace(/^#+\s*/, ''))}</h${level}>`);
       continue;
     }
-    if (/^>\s?/.test(line)) {
+    // Blockquote: `> text`. The input is HTML-escaped first, so the marker is
+    // `&gt;` here. A bare marker stays a plain paragraph.
+    if (/^&gt;\s+\S/.test(line)) {
       closeList();
-      html.push(`<blockquote>${inline(line.replace(/^>\s?/, ''))}</blockquote>`);
+      html.push(`<blockquote>${inline(line.replace(/^&gt;\s+/, ''))}</blockquote>`);
       continue;
     }
     if (/^[-*]\s+/.test(line)) {
@@ -172,7 +183,9 @@ export function renderMarkdown(input: string): string {
 
   return html
     .join('\n')
-    .replace(/\u0000BLOCK(\d+)\u0000/g, (_match, index: string) => codeBlocks[Number(index)] ?? '');
+    .split(new RegExp(`${PLACEHOLDER_START}(\\d+)${PLACEHOLDER_END}`, 'g'))
+    .map((part, position) => (position % 2 === 1 ? (codeBlocks[Number(part)] ?? '') : part))
+    .join('');
 }
 
 export function groupBy<T, K extends string>(items: T[], key: (item: T) => K): Record<K, T[]> {

@@ -86,7 +86,7 @@ export default function BoardPage() {
     select: (data) => data.members,
   });
 
-  const issues = boardQuery.data?.items ?? [];
+  const issues = useMemo(() => boardQuery.data?.items ?? [], [boardQuery.data]);
   const columns = useMemo(() => buildColumns(issues), [issues]);
   const total = boardQuery.data?.total ?? 0;
 

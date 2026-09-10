@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useIssueComposer } from '../context/IssueComposerContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, Box, Hash, Repeat, Search, Tag, UserCircle2 } from 'lucide-react';
@@ -35,7 +34,6 @@ const TYPE_ICONS: Record<SearchResult['type'], React.ReactNode> = {
  * cancels the previous request via React Query keys.
  */
 export default function SearchPage() {
-  const { openComposer, openSearch } = useIssueComposer();
   const { workspace } = useAuth();
   const navigate = useNavigate();
   const workspaceId = workspace?.id ?? '';

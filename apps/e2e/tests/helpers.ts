@@ -1,4 +1,4 @@
-import { test as base, expect, type Page } from '@playwright/test';
+import { test as base, expect, type Locator, type Page } from '@playwright/test';
 import { DEMO_PASSWORD, DEMO_USERS, unique } from './fixtures';
 
 export { expect, DEMO_PASSWORD, DEMO_USERS, unique };
@@ -30,11 +30,7 @@ export async function logout(page: Page): Promise<void> {
  * the kanban board scrolls horizontally, and a column outside the viewport
  * never receives the drop event.
  */
-export async function dragAndDrop(
-  page: Page,
-  source: import('@playwright/test').Locator,
-  target: import('@playwright/test').Locator,
-): Promise<void> {
+export async function dragAndDrop(page: Page, source: Locator, target: Locator): Promise<void> {
   await source.scrollIntoViewIfNeeded();
   await target.scrollIntoViewIfNeeded();
   await page.waitForTimeout(150);

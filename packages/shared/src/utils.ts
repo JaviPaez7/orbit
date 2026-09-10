@@ -1,7 +1,5 @@
 import { z } from 'zod';
 import {
-  ACTIVITY_ACTIONS,
-  ACTIVITY_ENTITY_TYPES,
   COMPLETED_STATUSES,
   ISSUE_PRIORITIES,
   ISSUE_PRIORITY_WEIGHT,
@@ -63,8 +61,13 @@ export function initialsOf(name: string): string {
   return `${parts[0]![0]!}${parts[parts.length - 1]![0]!}`.toUpperCase();
 }
 
-/** @mentions: matches `@javi`, `@javi.perez`, `@javi_perez`. */
-export const MENTION_REGEX = /@([a-zA-Z0-9][a-zA-Z0-9._-]{1,38})/g;
+/**
+ * @mentions: matches `@javi`, `@javi.perez`, `@javi_perez`.
+ *
+ * The negative lookbehind skips email addresses (`ada@example.com`) and
+ * `foo@bar` style text, which would otherwise parse as a mention.
+ */
+export const MENTION_REGEX = /(?<![\w.+-])@([a-zA-Z0-9][a-zA-Z0-9._-]{1,38})/g;
 
 export function extractMentions(text: string): string[] {
   const found = new Set<string>();

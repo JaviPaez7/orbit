@@ -11,7 +11,6 @@ import {
   Plus,
   Search,
   SlidersHorizontal,
-  Trash2,
   X,
 } from 'lucide-react';
 import {
@@ -39,7 +38,7 @@ import { IssueComposer } from '../components/issues/IssueComposer';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Field';
 import { Menu, MenuItem, MenuLabel, MenuSeparator } from '../components/ui/Menu';
-import { MultiSelect, Select } from '../components/ui/Select';
+import { MultiSelect } from '../components/ui/Select';
 import { IssueListSkeleton } from '../components/ui/Skeleton';
 import { EmptyState, ErrorState } from '../components/ui/States';
 import { StatusIcon } from '../components/ui/Icons';
@@ -113,7 +112,9 @@ export default function IssuesPage({
     select: (data) => data.members,
   });
 
-  const issues = issuesQuery.data?.items ?? [];
+  // Memoized so the keyboard handlers and callbacks below keep stable deps
+  // (the query data object changes identity on every fetch).
+  const issues = useMemo(() => issuesQuery.data?.items ?? [], [issuesQuery.data]);
   const groups = issuesQuery.data?.groups;
 
   // ---- realtime: keep the list fresh without a manual refresh --------------

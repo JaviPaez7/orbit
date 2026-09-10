@@ -1,3 +1,4 @@
+import type { Page } from '@playwright/test';
 import { dragAndDrop, expect, loginAs, test, DEMO_USERS, unique } from './helpers';
 
 /**
@@ -233,7 +234,7 @@ test.describe('core product journey', () => {
 const API_URL = process.env.E2E_API_URL ?? 'http://127.0.0.1:4100';
 
 /** Resolves the active workspace id through the real API. */
-async function currentWorkspaceId(page: import('@playwright/test').Page): Promise<string> {
+async function currentWorkspaceId(page: Page): Promise<string> {
   const response = await page.request.get(`${API_URL}/api/workspaces`);
   const payload = (await response.json()) as { workspaces: { id: string; slug: string }[] };
   const workspace = payload.workspaces.find((entry) => entry.slug === 'orbit-labs') ?? payload.workspaces[0];
@@ -242,7 +243,7 @@ async function currentWorkspaceId(page: import('@playwright/test').Page): Promis
 }
 
 /** Reads an issue's persisted status straight from the API. */
-async function apiStatus(page: import('@playwright/test').Page, issueId: string): Promise<string> {
+async function apiStatus(page: Page, issueId: string): Promise<string> {
   const workspaceId = await currentWorkspaceId(page);
   const response = await page.request.get(`${API_URL}/api/workspaces/${workspaceId}/issues/${issueId}`);
   const payload = (await response.json()) as { issue: { status: string } };
@@ -251,7 +252,7 @@ async function apiStatus(page: import('@playwright/test').Page, issueId: string)
 
 /** Resolves an issue's internal id from its identifier. */
 async function currentIssueId(
-  page: import('@playwright/test').Page,
+  page: Page,
   identifier: string,
 ): Promise<string> {
   const workspaceId = await currentWorkspaceId(page);

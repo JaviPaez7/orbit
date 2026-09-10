@@ -12,11 +12,6 @@
  * directly so history can be back-dated for realistic charts.
  */
 import type { IssuePriority, IssueStatus, ProjectStatus, WorkspaceRole } from '@orbit/shared';
-import { deriveWorkspaceKey } from '@orbit/shared';
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
-
-const prisma = new PrismaClient();
 
 /** Deterministic RNG (mulberry32) so reseeding produces the same demo data. */
 function createRandom(seed: number) {

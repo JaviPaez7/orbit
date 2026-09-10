@@ -29,12 +29,20 @@ const envSchema = z.object({
   CORS_ORIGINS: z.string().default('http://localhost:5173'),
   UPLOAD_DIR: z.string().default('uploads'),
   EXPOSE_RESET_TOKEN: booleanish.default('false'),
+  /**
+   * Marks the session cookie `Secure`. Defaults to on in production, but can be
+   * turned off when running the production build behind plain HTTP (a local
+   * `node dist/index.js`, a container without TLS termination, ...) — otherwise
+   * the browser silently drops the cookie and every request looks unauthenticated.
+   */
+  COOKIE_SECURE: booleanish.optional(),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
 });
 
 export type Env = z.infer<typeof envSchema> & {
   isProduction: boolean;
   isTest: boolean;
+  cookieSecure: boolean;
   corsOrigins: string[];
   uploadDirAbsolute: string;
   sessionTtlMs: number;
@@ -58,10 +66,20 @@ function build(): Env {
     process.exit(1);
   }
 
+  const isProduction = raw.NODE_ENV === 'production';
+
+  if (isProduction && raw.COOKIE_SECURE === undefined && !raw.APP_URL.startsWith('https://')) {
+    console.warn(
+      '⚠ COOKIE_SECURE is not set and APP_URL is not https://, so the session cookie stays usable over HTTP.\n' +
+        '  Set COOKIE_SECURE=true once you are serving the app over TLS.',
+    );
+  }
+
   return {
     ...raw,
-    isProduction: raw.NODE_ENV === 'production',
+    isProduction,
     isTest: raw.NODE_ENV === 'test',
+    cookieSecure: raw.COOKIE_SECURE ?? (isProduction && raw.APP_URL.startsWith('https://')),
     corsOrigins: raw.CORS_ORIGINS.split(',')
       .map((s) => s.trim())
       .filter(Boolean),

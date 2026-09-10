@@ -1,5 +1,5 @@
-import type { IssuePriority, IssueStatus, WorkspaceRole } from '@orbit/shared';
-import { deriveWorkspaceKey, ISSUE_STATUS_LABELS, percent } from '@orbit/shared';
+import type { IssuePriority, IssueStatus } from '@orbit/shared';
+import { deriveWorkspaceKey, percent } from '@orbit/shared';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import {
@@ -567,7 +567,6 @@ async function buildWorkspace(
   const ownerIssues = issues.filter((issue) => issue.assigneeId === owner.id);
   const maria = users.get('maria')!;
   const ana = users.get('ana')!;
-  const carlos = users.get('carlos')!;
   const notificationSeeds: {
     type: string;
     title: string;

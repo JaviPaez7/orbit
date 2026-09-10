@@ -9,7 +9,6 @@ import { createTestDatabase } from './helpers/db';
 
 export default function setup(): void {
   const databaseFile = createTestDatabase('test');
-
   process.env.NODE_ENV = 'test';
   process.env.DATABASE_URL = `file:${databaseFile.replace(/\\/g, '/')}`;
   process.env.AUTH_SECRET = 'test-secret-0123456789abcdef0123456789abcdef';

@@ -44,6 +44,25 @@ export default tseslint.config(
     },
   },
   {
+    // Standalone Node maintenance scripts (plain ESM, no TS project).
+    files: ['scripts/**/*.mjs', '**/*.mjs'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: { ...globals.node },
+    },
+    rules: {
+      'no-console': 'off',
+      'no-undef': 'error',
+      '@typescript-eslint/no-unused-vars': 'off',
+    },
+  },
+  {
+    // CLI-style scripts where stdout *is* the interface.
+    files: ['**/scripts/**/*.ts', '**/prisma/seed*.ts'],
+    rules: { 'no-console': 'off' },
+  },
+  {
     files: ['**/*.test.ts', '**/*.test.tsx', '**/tests/**/*.ts', '**/e2e/**/*.ts'],
     rules: { 'no-console': 'off', '@typescript-eslint/no-explicit-any': 'off' },
   },

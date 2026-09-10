@@ -99,7 +99,7 @@ export default function CyclesPage() {
       toast.error('Could not delete the cycle', error instanceof ApiError ? error.message : undefined),
   });
 
-  const cycles = cyclesQuery.data?.cycles ?? [];
+  const cycles = useMemo(() => cyclesQuery.data?.cycles ?? [], [cyclesQuery.data]);
   const current = cyclesQuery.data?.current ?? null;
 
   const groups = useMemo(() => {
