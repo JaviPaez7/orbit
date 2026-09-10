@@ -41,3 +41,7 @@ Thumbs.db
 !.vscode/extensions.json
 *.log
 npm-debug.log*
+
+# The CI workflow needs the `workflow` OAuth scope to push; it is added by
+# gh auth refresh -s workflow (see README).
+.github/workflows/
