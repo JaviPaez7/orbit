@@ -1,0 +1,13 @@
+# Keep the build context small: the image installs its own dependencies.
+node_modules
+**/node_modules
+**/dist
+deploy/web-dist
+.git
+.github-ci-backup
+apps/e2e/**
+!apps/e2e/package.json
+*.log
+.env
+.env.*
+!.env.example

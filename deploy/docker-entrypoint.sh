@@ -24,17 +24,24 @@ cp "${SERVER_DIR}/prisma/schema.postgres.prisma" "${SERVER_DIR}/prisma/schema.pr
 rm -rf "${SERVER_DIR}/prisma/migrations"
 cp -r "${SERVER_DIR}/prisma/migrations.pg" "${SERVER_DIR}/prisma/migrations"
 
+# Binaries are called directly (no `pnpm exec`): pnpm would verify the
+# workspace and reinstall it from the registry on every boot.
+PRISMA="${SERVER_DIR}/node_modules/.bin/prisma"
+TSX="${SERVER_DIR}/node_modules/.bin/tsx"
+
 log "Generating the Prisma Client"
-pnpm --filter @orbit/server exec prisma generate
+(cd "$SERVER_DIR" && "$PRISMA" generate)
 
 log "Applying database migrations"
-pnpm --filter @orbit/server exec prisma migrate deploy
+(cd "$SERVER_DIR" && "$PRISMA" migrate deploy)
 
 # Seeding wipes and rebuilds the demo dataset, so it must never run again after
 # real work exists. It is guarded by an explicit flag *and* a first-run marker
 # inside the database (the marker survives restarts, unlike the container).
 if [[ "${SEED_DEMO_DATA:-false}" == "true" ]]; then
-  already_seeded="$(node -e '
+  # Resolved from the server package: from /app `@prisma/client` is not
+  # reachable, the check fails silently and the seed wipes the data every boot.
+  already_seeded="$(cd "$SERVER_DIR" && node -e '
     const { PrismaClient } = require("@prisma/client");
     const prisma = new PrismaClient();
     prisma.user.count()
@@ -47,7 +54,7 @@ if [[ "${SEED_DEMO_DATA:-false}" == "true" ]]; then
     log "Demo data already present — skipping the seed"
   else
     log "Seeding the demo workspace (first boot)"
-    pnpm --filter @orbit/server db:seed
+    (cd "$SERVER_DIR" && "$TSX" prisma/seed.ts)
   fi
 fi
 
