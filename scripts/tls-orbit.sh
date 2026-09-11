@@ -37,12 +37,14 @@ if [[ ! -x "${ACME_HOME}/acme.sh" ]]; then
   log "Installing acme.sh"
   apt-get update -qq
   apt-get install -y -qq curl socat cron openssl
-  # Fetch the installer and execute it directly: piping into `sh -s --` makes
-  # acme.sh see a duplicated `--` and reject `--home`.
-  installer="$(mktemp)"
-  curl -fsS https://raw.githubusercontent.com/acmesh-official/acme.sh/master/acme.sh -o "${installer}"
-  bash "${installer}" --install --home "${ACME_HOME}" --accountemail "admin@javistudio.dev" >/dev/null
-  rm -f "${installer}"
+  # Execute the installer from its own directory: it copies `acme.sh` from the
+  # current working directory. Piping into `sh -s --` would duplicate the `--`.
+  workdir="$(mktemp -d)"
+  curl -fsS https://raw.githubusercontent.com/acmesh-official/acme.sh/master/acme.sh \
+    -o "${workdir}/acme.sh"
+  ( cd "${workdir}" && bash ./acme.sh --install --home "${ACME_HOME}" \
+      --accountemail "admin@javistudio.dev" >/dev/null )
+  rm -rf "${workdir}"
 fi
 [[ -x "${ACME_HOME}/acme.sh" ]] || die "acme.sh is not usable at ${ACME_HOME}"
 "${ACME_HOME}/acme.sh" --version >/dev/null
