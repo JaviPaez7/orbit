@@ -49,6 +49,17 @@ fi
 [[ -x "${ACME_HOME}/acme.sh" ]] || die "acme.sh is not usable at ${ACME_HOME}"
 "${ACME_HOME}/acme.sh" --version >/dev/null
 
+# The Cloudflare DNS hook is a separate file; the installer does not always
+# fetch it, so install it explicitly when missing.
+if [[ ! -f "${ACME_HOME}/dnsapi/dns_cf.sh" ]]; then
+  log "Installing the Cloudflare DNS hook"
+  "${ACME_HOME}/acme.sh" --install-cert >/dev/null 2>&1 || true
+  curl -fsS https://raw.githubusercontent.com/acmesh-official/acme.sh/master/dnsapi/dns_cf.sh \
+    -o "${ACME_HOME}/dnsapi/dns_cf.sh"
+  chmod +x "${ACME_HOME}/dnsapi/dns_cf.sh"
+fi
+[[ -f "${ACME_HOME}/dnsapi/dns_cf.sh" ]] || die "The dns_cf hook is missing"
+
 # Let's Encrypt is the default CA; state it explicitly so a future default
 # change cannot silently switch to a CA with a different trust chain.
 "${ACME_HOME}/acme.sh" --set-default-ca --server letsencrypt >/dev/null
