@@ -37,9 +37,11 @@ if [[ ! -x "${ACME_HOME}/acme.sh" ]]; then
   log "Installing acme.sh"
   apt-get update -qq
   apt-get install -y -qq curl socat cron openssl
+  # The installer forwards shell args to acme.sh itself, so pass `--home` and
+  # `--accountemail` after `sh -s --`.
   curl -fsS https://get.acme.sh | sh -s -- --home "${ACME_HOME}" --accountemail "admin@javistudio.dev" >/dev/null
 fi
-"${ACME_HOME}/acme.sh" --version >/dev/null || die "acme.sh is not usable"
+"${ACME_HOME}/acme.sh" --version >/dev/null || die "acme.sh is not usable at ${ACME_HOME}"
 
 # Let's Encrypt is the default CA; state it explicitly so a future default
 # change cannot silently switch to a CA with a different trust chain.
