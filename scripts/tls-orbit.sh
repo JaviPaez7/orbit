@@ -31,34 +31,33 @@ export CF_Key=""
 export CF_Email=""
 
 # ---------------------------------------------------------------------------
-# 1. acme.sh
+# 1. acme.sh — from the release tarball, which ships the DNS API hooks. The
+#    `--install` path of the raw script does not always fetch `dnsapi/`.
 # ---------------------------------------------------------------------------
-if [[ ! -x "${ACME_HOME}/acme.sh" ]]; then
-  log "Installing acme.sh"
-  apt-get update -qq
-  apt-get install -y -qq curl socat cron openssl
-  # Execute the installer from its own directory: it copies `acme.sh` from the
-  # current working directory. Piping into `sh -s --` would duplicate the `--`.
+install_acme() {
+  local workdir tarball
   workdir="$(mktemp -d)"
-  curl -fsS https://raw.githubusercontent.com/acmesh-official/acme.sh/master/acme.sh \
-    -o "${workdir}/acme.sh"
-  ( cd "${workdir}" && bash ./acme.sh --install --home "${ACME_HOME}" \
-      --accountemail "admin@javistudio.dev" >/dev/null )
+  tarball="${workdir}/acme.tar.gz"
+  log "Downloading acme.sh (with DNS hooks)"
+  curl -fsSL https://github.com/acmesh-official/acme.sh/archive/refs/heads/master.tar.gz \
+    -o "${tarball}"
+  tar -xzf "${tarball}" -C "${workdir}"
+  # Install the whole tree: acme.sh + dnsapi/ (Cloudflare hook included).
+  mkdir -p "${ACME_HOME}"
+  cp -r "${workdir}/acme.sh-master/." "${ACME_HOME}/"
+  chmod +x "${ACME_HOME}/acme.sh"
   rm -rf "${workdir}"
-fi
-[[ -x "${ACME_HOME}/acme.sh" ]] || die "acme.sh is not usable at ${ACME_HOME}"
-"${ACME_HOME}/acme.sh" --version >/dev/null
+}
 
-# The Cloudflare DNS hook is a separate file; the installer does not always
-# fetch it, so install it explicitly when missing.
-if [[ ! -f "${ACME_HOME}/dnsapi/dns_cf.sh" ]]; then
-  log "Installing the Cloudflare DNS hook"
-  "${ACME_HOME}/acme.sh" --install-cert >/dev/null 2>&1 || true
-  curl -fsS https://raw.githubusercontent.com/acmesh-official/acme.sh/master/dnsapi/dns_cf.sh \
-    -o "${ACME_HOME}/dnsapi/dns_cf.sh"
-  chmod +x "${ACME_HOME}/dnsapi/dns_cf.sh"
+if [[ ! -x "${ACME_HOME}/acme.sh" || ! -f "${ACME_HOME}/dnsapi/dns_cf.sh" ]]; then
+  apt-get update -qq
+  apt-get install -y -qq curl tar socat cron openssl
+  install_acme
 fi
+
+[[ -x "${ACME_HOME}/acme.sh" ]] || die "acme.sh is not usable at ${ACME_HOME}"
 [[ -f "${ACME_HOME}/dnsapi/dns_cf.sh" ]] || die "The dns_cf hook is missing"
+"${ACME_HOME}/acme.sh" --version >/dev/null
 
 # Let's Encrypt is the default CA; state it explicitly so a future default
 # change cannot silently switch to a CA with a different trust chain.
