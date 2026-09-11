@@ -3,7 +3,9 @@
 #
 # Follows the conventions already used by the other apps on this host:
 #   * joined to the shared `public-edge` network so Traefik routes to it
-#   * routed by Host rule with the `le` (Let's Encrypt) cert resolver
+#   * routed by Host rule with the `lehttp` (Let's Encrypt, HTTP-01) resolver:
+#     the shared `le` DNS-01 resolver failed LE's secondary validation for this
+#     host (networking error looking up TXT/CAA at Cloudflare), HTTP-01 does not
 #   * PostgreSQL 16 in its own container, not published to the host
 #
 # Deploy:  bash scripts/deploy-vps.sh   (see the README → Deployment)
@@ -71,7 +73,7 @@ services:
       # A single rule value: `/api` plus its sub-paths, so the API router owns
       # every API route on this host. The router is one route in viaduct.
       traefik.http.routers.orbit.rule: Host(`${ORBIT_DOMAIN}`) && PathPrefix(`/api`)
-      traefik.http.routers.orbit.tls.certresolver: le
+      traefik.http.routers.orbit.tls.certresolver: lehttp
       traefik.http.routers.orbit.priority: '100'
       traefik.http.services.orbit.loadbalancer.server.port: '4000'
       traefik.http.services.orbit.loadbalancer.server.scheme: http
@@ -97,7 +99,7 @@ services:
       # the two routers can never overlap, regardless of rule-priority maths.
       traefik.http.routers.orbit-web.entrypoints: websecure
       traefik.http.routers.orbit-web.rule: Host(`${ORBIT_DOMAIN}`) && !PathPrefix(`/api`)
-      traefik.http.routers.orbit-web.tls.certresolver: le
+      traefik.http.routers.orbit-web.tls.certresolver: lehttp
       traefik.http.routers.orbit-web.priority: '10'
       traefik.http.services.orbit-web.loadbalancer.server.port: '80'
 
